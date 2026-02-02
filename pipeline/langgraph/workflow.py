@@ -25,6 +25,9 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
+
+# Early logger definition (needed for import-time error handling)
+logger = logging.getLogger(__name__)
 import time
 import uuid
 from datetime import datetime, timezone
@@ -393,8 +396,6 @@ except ImportError:
     GRAFANA_METRICS_AVAILABLE = False
     get_metrics_publisher = None
     GrafanaMetricsPublisher = None
-
-logger = logging.getLogger(__name__)
 
 # NF-011 FIX: Gate validation blocking flag
 # When False (default): Gate validation errors are non-blocking (legacy behavior)
