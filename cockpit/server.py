@@ -282,12 +282,11 @@ class PipelineController:
             if not python_path.exists():
                 python_path = Path(sys.executable)
 
-            # Use --foreground since cockpit manages the process
+            # Build pipeline start command
             cmd = [
                 str(python_path),
                 "-m", "pipeline.cli",
                 "start",
-                "--foreground",  # Run directly, cockpit handles process lifecycle
                 "--start", start_sprint,
                 "--end", end_sprint,
             ]
