@@ -4,7 +4,7 @@ Este módulo fornece funcionalidades para carregar e parsear os artefatos
 do Spec Kit que definem como o Pipeline deve operar.
 
 Componentes:
-    - Context Packs: Definições de sprints (S00-S62)
+    - Context Packs: Definições de sprints (S00-S40)
     - Cerebros: Identidades e comportamentos dos agentes (YAML modular ou Markdown)
     - Constitution: Artigos invioláveis do pipeline
 

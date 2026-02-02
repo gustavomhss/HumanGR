@@ -969,16 +969,13 @@ def _register_routes(app: Flask):
         """Get available sprints for selection."""
         # Return available sprint ranges
         return jsonify({
-            "sprints": [f"S{i:02d}" for i in range(63)],  # S00-S62
+            "sprints": [f"S{i:02d}" for i in range(41)],  # S00-S40
             "packs": [
-                {"name": "Pack 1: Foundation", "start": "S00", "end": "S07"},
-                {"name": "Pack 2: Intelligence", "start": "S08", "end": "S18"},
-                {"name": "Pack 3: Memory & API", "start": "S19", "end": "S25"},
-                {"name": "Pack 4: Markets", "start": "S26", "end": "S33"},
-                {"name": "Pack 5: Hardening", "start": "S34", "end": "S41"},
-                {"name": "Pack 6: Security", "start": "S42", "end": "S53"},
-                {"name": "Pack 7: Polish", "start": "S54", "end": "S61"},
-                {"name": "Pack 8: Relevance", "start": "S62", "end": "S62"},
+                {"name": "W0: Foundation", "start": "S00", "end": "S02"},
+                {"name": "W1: Core Engine", "start": "S03", "end": "S14"},
+                {"name": "W2: OSS Release", "start": "S15", "end": "S24"},
+                {"name": "W3: Cloud MVP", "start": "S25", "end": "S35"},
+                {"name": "W4: Growth", "start": "S36", "end": "S40"},
             ],
         })
 

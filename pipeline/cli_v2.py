@@ -2194,7 +2194,7 @@ def main() -> int:
     # start
     start_parser = subparsers.add_parser("start", help="Inicia execução de sprints (auto-resume)")
     start_parser.add_argument("--start", "-s", default="S00", help="Sprint inicial")
-    start_parser.add_argument("--end", "-e", default="S62", help="Sprint final")
+    start_parser.add_argument("--end", "-e", default="S40", help="Sprint final")
     start_parser.add_argument(
         "--include", "-i",
         help="Sprints adicionais para incluir (comma-separated, ex: S05H,HOTFIX01)"
@@ -2304,7 +2304,7 @@ def main() -> int:
         help="Run multiple sprints using LangGraph (start to end)"
     )
     lg_start_parser.add_argument("--start", "-s", default="S00", help="Start sprint")
-    lg_start_parser.add_argument("--end", "-e", default="S62", help="End sprint")
+    lg_start_parser.add_argument("--end", "-e", default="S40", help="End sprint")
 
     # Spec Kit v3.0 Ironclad commands
     from pipeline.spec_kit.cli import setup_spec_subparsers

@@ -178,7 +178,7 @@ class Pipeline:
     def run(
         self,
         start_sprint: str = "S00",
-        end_sprint: str = "S62",
+        end_sprint: str = "S40",
     ) -> List[SprintResult]:
         """Run multiple sprints using LangGraph.
 

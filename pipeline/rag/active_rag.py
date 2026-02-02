@@ -86,7 +86,7 @@ except ImportError:
 # =============================================================================
 
 QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
-QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION", "claims")
+QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION", "humangr_claims")
 PREDICTION_CACHE_TTL = int(os.getenv("PREDICTION_CACHE_TTL", "300"))  # 5 minutes
 MAX_PREFETCH_QUERIES = int(os.getenv("MAX_PREFETCH_QUERIES", "5"))
 

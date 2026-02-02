@@ -2618,7 +2618,7 @@ class PartialStacksIntegration:
                 context_pack = state.get("context_pack", {})
                 query = context_pack.get("objective", "")
                 # Use default collection from env or fallback to "claims"
-                collection_name = os.getenv("QDRANT_DEFAULT_COLLECTION", "claims")
+                collection_name = os.getenv("QDRANT_DEFAULT_COLLECTION", "humangr_claims")
                 if query:
                     results = await hybrid.hybrid_search(collection_name, query, top_k=5)
                     exec_start_data["qdrant_hybrid"] = {

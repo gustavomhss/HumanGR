@@ -23,7 +23,7 @@ Usage:
     qdrant = QdrantHybridSearch()
 
     # Create hybrid collection
-    await qdrant.create_hybrid_collection("claims")
+    await qdrant.create_hybrid_collection("humangr_claims")
 
     # Add documents with hybrid vectors
     await qdrant.add_documents([
@@ -81,7 +81,7 @@ logger = logging.getLogger(__name__)
 
 QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
-DEFAULT_COLLECTION = os.getenv("QDRANT_DEFAULT_COLLECTION", "claims")
+DEFAULT_COLLECTION = os.getenv("QDRANT_DEFAULT_COLLECTION", "humangr_claims")
 # EMBEDDING_SIZE is now dynamic - retrieved from EmbeddingProvider
 # Default fallback if provider not available
 _DEFAULT_EMBEDDING_SIZE = int(os.getenv("QDRANT_EMBEDDING_SIZE", "1024"))
