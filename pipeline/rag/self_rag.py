@@ -546,7 +546,7 @@ class SelfRAG:
             return ""
 
         try:
-            # Try to use Claude API via pipeline_autonomo
+            # Try to use Claude API via pipeline
             from pipeline.claude_cli_llm import execute_agent_task
 
             # Build context from documents

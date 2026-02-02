@@ -28,7 +28,7 @@ SEMPRE: Retry → Escala RM → Aguarda → Continua
 ### Retry with Exponential Backoff
 
 ```python
-from pipeline_v2.langgraph.resilience import (
+from pipeline.langgraph.resilience import (
     RetryConfig,
     RETRY_TRANSIENT,
     retry_async,
@@ -55,7 +55,7 @@ result = await retry_async(my_operation, "my_op", config)
 ### Circuit Breaker
 
 ```python
-from pipeline_v2.langgraph.resilience import (
+from pipeline.langgraph.resilience import (
     CircuitBreaker,
     CircuitBreakerOpen,
     with_circuit_breaker,
@@ -85,7 +85,7 @@ except CircuitBreakerOpen as e:
 ### Oscillation Detection
 
 ```python
-from pipeline_v2.langgraph.resilience import (
+from pipeline.langgraph.resilience import (
     OscillationTracker,
     OscillationPattern,
     detect_oscillation,
@@ -115,7 +115,7 @@ if detection.detected:
 ### Process-Safe File Operations
 
 ```python
-from pipeline_v2.langgraph.resilience import (
+from pipeline.langgraph.resilience import (
     write_json_safe,
     read_json_safe,
     write_yaml_safe,
@@ -140,7 +140,7 @@ events = read_ndjson_safe(path)
 ### Metrics Collection
 
 ```python
-from pipeline_v2.langgraph.resilience import (
+from pipeline.langgraph.resilience import (
     record_retry_attempt,
     record_circuit_breaker_state,
     record_oscillation_event,
@@ -203,7 +203,7 @@ HALF_OPEN (testing recovery)
 ## Run Master Escalation
 
 ```python
-from pipeline_v2.langgraph.resilience import (
+from pipeline.langgraph.resilience import (
     retry_with_run_master,
     retry_and_continue,
     InterventionType,

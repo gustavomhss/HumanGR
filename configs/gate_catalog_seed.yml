@@ -35,7 +35,7 @@ gates:
   - gate_id: "GATE-PYTEST-PIPELINE"
     category: "unit"
     track: "B"
-    command: "bash -c 'PYTHONPATH=src ./.venv/bin/python -m pytest -q tests/test_pipeline_autonomo/test_evidence_collector.py -x'"
+    command: "bash -c 'PYTHONPATH=src ./.venv/bin/python -m pytest -q tests/test_pipeline/test_evidence_collector.py -x'"
     description: "Subset rápido: evidence_collector module."
     flake_risk: "low"
     data_sensitivity: "none"
@@ -112,9 +112,9 @@ gates:
     category: "baseline"
     track: "B"
     # PERF FIX 2026-01-28: Run script directly to avoid 116s package import time
-    # The -m flag imports pipeline_autonomo/__init__.py which pulls in 40+ heavy modules
+    # The -m flag imports pipeline/__init__.py which pulls in 40+ heavy modules
     # Direct execution: 1.3s vs -m execution: 116s (89x speedup)
-    command: ".venv/bin/python src/pipeline_autonomo/baseline.py --repo-root . --run-dir <run_dir> ensure"
+    command: ".venv/bin/python pipeline/baseline.py --repo-root . --run-dir <run_dir> ensure"
     description: "BLD freeze: cria/verifica baseline_manifest.yml (congelado por pack)."
     covers_claims: ["BLD"]
     flake_risk: "low"
@@ -125,8 +125,8 @@ gates:
     category: "data"
     track: "B"
     # PERF FIX 2026-01-27: Run script directly to avoid 80s+ package import time
-    # The -m flag imports pipeline_autonomo/__init__.py which pulls in 40+ heavy modules
-    command: ".venv/bin/python src/pipeline_autonomo/synthetic_data.py --run-dir <run_dir> --sprint-id <sprint_id>"
+    # The -m flag imports pipeline/__init__.py which pulls in 40+ heavy modules
+    command: ".venv/bin/python pipeline/synthetic_data.py --run-dir <run_dir> --sprint-id <sprint_id>"
     description: "SYN-DATA: gera dataset mínimo .ndjson + manifest + PII scan (fail-closed)."
     covers_claims: ["SYN-DATA"]
     flake_risk: "low"
@@ -136,7 +136,7 @@ gates:
   - gate_id: "GATE-DET-TRIPLEX"
     category: "determinism"
     track: "C"
-    command: ".venv/bin/python -m pipeline_autonomo.det_triplex --repo-root . --run-dir <run_dir> --sprint-id <sprint_id> --track B"
+    command: ".venv/bin/python -m pipeline.det_triplex --repo-root . --run-dir <run_dir> --sprint-id <sprint_id> --track B"
     description: "DET-Triplex: clean-room + same-run-twice (track B) + relatório; divergência abre finding."
     covers_claims: ["DET", "FLK"]
     flake_risk: "medium"
@@ -146,7 +146,7 @@ gates:
   - gate_id: "GATE-UI-HUM"
     category: "ui_hum"
     track: "C"
-    command: ".venv/bin/python -m pipeline_autonomo.ui_hum --repo-root . --run-dir <run_dir> --sprint-id <sprint_id>"
+    command: ".venv/bin/python -m pipeline.ui_hum --repo-root . --run-dir <run_dir> --sprint-id <sprint_id>"
     description: "UI-HUM: executa jornadas UI (human-like) + cross-check (quando configurado) e abre finding ao falhar."
     covers_claims: ["UI-HUM"]
     flake_risk: "high"
@@ -156,7 +156,7 @@ gates:
   - gate_id: "GATE-DOM-ORC"
     category: "dom_orc"
     track: "C"
-    command: ".venv/bin/python -m pipeline_autonomo.dom_orc --repo-root . --run-dir <run_dir> --sprint-id <sprint_id>"
+    command: ".venv/bin/python -m pipeline.dom_orc --repo-root . --run-dir <run_dir> --sprint-id <sprint_id>"
     description: "DOM-ORC: executa invariantes de domínio (catálogo) + reconciliação mínima; falhas críticas/high => BLOCK."
     covers_claims: ["DOM-ORC"]
     flake_risk: "medium"
@@ -166,7 +166,7 @@ gates:
   - gate_id: "GATE-REL-PROM"
     category: "release"
     track: "C"
-    command: ".venv/bin/python -m pipeline_autonomo.rel_prom --repo-root . --run-dir <run_dir> --sprint-id <sprint_id> simulate"
+    command: ".venv/bin/python -m pipeline.rel_prom --repo-root . --run-dir <run_dir> --sprint-id <sprint_id> simulate"
     description: "REL-PROM: valida (DLG + artefatos) e simula ladder de promoção (MVP, sem deploy real)."
     covers_claims: ["REL-PROM"]
     flake_risk: "low"
@@ -176,7 +176,7 @@ gates:
   - gate_id: "GATE-DLG"
     category: "quality"
     track: "C"
-    command: ".venv/bin/python -m pipeline_autonomo.dlg --run-dir <run_dir> --sprint-id <sprint_id>"
+    command: ".venv/bin/python -m pipeline.dlg --run-dir <run_dir> --sprint-id <sprint_id>"
     description: "Defect Ledger Gate (DLG): bloqueia promoção com findings abertos/sem closure evidenciável."
     covers_claims: ["DLG"]
     flake_risk: "low"
@@ -187,7 +187,7 @@ gates:
     category: "human_layer"
     track: "C"
     # PERF FIX 2026-01-27: Run script directly to avoid 3min+ package import time
-    command: ".venv/bin/python src/pipeline_autonomo/human_layer_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
+    command: ".venv/bin/python pipeline/human_layer_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
     description: "Human Layer Gate: valida que todas 7 layers foram executadas com redundância tripla (21 runs), consensus atingido, e bloqueia se houver veto STRONG."
     covers_claims: ["HUMAN_LAYER"]
     expected_outputs:
@@ -204,7 +204,7 @@ gates:
     category: "behavioral"
     track: "B"
     # PERF FIX 2026-01-27: Run script directly to avoid 3min+ package import time
-    command: ".venv/bin/python src/pipeline_autonomo/behavioral_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
+    command: ".venv/bin/python pipeline/behavioral_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
     description: "Behavioral Testing Gate: valida que testes comportamentais (Given-When-Then) cobrem todos os cenários do context pack, verificando não apenas status codes mas comportamento real."
     covers_claims: ["BEHAVIORAL", "SPEC-COMPLIANCE"]
     expected_outputs:
@@ -222,7 +222,7 @@ gates:
     category: "schema"
     track: "B"
     # PERF FIX 2026-01-27: Run script directly to avoid 3min+ package import time
-    command: ".venv/bin/python src/pipeline_autonomo/schema_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
+    command: ".venv/bin/python pipeline/schema_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
     description: "Schema Validation Gate: valida que todas as respostas de API seguem schemas definidos, com checks de coerência (timestamps válidos, IDs corretos, enums válidos, etc)."
     covers_claims: ["SCHEMA", "COHERENCE"]
     expected_outputs:
@@ -238,7 +238,7 @@ gates:
     category: "e2e_behavioral"
     track: "C"
     # PERF FIX 2026-01-27: Run script directly to avoid 3min+ package import time
-    command: ".venv/bin/python src/pipeline_autonomo/e2e_behavioral_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
+    command: ".venv/bin/python pipeline/e2e_behavioral_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
     description: "E2E Behavioral Gate: executa testes E2E com Playwright/Cypress verificando jornadas completas de usuário, não apenas que páginas carregam, mas que fluxos funcionam end-to-end."
     covers_claims: ["E2E", "USER-JOURNEY", "UI-FUNCTIONAL"]
     expected_outputs:
@@ -256,7 +256,7 @@ gates:
     category: "ux"
     track: "C"
     # PERF FIX 2026-01-27: Run script directly to avoid 3min+ package import time
-    command: ".venv/bin/python src/pipeline_autonomo/ux_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
+    command: ".venv/bin/python pipeline/ux_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
     description: "UX Review Gate: valida usabilidade via checklist automatizado (acessibilidade, responsividade, navegação) + Human Layer UX para validação subjetiva de intuitividade."
     covers_claims: ["UX", "ACCESSIBILITY", "RESPONSIVE", "INTUITIVE"]
     expected_outputs:
@@ -279,7 +279,7 @@ gates:
     category: "security"
     track: "C"
     # PERF FIX 2026-01-27: Run script directly to avoid 3min+ package import time
-    command: ".venv/bin/python src/pipeline_autonomo/security_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
+    command: ".venv/bin/python pipeline/security_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
     description: "Security scanning gate integrating LLM security stacks: LLM-Guard (output sanitization), NeMo Guardrails (safety guidelines), PyRIT (red team testing), Garak (adversarial testing)."
     covers_claims: ["LLM-SECURITY", "OUTPUT-SANITIZATION", "ADVERSARIAL-ROBUSTNESS", "SAFETY-GUIDELINES"]
     enabled: true
@@ -337,7 +337,7 @@ gates:
     category: "security"
     track: "B"
     # PERF FIX 2026-01-27: Run script directly to avoid 3min+ package import time
-    command: ".venv/bin/python src/pipeline_autonomo/dep_audit_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
+    command: ".venv/bin/python pipeline/dep_audit_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
     description: "Dependency audit gate for CVE/vulnerability scanning using safety, pip-audit, and OSV-Scanner."
     covers_claims: ["DEP-SECURITY", "CVE-SCAN", "SUPPLY-CHAIN"]
     enabled: true
@@ -392,7 +392,7 @@ gates:
     category: "performance"
     track: "C"
     # PERF FIX 2026-01-27: Run script directly to avoid 3min+ package import time
-    command: ".venv/bin/python src/pipeline_autonomo/performance_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
+    command: ".venv/bin/python pipeline/performance_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
     description: "Performance testing gate using Locust for load testing, memory profiling, and response time validation."
     covers_claims: ["PERFORMANCE", "LOAD-TEST", "LATENCY", "MEMORY"]
     enabled: true
@@ -450,7 +450,7 @@ gates:
   - gate_id: "GATE-PY-LINT"
     category: "lint"
     track: "B"
-    command: "bash -c 'cd /Users/gustavoschneiter/Documents/brains && .venv/bin/ruff check src/ --output-format=json > sprints/<sprint_id>/qa/ruff_report.json 2>&1 || true && .venv/bin/ruff check src/'"
+    command: "bash -c 'cd /Users/gustavoschneiter/Documents/HL-MCP && .venv/bin/ruff check src/ --output-format=json > sprints/<sprint_id>/qa/ruff_report.json 2>&1 || true && .venv/bin/ruff check src/'"
     description: "Python linting gate using Ruff (fast, Rust-based linter) with flake8 compatibility rules."
     covers_claims: ["CODE-QUALITY", "LINT", "STYLE"]
     enabled: true
@@ -494,7 +494,7 @@ gates:
   - gate_id: "GATE-PY-TYPECHECK"
     category: "typecheck"
     track: "B"
-    command: "bash -c 'cd /Users/gustavoschneiter/Documents/brains && .venv/bin/mypy src/ --ignore-missing-imports --no-error-summary 2>&1 | tee sprints/<sprint_id>/qa/mypy_report.txt'"
+    command: "bash -c 'cd /Users/gustavoschneiter/Documents/HL-MCP && .venv/bin/mypy src/ --ignore-missing-imports --no-error-summary 2>&1 | tee sprints/<sprint_id>/qa/mypy_report.txt'"
     description: "Python type checking gate using mypy with strict mode for public APIs."
     covers_claims: ["TYPE-SAFETY", "API-CONTRACT", "STATIC-ANALYSIS"]
     enabled: true
@@ -535,7 +535,7 @@ gates:
     category: "mutation"
     track: "C"
     # PERF FIX 2026-01-27: Run script directly to avoid 3min+ package import time
-    command: ".venv/bin/python src/pipeline_autonomo/mutation_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
+    command: ".venv/bin/python pipeline/mutation_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
     description: "Mutation testing gate using mutmut/cosmic-ray to validate test suite quality by measuring kill rate."
     covers_claims: ["TEST-QUALITY", "MUTATION-COVERAGE", "KILL-RATE"]
     enabled: true
@@ -548,7 +548,7 @@ gates:
         description: "Run mutation testing with mutmut"
         required: true
         config:
-          paths_to_mutate: ["src/veritas/", "src/pipeline_autonomo/"]
+          paths_to_mutate: ["src/hl_mcp/", "pipeline/"]
           runner: "pytest"
         timeout_seconds: 7200
       - name: "kill_rate_validation"
@@ -580,7 +580,7 @@ gates:
     category: "contract"
     track: "B"
     # PERF FIX 2026-01-27: Run script directly to avoid 3min+ package import time
-    command: ".venv/bin/python src/pipeline_autonomo/api_contract_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
+    command: ".venv/bin/python pipeline/api_contract_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
     description: "API contract testing gate using Schemathesis for OpenAPI validation and Pact for consumer-driven contracts."
     covers_claims: ["API-CONTRACT", "SCHEMA-VALIDATION", "BREAKING-CHANGES"]
     enabled: true
@@ -637,7 +637,7 @@ gates:
     category: "documentation"
     track: "B"
     # PERF FIX 2026-01-27: Run script directly to avoid 3min+ package import time
-    command: ".venv/bin/python src/pipeline_autonomo/docs_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
+    command: ".venv/bin/python pipeline/docs_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
     description: "Documentation quality gate validating docstring coverage, README freshness, and API documentation completeness."
     covers_claims: ["DOCUMENTATION", "DOCSTRING-COVERAGE", "API-DOCS"]
     enabled: true

@@ -73,7 +73,7 @@
 
 ### 1.1 HL-CORE-001: HumanLayerRunner
 
-**Arquivo**: `src/pipeline_autonomo/human_layer_runner.py`
+**Arquivo**: `pipeline/human_layer_runner.py`
 **Linhas**: ~800+
 **Dependências**: Claude LLM, Pydantic, asyncio
 
@@ -126,7 +126,7 @@ human_layer_runner:
 
 ### 1.2 HL-CORE-002: CognitiveOrchestrator
 
-**Arquivo**: `src/pipeline_autonomo/human_layer/cognitive_orchestrator.py`
+**Arquivo**: `pipeline/human_layer/cognitive_orchestrator.py`
 **Linhas**: ~400
 **Dependências**: CognitiveBudgetManager, TrustCalibration, PredictiveTriage
 
@@ -169,7 +169,7 @@ PENDING → IN_PROGRESS → COMPLETED
 
 ### 1.3 HL-CORE-003: HumanLayerGate
 
-**Arquivo**: `src/pipeline_autonomo/human_layer_gate.py`
+**Arquivo**: `pipeline/human_layer_gate.py`
 **Linhas**: 424
 **Dependências**: HumanLayerRunner, Finding, SecurityFinding
 
@@ -390,7 +390,7 @@ HL-7:
 
 ## 3. CAMADA 6 PERSPECTIVE TESTS
 
-**Arquivo**: `src/pipeline_autonomo/human_layer/perspective_tests.py`
+**Arquivo**: `pipeline/human_layer/perspective_tests.py`
 **Linhas**: 753
 
 ### 3.1 Definição das 6 Perspectivas
@@ -521,7 +521,7 @@ INTUITION_TEMPLATES = {
 
 ### 4.1 HL-COG-001: CognitiveBudgetManager
 
-**Arquivo**: `src/pipeline_autonomo/human_layer/cognitive_budget.py`
+**Arquivo**: `pipeline/human_layer/cognitive_budget.py`
 **Conceito**: Gerencia "attention units" para evitar review fatigue
 
 ```python
@@ -557,7 +557,7 @@ cognitive_budget:
 
 ### 4.2 HL-COG-002: TrustCalibrationSystem
 
-**Arquivo**: `src/pipeline_autonomo/human_layer/trust_calibration.py`
+**Arquivo**: `pipeline/human_layer/trust_calibration.py`
 **Conceito**: Trust score dinâmico que aprende com feedback
 
 ```python
@@ -593,7 +593,7 @@ Objetivo: Voltar gradualmente ao baseline
 
 ### 4.3 HL-COG-003: PredictiveTriage
 
-**Arquivo**: `src/pipeline_autonomo/human_layer/predictive_triage.py`
+**Arquivo**: `pipeline/human_layer/predictive_triage.py`
 **Conceito**: ML-based prediction de o que precisa human review
 
 ```python
@@ -638,7 +638,7 @@ triage_thresholds:
 
 ### 4.4 HL-COG-004: FeedbackLearner
 
-**Arquivo**: `src/pipeline_autonomo/human_layer/feedback_learning.py`
+**Arquivo**: `pipeline/human_layer/feedback_learning.py`
 **Conceito**: Aprendizado bi-direcional AI <-> Human
 
 ```python
@@ -672,7 +672,7 @@ class FeedbackLearner:
 
 ### 4.5 HL-COG-005: HumanLayerConfidenceScorer
 
-**Arquivo**: `src/pipeline_autonomo/human_layer/confidence_scorer.py`
+**Arquivo**: `pipeline/human_layer/confidence_scorer.py`
 **Conceito**: Scoring multi-dimensional de confiança
 
 ```python
@@ -719,7 +719,7 @@ dimensions = {
 
 ### 4.6 HL-COG-006: HumanizedErrorGenerator
 
-**Arquivo**: `src/pipeline_autonomo/human_layer/humanized_errors.py`
+**Arquivo**: `pipeline/human_layer/humanized_errors.py`
 **Conceito**: Transforma erros técnicos em WHY + HOW TO FIX
 
 ```python
@@ -784,7 +784,7 @@ ERROR_TEMPLATES = {
 
 ### 5.1 HL-UI-001: UIHum (Playwright Wrapper)
 
-**Arquivo**: `src/pipeline_autonomo/ui_hum.py`
+**Arquivo**: `pipeline/ui_hum.py`
 **Linhas**: 559
 **Dependências**: Playwright
 
@@ -862,7 +862,7 @@ class JourneyResult:
 
 ### 6.1 HL-JRN-001: JourneyCompleter
 
-**Arquivo**: `src/pipeline_v2/spec_kit/journey_completer.py`
+**Arquivo**: `pipeline/spec_kit/journey_completer.py`
 **Conceito**: Gera jornadas além do happy path
 
 ```python

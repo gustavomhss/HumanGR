@@ -33,7 +33,7 @@ from typing import Optional
 logger = logging.getLogger(__name__)
 
 # Key metadata file (tracks when keys were last rotated)
-KEY_METADATA_FILE = Path.home() / ".brains" / "key_rotation_metadata.json"
+KEY_METADATA_FILE = Path.home() / ".humangr" / "key_rotation_metadata.json"
 
 # Key rotation periods in days
 KEY_ROTATION_PERIODS = {

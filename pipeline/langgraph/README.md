@@ -51,7 +51,7 @@ See [resilience/README.md](resilience/README.md) for details.
 ## Usage
 
 ```python
-from pipeline_v2.langgraph import (
+from pipeline.langgraph import (
     create_workflow,
     PipelineState,
 )

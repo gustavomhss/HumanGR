@@ -243,7 +243,7 @@ def get_sprint_documentation(sprint_id: str) -> SprintDocumentation | None:
 
     # Check VERITAS sprints
     if sprint_id.startswith("S") and sprint_id[1:].isdigit():
-        bindings = binding_index.get("veritas_sprints", {}).get(sprint_id)
+        bindings = binding_index.get("humangr_sprints", {}).get(sprint_id)
         if bindings:
             return SprintDocumentation(
                 sprint_id=sprint_id,

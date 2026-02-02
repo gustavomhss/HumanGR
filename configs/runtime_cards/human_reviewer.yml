@@ -6,7 +6,7 @@
 # Used by: QAMasterOrchestrator._execute_worker("human_reviewer")
 #          QAMasterOrchestrator._run_human_layers()
 # Reference: qa_master_orchestrator.py, human_layer/ module
-# Config: configs/pipeline_autonomo/human_layer_config.yaml
+# Config: configs/human_layer_config.yaml
 
 agent_id: human_reviewer
 tier: L5_WORKER
@@ -43,7 +43,7 @@ backstory: |
 # Integration with human_layer module
 human_layer_integration:
   enabled: true
-  module: pipeline_autonomo.human_layer
+  module: pipeline.human_layer
   components:
     - PerspectiveTestGenerator    # 6-perspective test generation
     - HumanLayerConfidenceScorer  # Confidence scoring

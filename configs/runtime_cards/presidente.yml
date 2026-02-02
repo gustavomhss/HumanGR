@@ -29,10 +29,10 @@ key_constraints:
 pack_discovery:
   enabled: true
   before_action: "SEMPRE chame discover_packs() ANTES de executar qualquer tarefa"
-  api_import: "from pipeline_autonomo.pack_discovery import discover_packs, load_pack"
+  api_import: "from pipeline.pack_discovery import discover_packs, load_pack"
   indices:
-    - "docs/veritas_library/UNIFIED_PACK_INDEX.yaml"
-    - "docs/veritas_library/STACK_MASTER_INDEX.yaml"
+    - "context_packs/UNIFIED_PACK_INDEX.yaml"
+    - "context_packs/STACK_MASTER_INDEX.yaml"
   required_check: "Verificar se context pack foi carregado antes de agir"
   pat026_warning: "NUNCA execute sprint sem ler context pack (desastre 2026-01-03)"
 

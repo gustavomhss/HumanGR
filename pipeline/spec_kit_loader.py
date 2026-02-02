@@ -1315,7 +1315,7 @@ class SpecKitLoader:
                     # Extract unique file paths (format: "src/path/file.py:Function")
                     seen_files: set[str] = set()
                     for rf_path in rf_to_del.values():
-                        # Split "src/veritas/module.py:ClassName.method" -> "src/veritas/module.py"
+                        # Split "src/hl_mcp/module.py:ClassName.method" -> "src/hl_mcp/module.py"
                         file_path = rf_path.split(":")[0] if ":" in rf_path else rf_path
                         if file_path and file_path.startswith("src/"):
                             seen_files.add(file_path)

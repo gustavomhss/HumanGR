@@ -2,7 +2,7 @@
 HumanGR Qdrant Client
 
 Cliente Qdrant que APENAS acessa collections com prefixo humangr_.
-NUNCA acessa collections pipeline_* ou veritas_*.
+NUNCA acessa collections pipeline_* ou humangr_*.
 """
 
 from typing import Any, Optional
@@ -42,7 +42,7 @@ class HumanGRQdrantClient:
 
     CRITICAL SEPARATION:
     - Only accesses humangr_* collections
-    - Never touches pipeline_* or veritas_*
+    - Never touches pipeline_* or humangr_*
     """
 
     def __init__(self):
@@ -87,17 +87,17 @@ class HumanGRQdrantClient:
 
             # CRITICAL: Check for contamination
             has_pipeline = any(c.startswith("pipeline_") for c in collection_names)
-            has_veritas = any(c.startswith("veritas_") for c in collection_names)
+            has_humangr = any(c.startswith("humangr_") for c in collection_names)
 
             return {
                 "connected": True,
                 "collection_exists": has_collection,
                 "collection_name": self._collection,
                 "humangr_collections": humangr_collections,
-                "contamination_warning": has_pipeline or has_veritas,
+                "contamination_warning": has_pipeline or has_humangr,
                 "contamination_details": {
                     "has_pipeline_collections": has_pipeline,
-                    "has_veritas_collections": has_veritas,
+                    "has_humangr_collections": has_humangr,
                 },
             }
         except Exception as e:

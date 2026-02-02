@@ -371,7 +371,7 @@ qdrant = get_qdrant_client()
 
 # Busque documentos semanticamente similares
 results = qdrant.search(
-    collection_name="veritas_docs",
+    collection_name="humangr_docs",
     query_text="como implementar FSM",  # Vai encontrar mesmo sem "FSM" exato
     limit=5,
 )

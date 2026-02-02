@@ -11,7 +11,7 @@ separation:
   verification:
     - "Collection prefix: humangr_ (NOT pipeline_)"
     - "Product ID: HUMANGR (NOT VERITAS)"
-    - "No imports from pipeline_autonomo or pipeline_v2"
+    - "No imports from pipeline"
     - "Standalone uploader script"
 
 context_packs:

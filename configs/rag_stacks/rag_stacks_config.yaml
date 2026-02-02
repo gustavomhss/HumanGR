@@ -21,7 +21,7 @@ qdrant:
   timeout: 45.0  # Increased from 30.0 for complex queries
 
   # Collection
-  collection: "pipeline_v2_claims"  # Namespaced for isolation
+  collection: "humangr_claims"  # Namespaced for isolation
 
   # Hybrid Search Weights (OPTIMIZED)
   # Total should = 1.0
@@ -251,7 +251,7 @@ mem0:
   timeout: 45.0  # Increased from 30.0
 
   # User Configuration
-  default_user_id: "pipeline_autonomo_v2"
+  default_user_id: "humangr"
 
   # Memory Store
   memory_type: "hybrid"    # Changed from "episodic" to support both

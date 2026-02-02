@@ -2,7 +2,7 @@
 HumanGR Context Pack Loader
 
 Carrega context packs APENAS do diretório HL-MCP/context_packs/.
-NUNCA acessa context_packs/ ou qualquer path do brains.
+NUNCA acessa context_packs/ ou qualquer path do HL-MCP.
 """
 
 import re

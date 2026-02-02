@@ -37,10 +37,10 @@ key_constraints:
 pack_discovery:
   enabled: true
   before_action: "SEMPRE chame discover_packs() ANTES de executar qualquer tarefa"
-  api_import: "from pipeline_autonomo.pack_discovery import discover_packs, load_pack"
+  api_import: "from pipeline.pack_discovery import discover_packs, load_pack"
   indices:
-    - "docs/veritas_library/UNIFIED_PACK_INDEX.yaml"
-    - "docs/veritas_library/STACK_MASTER_INDEX.yaml"
+    - "context_packs/UNIFIED_PACK_INDEX.yaml"
+    - "context_packs/STACK_MASTER_INDEX.yaml"
   required_check: "Verificar se context pack foi carregado antes de agir"
   pat026_warning: "NUNCA execute sprint sem ler context pack (desastre 2026-01-03)"
 
@@ -64,14 +64,14 @@ stack_awareness:
     - live_swe_metrics: "Behavior evolution metrics"
 
   # Health check API
-  health_api: "from pipeline_autonomo.stack_health_supervisor import get_stack_supervisor, verify_critical_stacks"
+  health_api: "from pipeline.stack_health_supervisor import get_stack_supervisor, verify_critical_stacks"
 
   # Recovery procedures
   recovery_procedures:
-    redis: "docker restart brains-redis-1"
-    qdrant: "docker restart brains-qdrant-1"
-    falkordb: "docker restart brains-falkordb-1"
-    temporal: "docker restart brains-temporal-1"
+    redis: "docker restart humangr-redis-1"
+    qdrant: "docker restart humangr-qdrant-1"
+    falkordb: "docker restart humangr-falkordb-1"
+    temporal: "docker restart humangr-temporal-1"
 
   # IMPORTANT: Custom implementations notice (STACK-010)
   implementation_note: |

@@ -2,7 +2,7 @@
 HumanGR Pipeline Configuration
 
 TODAS as configurações são específicas para HumanGR.
-Nenhuma referência a Veritas, pipeline_, ou brains.
+Nenhuma referência a HumanGR.
 """
 
 import os

@@ -6,7 +6,7 @@ communication permissions, and escalation paths.
 
 CRITICAL IMPORT BOUNDARY (GAP-5-006):
 =====================================
-DO NOT import from other pipeline_autonomo modules (except standard library).
+DO NOT import from other pipeline modules (except standard library).
 This module MUST remain a pure data module to prevent circular import risks.
 
 Import Chain Analysis:
@@ -28,7 +28,7 @@ Allowed Imports:
 Forbidden Imports:
 - .ipc
 - .agent_bus
-- Any other pipeline_autonomo module
+- Any other external pipeline module
 
 HIERARCHY MAP (Complete):
 

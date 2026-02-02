@@ -15,7 +15,7 @@ path_rules:
     - "${RUN_DIR}/**"
     - "${SPRINT_DIR}/**"
     - "${WORKSPACE}/**"
-    - "/tmp/pipeline_autonomo/**"
+    - "/tmp/humangr/**"
 
   # Padrões bloqueados (segurança)
   blocked_patterns:

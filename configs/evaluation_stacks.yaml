@@ -402,7 +402,7 @@ cleanlab:
 phoenix:
   # Host Configuration
   host: "http://localhost:6006"
-  project_name: "brains_pipeline"
+  project_name: "humangr_pipeline"
 
   # Tracing
   tracing:
@@ -451,7 +451,7 @@ phoenix:
 
 literalai:
   # Project Settings
-  project: "brains-pipeline"
+  project: "humangr-pipeline"
 
   # Dataset Categories
   datasets:

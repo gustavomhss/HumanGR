@@ -2,12 +2,12 @@
 HumanGR Pipeline - Fork isolado do Brains Pipeline
 
 Este é um pipeline COMPLETAMENTE SEPARADO do Veritas.
-Nunca importa nada de pipeline_autonomo ou pipeline.
+Nunca importa nada de pipeline.
 
 SEPARAÇÃO ABSOLUTA:
 - Qdrant collection: humangr_* (NUNCA pipeline_*)
-- Context packs: HL-MCP/context_packs/ (NUNCA veritas_library/)
-- Target repo: HL-MCP/target/human-layer/ (NUNCA brains/src/veritas/)
+- Context packs: HL-MCP/context_packs/ (NUNCA brains/)
+- Target repo: HL-MCP/target/human-layer/ (NUNCA brains/)
 """
 
 __version__ = "1.0.0"

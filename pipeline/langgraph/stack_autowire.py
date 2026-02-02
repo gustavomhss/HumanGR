@@ -514,7 +514,7 @@ class StackAutoWire:
         # 2026-01-20: FIX - Added GoT loader (was importing from wrong path)
         if stack_name == "got":
             try:
-                # GoT is in pipeline_autonomo, NOT pipeline.langgraph
+                # GoT is in pipeline, NOT pipeline.langgraph
                 from pipeline.got_integration import (
                     decompose_spec_with_got,
                     validate_with_got,
