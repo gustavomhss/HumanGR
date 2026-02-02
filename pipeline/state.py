@@ -2,7 +2,7 @@
 HumanGR Pipeline State
 
 Estado do pipeline SEMPRE com project_id = "HUMANGR".
-Nunca pode ser confundido com Veritas.
+Nunca pode ser confundido com brains.
 """
 
 import uuid
@@ -60,7 +60,7 @@ class PipelineState:
     Pipeline execution state.
 
     CRITICAL: project_id is ALWAYS "HUMANGR".
-    This ensures complete separation from Veritas.
+    This ensures complete separation from brains.
     """
 
     # Identity - FIXED

@@ -212,7 +212,7 @@ NODE_TITLES = {
 NODE_DESCRIPTIONS: Dict[str, str] = {
     # L0 - System
     "init": "Pipeline initialization. Run Master validates environment, creates workspace, and checks stack health.",
-    "load": "Loads sprint context pack from Veritas Library. Parses requirements (RFs), invariants (INVs), and edge cases.",
+    "load": "Loads sprint context pack from context packs. Parses requirements (RFs), invariants (INVs), and edge cases.",
     "docs": "Documentation generation. Creates API docs, README updates, and changelog entries from code changes.",
     "art": "Artifact writer. Packages deliverables and generates final output files for the sprint.",
     "metrics": "Metrics collection. Aggregates test coverage, gate scores, and performance measurements.",

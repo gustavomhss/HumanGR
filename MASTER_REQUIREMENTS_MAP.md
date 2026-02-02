@@ -5371,7 +5371,7 @@ progressive_enhancement:
 # PARTE 14: COCKPIT VISUAL (Real-Time Dashboard)
 
 > **Referência**: Template do Pipeline HumanGR (`cockpit/templates/cockpit.html`)
-> **Tema Piloto**: SPOVEST (mesmo tema do pipeline original)
+> **Tema Piloto**: Human Layer Validation
 
 ## 14.1 ARQUITETURA DO COCKPIT
 

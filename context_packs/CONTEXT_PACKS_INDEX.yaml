@@ -1,6 +1,6 @@
 # HumanGR Context Packs Index
 # Generated: 2026-02-01
-# COMPLETE SEPARATION from Veritas/Pipeline
+# COMPLETE SEPARATION from brains
 
 separation:
   product_id: "HUMANGR"
@@ -10,7 +10,7 @@ separation:
 
   verification:
     - "Collection prefix: humangr_ (NOT pipeline_)"
-    - "Product ID: HUMANGR (NOT VERITAS)"
+    - "Product ID: HUMANGR (NOT brains)"
     - "No imports from pipeline"
     - "Standalone uploader script"
 

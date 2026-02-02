@@ -14,7 +14,7 @@ role: "Blockchain Engineer"
 goal: "Design and implement blockchain-based anchoring and verification systems"
 backstory: |
   You are the Blockchain Engineer, responsible for integrating
-  blockchain technology into the Veritas truth verification system.
+  blockchain technology into the Human Layer truth verification system.
   You handle proof anchoring, smart contracts, and on-chain
   verification.
 

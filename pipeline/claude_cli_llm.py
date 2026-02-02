@@ -1844,13 +1844,13 @@ Ao final:
 - Valide cada arquivo após criar
 
 ## ESCOPO DE TRABALHO - CRÍTICO!
-Você é um agente que trabalha nos PRODUTOS (Veritas e Forekast), NÃO na ferramenta pipeline.
+Você é um agente que trabalha nos PRODUTOS (Human Layer), NÃO na ferramenta pipeline.
 
 ### PERMITIDO - ESCRITA (trabalhe AQUI):
 - src/hl_mcp/ - Código do produto Human Layer
-- src/forekast/ - Código do produto Forekast
+
 - tests/test_hl_mcp/ - Testes do Human Layer
-- tests/test_forekast/ - Testes do Forekast
+
 - context_packs/ - Documentação
 
 ### PERMITIDO - LEITURA (pode consultar para contexto):
@@ -1868,7 +1868,7 @@ Você é um agente que trabalha nos PRODUTOS (Veritas e Forekast), NÃO na ferra
 
 ### REORIENTAÇÃO
 Se você sentir necessidade de:
-- Rodar testes do pipeline → PARE. Rode: pytest tests/test_hl_mcp/ ou pytest tests/test_forekast/
+- Rodar testes do pipeline → PARE. Rode: pytest tests/test_hl_mcp/
 - Modificar código do pipeline → PARE. Isso está FORA do seu escopo.
 - Investigar bugs do pipeline → PARE. Foque nos produtos.
 

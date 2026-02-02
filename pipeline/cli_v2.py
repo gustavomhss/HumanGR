@@ -26,7 +26,7 @@ Uso:
     python -m pipeline.cli spec process -i roadmap.md -o out.yml # Pipeline completo
 
 O comando `run` é o RECOMENDADO para uso normal:
-- Carrega roadmap unificado (Veritas + Forekast + Visionary)
+- Carrega roadmap unificado (HumanGR)
 - Detecta automaticamente de onde parou (checkpoint)
 - Continua execução de onde parou
 - Inicia Run Master daemon automaticamente (infraestrutura)
@@ -1551,7 +1551,7 @@ def cmd_run(args: argparse.Namespace) -> int:
 
     Este é o comando RECOMENDADO para execução do pipeline.
     Ele automaticamente:
-    - Carrega o roadmap unificado (Veritas + Forekast + Visionary)
+    - Carrega o roadmap unificado (HumanGR)
     - Detecta de onde parou (checkpoint)
     - Continua a execução de onde parou
     - Sincroniza progresso com GitHub Projects (se configurado)
@@ -1820,7 +1820,7 @@ def cmd_roadmap(args: argparse.Namespace) -> int:
     print("-" * 60)
     print()
 
-    for product in [Product.VERITAS, Product.FOREKAST, Product.VISIONARY]:
+    for product in [Product.HUMANGR]:
         plan = roadmap.get_execution_plan(product)
         sprints = roadmap.get_sprint_ids(product)
 

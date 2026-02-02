@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 # Colang definitions for stack enforcement
 STACK_ENFORCEMENT_COLANG = '''
 # =============================================================================
-# STACK ENFORCEMENT RAILS - Veritas Pipeline
+# STACK ENFORCEMENT RAILS - HumanGR Pipeline
 # =============================================================================
 
 # -----------------------------------------------------------------------------
@@ -155,7 +155,7 @@ define flow circuit breaker check
 # YAML config for NeMo
 STACK_ENFORCEMENT_CONFIG = '''
 # NeMo Guardrails Configuration for Stack Enforcement
-# This config enforces proper stack usage in the Veritas Pipeline
+# This config enforces proper stack usage in the HumanGR Pipeline
 
 models:
   - type: main
@@ -182,7 +182,7 @@ rails:
 prompts:
   - task: general
     content: |
-      You are an AI agent in the Veritas Pipeline.
+      You are an AI agent in the HumanGR Pipeline.
 
       MANDATORY REQUIREMENTS:
       1. ALL LLM calls MUST use Langfuse tracing

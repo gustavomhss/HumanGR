@@ -3,7 +3,7 @@
 HumanGR Pipeline CLI
 
 CLI para executar o pipeline HumanGR.
-Completamente isolado do pipeline Veritas.
+Completamente isolado do pipeline brains.
 
 Uso:
     python -m pipeline.cli status

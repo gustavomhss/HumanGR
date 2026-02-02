@@ -55,15 +55,15 @@ logger = logging.getLogger(__name__)
 
 # Base path do projeto (assumindo que estamos em src/pipeline/)
 _PROJECT_ROOT = Path(__file__).parent.parent.parent
-_VERITAS_LIBRARY = _PROJECT_ROOT / "docs" / "context_packs"
-_UNIFIED_INDEX_PATH = _VERITAS_LIBRARY / "UNIFIED_PACK_INDEX.yaml"
-_STACK_INDEX_PATH = _VERITAS_LIBRARY / "STACK_MASTER_INDEX.yaml"
-_BINDING_INDEX_PATH = _VERITAS_LIBRARY / "PACK_BINDING_INDEX.yaml"
+_CONTEXT_PACKS = _PROJECT_ROOT / "docs" / "context_packs"
+_UNIFIED_INDEX_PATH = _CONTEXT_PACKS / "UNIFIED_PACK_INDEX.yaml"
+_STACK_INDEX_PATH = _CONTEXT_PACKS / "STACK_MASTER_INDEX.yaml"
+_BINDING_INDEX_PATH = _CONTEXT_PACKS / "PACK_BINDING_INDEX.yaml"
 
 # NEW: Paths for documentation packs
-_FEATURE_PACKS_DIR = _VERITAS_LIBRARY / "feature_packs"
-_USER_JOURNEYS_DIR = _VERITAS_LIBRARY / "user_journeys"
-_SPECS_DIR = _VERITAS_LIBRARY / "specs"
+_FEATURE_PACKS_DIR = _CONTEXT_PACKS / "feature_packs"
+_USER_JOURNEYS_DIR = _CONTEXT_PACKS / "user_journeys"
+_SPECS_DIR = _CONTEXT_PACKS / "specs"
 
 # Cache do indice
 _unified_index_cache: dict | None = None
@@ -87,8 +87,8 @@ class PackType(str, Enum):
     SPECIFICATION = "specification"
     BUSINESS_RULES = "business_rules"
     ALIGNMENT = "alignment"
-    FOREKAST_SPRINT = "forekast_sprint"
-    VISIONARY_SPRINT = "visionary_sprint"
+    LEGACY_FOREKAST_SPRINT = "forekast_sprint"
+    LEGACY_VISIONARY_SPRINT = "visionary_sprint"
 
 
 @dataclass
@@ -241,7 +241,7 @@ def get_sprint_documentation(sprint_id: str) -> SprintDocumentation | None:
     """
     binding_index = _load_binding_index()
 
-    # Check VERITAS sprints
+    # Check HumanGR sprints
     if sprint_id.startswith("S") and sprint_id[1:].isdigit():
         bindings = binding_index.get("humangr_sprints", {}).get(sprint_id)
         if bindings:
@@ -255,9 +255,9 @@ def get_sprint_documentation(sprint_id: str) -> SprintDocumentation | None:
                 business_rules=bindings.get("business_rules", []),
             )
 
-    # Check FOREKAST sprints
+    # Check LEGACY_FOREKAST sprints
     if sprint_id.startswith("FK"):
-        bindings = binding_index.get("forekast_sprints", {}).get(sprint_id)
+        bindings = binding_index.get("legacy_forekast_sprints", {}).get(sprint_id)
         if bindings:
             return SprintDocumentation(
                 sprint_id=sprint_id,
@@ -269,7 +269,7 @@ def get_sprint_documentation(sprint_id: str) -> SprintDocumentation | None:
                 business_rules=bindings.get("business_rules", []),
             )
 
-    # Check VISIONARY sprints
+    # Check LEGACY_VISIONARY sprints
     if sprint_id.startswith("VIS-"):
         bindings = binding_index.get("visionary_sprints", {}).get(sprint_id)
         if bindings:
@@ -409,7 +409,7 @@ def load_all_sprint_documentation(sprint_id: str) -> dict[str, str]:
 
 
 def get_module_documentation(module_id: str) -> dict[str, str]:
-    """Load all documentation for a VERITAS module.
+    """Load all documentation for a HumanGR module.
 
     Args:
         module_id: Module ID (e.g., "MQV", "MAC", "TDS", "CGM")
@@ -665,8 +665,8 @@ def _search_semantic(
                 PackType.SPECIFICATION: "specs",
                 PackType.BUSINESS_RULES: "business_rules",
                 PackType.ALIGNMENT: "alignment",
-                PackType.FOREKAST_SPRINT: "forekast_roadmap",
-                PackType.VISIONARY_SPRINT: "visionary_roadmap",
+                PackType.LEGACY_FOREKAST_SPRINT: "legacy_forekast_roadmap",
+                PackType.LEGACY_VISIONARY_SPRINT: "legacy_visionary_roadmap",
             }
             for pt in pack_types:
                 if pt in type_to_collection:
@@ -766,7 +766,7 @@ def get_pack_info(pack_id: str) -> PackInfo | None:
                         type=PackType.STACK,
                         name=stack_data.get("name", stack_data["id"]),
                         file=f"{stack_data['id']}_CONTEXT.md",
-                        path=_VERITAS_LIBRARY / "stack_packs" / f"{stack_data['id']}_CONTEXT.md",
+                        path=_CONTEXT_PACKS / "stack_packs" / f"{stack_data['id']}_CONTEXT.md",
                         tags=stack_data.get("usage", []),
                         summary=stack_data.get("usage", [""])[0] if stack_data.get("usage") else "",
                         related_sprints=stack_data.get("sprints", []),
@@ -905,7 +905,7 @@ def list_packs(
                 type=PackType.PROTOCOL,
                 name=pack_data.get("id", ""),
                 file=pack_data.get("file", ""),
-                path=_VERITAS_LIBRARY / "protocols" / pack_data.get("file", ""),
+                path=_CONTEXT_PACKS / "protocols" / pack_data.get("file", ""),
                 tags=pack_data.get("tags", []),
                 summary=pack_data.get("summary", ""),
             ))
@@ -925,7 +925,7 @@ def list_packs(
                         type=PackType.STACK,
                         name=stack_data.get("name", stack_id),
                         file=f"{stack_id}_CONTEXT.md",
-                        path=_VERITAS_LIBRARY / "stack_packs" / f"{stack_id}_CONTEXT.md",
+                        path=_CONTEXT_PACKS / "stack_packs" / f"{stack_id}_CONTEXT.md",
                         tags=stack_data.get("usage", []),
                         summary=stack_data.get("usage", [""])[0] if stack_data.get("usage") else "",
                         related_sprints=stack_data.get("sprints", []),
@@ -975,19 +975,19 @@ def list_packs(
                 except Exception as e:
                     logger.debug(f"Error loading user journey {uj_id}: {e}")
 
-    # Forekast sprints (FK-series) - filter from sprint_packs
-    if pack_type == PackType.FOREKAST_SPRINT:
+    # Legacy Forekast sprints (FK-series) - filter from sprint_packs
+    if pack_type == PackType.LEGACY_FOREKAST_SPRINT:
         for pack_data in index.get("sprint_packs", {}).get("packs", []):
             pack_id = pack_data.get("id", "")
             if pack_id.startswith("FK") and not pack_id.startswith("FK-ADMIN"):
-                packs.append(_build_pack_info(pack_data, PackType.FOREKAST_SPRINT))
+                packs.append(_build_pack_info(pack_data, PackType.LEGACY_FOREKAST_SPRINT))
 
-    # Visionary sprints (VIS-series) - from visionary_packs section
-    if pack_type is None or pack_type == PackType.VISIONARY_SPRINT:
+    # Legacy Visionary sprints (VIS-series) - from visionary_packs section
+    if pack_type is None or pack_type == PackType.LEGACY_VISIONARY_SPRINT:
         for pack_data in index.get("visionary_packs", {}).get("packs", []):
             pack_id = pack_data.get("id", "")
             if pack_id.startswith("VIS-"):
-                packs.append(_build_pack_info(pack_data, PackType.VISIONARY_SPRINT))
+                packs.append(_build_pack_info(pack_data, PackType.LEGACY_VISIONARY_SPRINT))
 
     # Aplicar filtros
     if product:

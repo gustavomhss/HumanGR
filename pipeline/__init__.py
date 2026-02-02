@@ -1,7 +1,7 @@
 """
 HumanGR Pipeline - Fork isolado do Brains Pipeline
 
-Este é um pipeline COMPLETAMENTE SEPARADO do Veritas.
+Este é um pipeline COMPLETAMENTE SEPARADO do brains.
 Nunca importa nada de pipeline.
 
 SEPARAÇÃO ABSOLUTA:

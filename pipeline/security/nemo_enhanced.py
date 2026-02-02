@@ -1476,7 +1476,7 @@ rails:
 prompts:
   - task: general
     content: |
-      You are a fact-checking AI assistant in the Veritas Pipeline.
+      You are a fact-checking AI assistant in the HumanGR Pipeline.
       Your role is to verify claims with evidence-based reasoning.
 
       SECURITY RULES:

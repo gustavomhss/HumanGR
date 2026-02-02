@@ -320,7 +320,7 @@ class QA(dspy.Signature):
 
 # Use Chain of Thought
 cot = dspy.ChainOfThought(QA)
-result = cot(question="O que e Veritas?")
+result = cot(question="O que e Human Layer?")
 """,
         },
         step_by_step=[
@@ -782,9 +782,9 @@ from deepeval.test_case import LLMTestCase
 
 # Crie um test case
 test_case = LLMTestCase(
-    input="O que e Veritas?",
-    actual_output="Veritas e um sistema de verificacao de verdade...",
-    retrieval_context=["Veritas Library: sistema de verificacao..."],
+    input="O que e Human Layer?",
+    actual_output="Human Layer e um sistema de validacao com 7 camadas...",
+    retrieval_context=["Human Layer: sistema de verificacao..."],
 )
 
 # Avalie com multiplas metricas
@@ -848,10 +848,10 @@ from ragas.metrics import faithfulness, context_precision, answer_relevancy
 
 # Prepare seu dataset
 dataset = {
-    "question": ["O que e Veritas?"],
+    "question": ["O que e Human Layer?"],
     "answer": ["Sistema de verificacao..."],
-    "contexts": [["Veritas Library..."]],
-    "ground_truth": ["Veritas e um sistema..."],
+    "contexts": [["Human Layer..."]],
+    "ground_truth": ["Human Layer e um sistema..."],
 }
 
 # Avalie
@@ -1005,7 +1005,7 @@ define user express greeting
   "hi"
 
 define bot express greeting
-  "Hello! How can I help you with Veritas today?"
+  "Hello! How can I help you with Human Layer today?"
 
 define flow greeting
   user express greeting
