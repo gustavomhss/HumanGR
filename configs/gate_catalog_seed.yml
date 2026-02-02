@@ -1,0 +1,689 @@
+catalog_id: "inspectah-gate-catalog"
+catalog_version: "v0.1"
+gates:
+  - gate_id: "GATE-ART-SCH"
+    category: "contract"
+    track: "B"
+    # PERF FIX 2026-01-25: Use standalone script to avoid 80s+ package import time
+    command: ".venv/bin/python scripts/gates/art_sch_validator.py --run-dir <run_dir> --schemas-dir schemas"
+    description: "Valida artefatos canônicos (ART-SCH S1/S2/S3) do run."
+    covers_claims: ["ART-SCH"]
+    flake_risk: "low"
+    data_sensitivity: "none"
+    timeout_seconds: 30
+
+  - gate_id: "GATE-ORR-SANITY"
+    category: "orr"
+    track: "B"
+    command: "make sanity"
+    description: "Sanity check do scaffold/artefatos e runners ORR."
+    # FIX 2026-01-23: Removed expected_outputs - they are created in repo_root/out/
+    # but gate_runner looks in run_dir/out/. Will fix path handling later.
+    flake_risk: "low"
+    data_sensitivity: "none"
+    timeout_seconds: 180
+
+  - gate_id: "GATE-PYTEST"
+    category: "unit"
+    track: "B"
+    command: "bash -c 'PYTHONPATH=src ./.venv/bin/python -m pytest -q'"
+    description: "Suite de testes Python do repo (subset pode ser aplicado por perfil/sprint)."
+    flake_risk: "medium"
+    data_sensitivity: "none"
+    timeout_seconds: 1800
+
+  - gate_id: "GATE-PYTEST-PIPELINE"
+    category: "unit"
+    track: "B"
+    command: "bash -c 'PYTHONPATH=src ./.venv/bin/python -m pytest -q tests/test_pipeline_autonomo/test_evidence_collector.py -x'"
+    description: "Subset rápido: evidence_collector module."
+    flake_risk: "low"
+    data_sensitivity: "none"
+    timeout_seconds: 300
+
+  - gate_id: "GATE-ORR-PIPELINE"
+    category: "orr"
+    track: "C"
+    command: "make all"
+    description: "ORR pipeline (T0..T6 + scorecard agregado)."
+    expected_outputs:
+      - "out/scorecards/T7_orr_pipeline.json"
+      - "out/evidence/T7_orr_pipeline/orr_summary.json"
+      - "out/evidence/T7_orr_pipeline/MANIFEST.json"
+    flake_risk: "medium"
+    data_sensitivity: "none"
+    timeout_seconds: 3600
+
+  - gate_id: "GATE-E2E-V0"
+    category: "e2e"
+    track: "C"
+    command: "bin/run_inspectah_v0_e2e.sh"
+    description: "Fluxo E2E v0 (dev_up -> ingest demo -> explore -> metrics -> manifest)."
+    flake_risk: "medium"
+    data_sensitivity: "internal"
+    timeout_seconds: 1800
+
+  - gate_id: "GATE-FE-LINT"
+    category: "lint"
+    track: "B"
+    command: "npm --prefix frontend/inspectah-ui run lint"
+    description: "Frontend lint (eslint)."
+    flake_risk: "low"
+    data_sensitivity: "none"
+    timeout_seconds: 600
+
+  - gate_id: "GATE-FE-TYPECHECK"
+    category: "typecheck"
+    track: "B"
+    command: "npm --prefix frontend/inspectah-ui run typecheck"
+    description: "Frontend typecheck (tsc --noEmit)."
+    flake_risk: "low"
+    data_sensitivity: "none"
+    timeout_seconds: 600
+
+  - gate_id: "GATE-FE-TEST"
+    category: "unit"
+    track: "B"
+    command: "npm --prefix frontend/inspectah-ui run test"
+    description: "Frontend unit tests (vitest)."
+    flake_risk: "medium"
+    data_sensitivity: "none"
+    timeout_seconds: 900
+
+  - gate_id: "GATE-FE-BUILD"
+    category: "build"
+    track: "B"
+    command: "npm --prefix frontend/inspectah-ui run build"
+    description: "Frontend build (vite build)."
+    flake_risk: "low"
+    data_sensitivity: "none"
+    timeout_seconds: 900
+
+  - gate_id: "GATE-FE-PLAYWRIGHT"
+    category: "e2e"
+    track: "C"
+    command: "npx --yes --prefix frontend/inspectah-ui playwright test"
+    description: "Frontend E2E via Playwright."
+    flake_risk: "high"
+    data_sensitivity: "none"
+    timeout_seconds: 3600
+
+  - gate_id: "GATE-BLD-FREEZE"
+    category: "baseline"
+    track: "B"
+    # PERF FIX 2026-01-28: Run script directly to avoid 116s package import time
+    # The -m flag imports pipeline_autonomo/__init__.py which pulls in 40+ heavy modules
+    # Direct execution: 1.3s vs -m execution: 116s (89x speedup)
+    command: ".venv/bin/python src/pipeline_autonomo/baseline.py --repo-root . --run-dir <run_dir> ensure"
+    description: "BLD freeze: cria/verifica baseline_manifest.yml (congelado por pack)."
+    covers_claims: ["BLD"]
+    flake_risk: "low"
+    data_sensitivity: "none"
+    timeout_seconds: 120
+
+  - gate_id: "GATE-SYN-DATA"
+    category: "data"
+    track: "B"
+    # PERF FIX 2026-01-27: Run script directly to avoid 80s+ package import time
+    # The -m flag imports pipeline_autonomo/__init__.py which pulls in 40+ heavy modules
+    command: ".venv/bin/python src/pipeline_autonomo/synthetic_data.py --run-dir <run_dir> --sprint-id <sprint_id>"
+    description: "SYN-DATA: gera dataset mínimo .ndjson + manifest + PII scan (fail-closed)."
+    covers_claims: ["SYN-DATA"]
+    flake_risk: "low"
+    data_sensitivity: "none"
+    timeout_seconds: 30
+
+  - gate_id: "GATE-DET-TRIPLEX"
+    category: "determinism"
+    track: "C"
+    command: ".venv/bin/python -m pipeline_autonomo.det_triplex --repo-root . --run-dir <run_dir> --sprint-id <sprint_id> --track B"
+    description: "DET-Triplex: clean-room + same-run-twice (track B) + relatório; divergência abre finding."
+    covers_claims: ["DET", "FLK"]
+    flake_risk: "medium"
+    data_sensitivity: "none"
+    timeout_seconds: 7200
+
+  - gate_id: "GATE-UI-HUM"
+    category: "ui_hum"
+    track: "C"
+    command: ".venv/bin/python -m pipeline_autonomo.ui_hum --repo-root . --run-dir <run_dir> --sprint-id <sprint_id>"
+    description: "UI-HUM: executa jornadas UI (human-like) + cross-check (quando configurado) e abre finding ao falhar."
+    covers_claims: ["UI-HUM"]
+    flake_risk: "high"
+    data_sensitivity: "internal"
+    timeout_seconds: 7200
+
+  - gate_id: "GATE-DOM-ORC"
+    category: "dom_orc"
+    track: "C"
+    command: ".venv/bin/python -m pipeline_autonomo.dom_orc --repo-root . --run-dir <run_dir> --sprint-id <sprint_id>"
+    description: "DOM-ORC: executa invariantes de domínio (catálogo) + reconciliação mínima; falhas críticas/high => BLOCK."
+    covers_claims: ["DOM-ORC"]
+    flake_risk: "medium"
+    data_sensitivity: "none"
+    timeout_seconds: 1800
+
+  - gate_id: "GATE-REL-PROM"
+    category: "release"
+    track: "C"
+    command: ".venv/bin/python -m pipeline_autonomo.rel_prom --repo-root . --run-dir <run_dir> --sprint-id <sprint_id> simulate"
+    description: "REL-PROM: valida (DLG + artefatos) e simula ladder de promoção (MVP, sem deploy real)."
+    covers_claims: ["REL-PROM"]
+    flake_risk: "low"
+    data_sensitivity: "none"
+    timeout_seconds: 600
+
+  - gate_id: "GATE-DLG"
+    category: "quality"
+    track: "C"
+    command: ".venv/bin/python -m pipeline_autonomo.dlg --run-dir <run_dir> --sprint-id <sprint_id>"
+    description: "Defect Ledger Gate (DLG): bloqueia promoção com findings abertos/sem closure evidenciável."
+    covers_claims: ["DLG"]
+    flake_risk: "low"
+    data_sensitivity: "none"
+    timeout_seconds: 120
+
+  - gate_id: "HUMAN_LAYER_GATE"
+    category: "human_layer"
+    track: "C"
+    # PERF FIX 2026-01-27: Run script directly to avoid 3min+ package import time
+    command: ".venv/bin/python src/pipeline_autonomo/human_layer_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
+    description: "Human Layer Gate: valida que todas 7 layers foram executadas com redundância tripla (21 runs), consensus atingido, e bloqueia se houver veto STRONG."
+    covers_claims: ["HUMAN_LAYER"]
+    expected_outputs:
+      - "sprints/<sprint_id>/qa/human_layer_gate_result.yml"
+    flake_risk: "low"
+    data_sensitivity: "none"
+    timeout_seconds: 60
+
+  # ========================================================================
+  # BEHAVIORAL & COHERENCE GATES (Added 2026-01-02)
+  # ========================================================================
+
+  - gate_id: "GATE-BEHAVIORAL"
+    category: "behavioral"
+    track: "B"
+    # PERF FIX 2026-01-27: Run script directly to avoid 3min+ package import time
+    command: ".venv/bin/python src/pipeline_autonomo/behavioral_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
+    description: "Behavioral Testing Gate: valida que testes comportamentais (Given-When-Then) cobrem todos os cenários do context pack, verificando não apenas status codes mas comportamento real."
+    covers_claims: ["BEHAVIORAL", "SPEC-COMPLIANCE"]
+    expected_outputs:
+      - "sprints/<sprint_id>/qa/behavioral_coverage.yml"
+      - "sprints/<sprint_id>/qa/behavioral_report.yml"
+    flake_risk: "low"
+    data_sensitivity: "none"
+    timeout_seconds: 300
+    gate_pass_criteria:
+      behavioral_coverage: ">= 100%"
+      assertion_coverage: ">= 100%"
+      edge_case_coverage: ">= 80%"
+
+  - gate_id: "GATE-SCHEMA-VALIDATION"
+    category: "schema"
+    track: "B"
+    # PERF FIX 2026-01-27: Run script directly to avoid 3min+ package import time
+    command: ".venv/bin/python src/pipeline_autonomo/schema_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
+    description: "Schema Validation Gate: valida que todas as respostas de API seguem schemas definidos, com checks de coerência (timestamps válidos, IDs corretos, enums válidos, etc)."
+    covers_claims: ["SCHEMA", "COHERENCE"]
+    expected_outputs:
+      - "sprints/<sprint_id>/qa/schema_validation_report.yml"
+    flake_risk: "low"
+    data_sensitivity: "none"
+    timeout_seconds: 120
+    gate_pass_criteria:
+      schema_errors: 0
+      coherence_errors: 0
+
+  - gate_id: "GATE-E2E-BEHAVIOR"
+    category: "e2e_behavioral"
+    track: "C"
+    # PERF FIX 2026-01-27: Run script directly to avoid 3min+ package import time
+    command: ".venv/bin/python src/pipeline_autonomo/e2e_behavioral_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
+    description: "E2E Behavioral Gate: executa testes E2E com Playwright/Cypress verificando jornadas completas de usuário, não apenas que páginas carregam, mas que fluxos funcionam end-to-end."
+    covers_claims: ["E2E", "USER-JOURNEY", "UI-FUNCTIONAL"]
+    expected_outputs:
+      - "sprints/<sprint_id>/qa/e2e_behavioral_report.yml"
+      - "sprints/<sprint_id>/qa/e2e_screenshots/"
+      - "sprints/<sprint_id>/qa/e2e_videos/"
+    flake_risk: "medium"
+    data_sensitivity: "none"
+    timeout_seconds: 3420
+    gate_pass_criteria:
+      journeys_completed: ">= 100%"
+      critical_flows_passing: ">= 100%"
+
+  - gate_id: "GATE-UX-REVIEW"
+    category: "ux"
+    track: "C"
+    # PERF FIX 2026-01-27: Run script directly to avoid 3min+ package import time
+    command: ".venv/bin/python src/pipeline_autonomo/ux_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
+    description: "UX Review Gate: valida usabilidade via checklist automatizado (acessibilidade, responsividade, navegação) + Human Layer UX para validação subjetiva de intuitividade."
+    covers_claims: ["UX", "ACCESSIBILITY", "RESPONSIVE", "INTUITIVE"]
+    expected_outputs:
+      - "sprints/<sprint_id>/qa/ux_review_report.yml"
+      - "sprints/<sprint_id>/qa/ux_human_layer_report.yml"
+    flake_risk: "low"
+    data_sensitivity: "none"
+    timeout_seconds: 1620
+    gate_pass_criteria:
+      accessibility_score: ">= 90"
+      responsive_breakpoints: "all_passing"
+      navigation_depth: "<= 3 clicks"
+      human_layer_approval: "required"
+
+  # ========================================================================
+  # SECURITY GATES (GAP-001) - LLM Security Stack Integration
+  # ========================================================================
+
+  - gate_id: "GATE-SECURITY"
+    category: "security"
+    track: "C"
+    # PERF FIX 2026-01-27: Run script directly to avoid 3min+ package import time
+    command: ".venv/bin/python src/pipeline_autonomo/security_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
+    description: "Security scanning gate integrating LLM security stacks: LLM-Guard (output sanitization), NeMo Guardrails (safety guidelines), PyRIT (red team testing), Garak (adversarial testing)."
+    covers_claims: ["LLM-SECURITY", "OUTPUT-SANITIZATION", "ADVERSARIAL-ROBUSTNESS", "SAFETY-GUIDELINES"]
+    enabled: true
+    stacks:
+      - llm_guard
+      - nemo_guardrails
+      - pyrit
+      - garak
+    checks:
+      - name: "output_sanitization"
+        stack: "llm_guard"
+        description: "Sanitizes LLM outputs for PII, secrets, and malicious content"
+        required: true
+        timeout_seconds: 300
+      - name: "safety_guidelines"
+        stack: "nemo_guardrails"
+        description: "Validates responses against safety colang policies"
+        required: true
+        timeout_seconds: 300
+      - name: "prompt_injection_test"
+        stack: "llm_guard"
+        description: "Tests resistance to prompt injection attacks"
+        required: true
+        timeout_seconds: 600
+      - name: "adversarial_testing"
+        stack: "pyrit"
+        description: "Red team testing with automated attack generation"
+        required: false
+        frequency: "weekly"
+        timeout_seconds: 3600
+      - name: "vulnerability_probing"
+        stack: "garak"
+        description: "Comprehensive LLM vulnerability probing"
+        required: false
+        frequency: "weekly"
+        timeout_seconds: 3600
+    expected_outputs:
+      - "sprints/<sprint_id>/qa/security_gate_report.yml"
+      - "sprints/<sprint_id>/qa/llm_guard_scan.json"
+      - "sprints/<sprint_id>/qa/nemo_rails_validation.json"
+    flake_risk: "low"
+    data_sensitivity: "internal"
+    timeout_seconds: 1800
+    gate_pass_criteria:
+      output_sanitization: "passed"
+      safety_guidelines: "passed"
+      prompt_injection_test: "passed"
+      critical_vulnerabilities: 0
+
+  # ========================================================================
+  # DEPENDENCY AUDIT GATE (GAP-007) - CVE/Vulnerability Scanning
+  # ========================================================================
+
+  - gate_id: "GATE-DEP-AUDIT"
+    category: "security"
+    track: "B"
+    # PERF FIX 2026-01-27: Run script directly to avoid 3min+ package import time
+    command: ".venv/bin/python src/pipeline_autonomo/dep_audit_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
+    description: "Dependency audit gate for CVE/vulnerability scanning using safety, pip-audit, and OSV-Scanner."
+    covers_claims: ["DEP-SECURITY", "CVE-SCAN", "SUPPLY-CHAIN"]
+    enabled: true
+    stacks:
+      - safety
+      - pip_audit
+      - osv_scanner
+    checks:
+      - name: "python_cve_scan"
+        tool: "safety"
+        description: "Scan Python dependencies for known CVEs"
+        required: true
+        timeout_seconds: 300
+      - name: "pip_audit_scan"
+        tool: "pip-audit"
+        description: "Cross-reference with PyPI advisory database"
+        required: true
+        timeout_seconds: 300
+      - name: "osv_scan"
+        tool: "osv-scanner"
+        description: "Google OSV database vulnerability check"
+        required: true
+        timeout_seconds: 300
+      - name: "npm_audit"
+        tool: "npm audit"
+        description: "Frontend dependency vulnerability scan"
+        required: true
+        timeout_seconds: 300
+      - name: "license_compliance"
+        tool: "pip-licenses"
+        description: "Verify dependency licenses are compliant"
+        required: true
+        timeout_seconds: 120
+    expected_outputs:
+      - "sprints/<sprint_id>/qa/dep_audit_report.yml"
+      - "sprints/<sprint_id>/qa/cve_findings.json"
+      - "sprints/<sprint_id>/qa/license_report.json"
+    flake_risk: "low"
+    data_sensitivity: "none"
+    timeout_seconds: 900
+    gate_pass_criteria:
+      critical_cves: 0
+      high_cves: 0
+      blocked_licenses: 0
+      max_medium_cves: 5
+
+  # ========================================================================
+  # PERFORMANCE TESTING GATE (GAP-002)
+  # ========================================================================
+
+  - gate_id: "GATE-PERFORMANCE"
+    category: "performance"
+    track: "C"
+    # PERF FIX 2026-01-27: Run script directly to avoid 3min+ package import time
+    command: ".venv/bin/python src/pipeline_autonomo/performance_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
+    description: "Performance testing gate using Locust for load testing, memory profiling, and response time validation."
+    covers_claims: ["PERFORMANCE", "LOAD-TEST", "LATENCY", "MEMORY"]
+    enabled: true
+    stacks:
+      - locust
+      - memory_profiler
+      - py_spy
+    checks:
+      - name: "api_load_test"
+        tool: "locust"
+        description: "Load test API endpoints with simulated traffic"
+        required: true
+        config:
+          users: 100
+          spawn_rate: 10
+          duration: "60s"
+        timeout_seconds: 300
+      - name: "memory_profiling"
+        tool: "memory_profiler"
+        description: "Profile memory usage during typical workflows"
+        required: true
+        timeout_seconds: 300
+      - name: "cpu_profiling"
+        tool: "py-spy"
+        description: "CPU profiling for hot path identification"
+        required: false
+        frequency: "weekly"
+        timeout_seconds: 600
+      - name: "response_time_p99"
+        description: "Validate P99 response times meet SLA"
+        required: true
+        timeout_seconds: 120
+      - name: "throughput_test"
+        description: "Verify minimum throughput requirements"
+        required: true
+        timeout_seconds: 180
+    expected_outputs:
+      - "sprints/<sprint_id>/qa/performance_report.yml"
+      - "sprints/<sprint_id>/qa/locust_results.json"
+      - "sprints/<sprint_id>/qa/memory_profile.json"
+    flake_risk: "medium"
+    data_sensitivity: "none"
+    timeout_seconds: 1800
+    gate_pass_criteria:
+      p99_latency_ms: "<= 500"
+      p95_latency_ms: "<= 200"
+      error_rate: "<= 1%"
+      memory_leak_detected: false
+      throughput_rps: ">= 100"
+
+  # ========================================================================
+  # PYTHON LINT GATE (GAP-003)
+  # ========================================================================
+
+  - gate_id: "GATE-PY-LINT"
+    category: "lint"
+    track: "B"
+    command: "bash -c 'cd /Users/gustavoschneiter/Documents/brains && .venv/bin/ruff check src/ --output-format=json > sprints/<sprint_id>/qa/ruff_report.json 2>&1 || true && .venv/bin/ruff check src/'"
+    description: "Python linting gate using Ruff (fast, Rust-based linter) with flake8 compatibility rules."
+    covers_claims: ["CODE-QUALITY", "LINT", "STYLE"]
+    enabled: true
+    stacks:
+      - ruff
+    checks:
+      - name: "ruff_lint"
+        tool: "ruff"
+        description: "Fast Python linting with flake8 + pylint + pyupgrade rules"
+        required: true
+        config:
+          select: ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+          ignore: ["E501"]  # Line length handled separately
+        timeout_seconds: 120
+      - name: "import_sorting"
+        tool: "ruff"
+        description: "Verify import sorting with isort rules"
+        required: true
+        timeout_seconds: 60
+      - name: "security_lint"
+        tool: "ruff"
+        description: "Security-focused linting rules (bandit subset)"
+        required: true
+        config:
+          select: ["S"]
+        timeout_seconds: 120
+    expected_outputs:
+      - "sprints/<sprint_id>/qa/ruff_report.json"
+    flake_risk: "low"
+    data_sensitivity: "none"
+    timeout_seconds: 300
+    gate_pass_criteria:
+      errors: 0
+      warnings: "<= 10"
+      security_issues: 0
+
+  # ========================================================================
+  # PYTHON TYPECHECK GATE (GAP-004)
+  # ========================================================================
+
+  - gate_id: "GATE-PY-TYPECHECK"
+    category: "typecheck"
+    track: "B"
+    command: "bash -c 'cd /Users/gustavoschneiter/Documents/brains && .venv/bin/mypy src/ --ignore-missing-imports --no-error-summary 2>&1 | tee sprints/<sprint_id>/qa/mypy_report.txt'"
+    description: "Python type checking gate using mypy with strict mode for public APIs."
+    covers_claims: ["TYPE-SAFETY", "API-CONTRACT", "STATIC-ANALYSIS"]
+    enabled: true
+    stacks:
+      - mypy
+    checks:
+      - name: "mypy_check"
+        tool: "mypy"
+        description: "Static type checking with mypy"
+        required: true
+        config:
+          strict: false  # Enable gradually
+          ignore_missing_imports: true
+          disallow_untyped_defs: false  # Enable for new code
+        timeout_seconds: 600
+      - name: "public_api_types"
+        description: "Verify public API functions have type hints"
+        required: true
+        timeout_seconds: 120
+      - name: "pydantic_validation"
+        description: "Validate Pydantic models are properly typed"
+        required: true
+        timeout_seconds: 120
+    expected_outputs:
+      - "sprints/<sprint_id>/qa/mypy_report.txt"
+    flake_risk: "low"
+    data_sensitivity: "none"
+    timeout_seconds: 900
+    gate_pass_criteria:
+      type_errors: 0
+      public_api_coverage: ">= 80%"
+
+  # ========================================================================
+  # MUTATION TESTING GATE (GAP-005)
+  # ========================================================================
+
+  - gate_id: "GATE-MUTATION"
+    category: "mutation"
+    track: "C"
+    # PERF FIX 2026-01-27: Run script directly to avoid 3min+ package import time
+    command: ".venv/bin/python src/pipeline_autonomo/mutation_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
+    description: "Mutation testing gate using mutmut/cosmic-ray to validate test suite quality by measuring kill rate."
+    covers_claims: ["TEST-QUALITY", "MUTATION-COVERAGE", "KILL-RATE"]
+    enabled: true
+    stacks:
+      - mutmut
+      - cosmic_ray
+    checks:
+      - name: "mutmut_run"
+        tool: "mutmut"
+        description: "Run mutation testing with mutmut"
+        required: true
+        config:
+          paths_to_mutate: ["src/veritas/", "src/pipeline_autonomo/"]
+          runner: "pytest"
+        timeout_seconds: 7200
+      - name: "kill_rate_validation"
+        description: "Validate mutation kill rate meets threshold"
+        required: true
+        timeout_seconds: 60
+      - name: "surviving_mutants_review"
+        description: "Review surviving mutants for test gaps"
+        required: false
+        timeout_seconds: 300
+    expected_outputs:
+      - "sprints/<sprint_id>/qa/mutation_report.yml"
+      - "sprints/<sprint_id>/qa/mutmut_results.json"
+      - "sprints/<sprint_id>/qa/surviving_mutants.json"
+    flake_risk: "medium"
+    data_sensitivity: "none"
+    timeout_seconds: 7200
+    frequency: "per_pack"  # Run at end of each sprint pack
+    gate_pass_criteria:
+      overall_kill_rate: ">= 70%"
+      critical_modules_kill_rate: ">= 80%"
+      max_surviving_mutants: 50
+
+  # ========================================================================
+  # API CONTRACT TESTING GATE (GAP-006)
+  # ========================================================================
+
+  - gate_id: "GATE-API-CONTRACT"
+    category: "contract"
+    track: "B"
+    # PERF FIX 2026-01-27: Run script directly to avoid 3min+ package import time
+    command: ".venv/bin/python src/pipeline_autonomo/api_contract_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
+    description: "API contract testing gate using Schemathesis for OpenAPI validation and Pact for consumer-driven contracts."
+    covers_claims: ["API-CONTRACT", "SCHEMA-VALIDATION", "BREAKING-CHANGES"]
+    enabled: true
+    stacks:
+      - schemathesis
+      - pact
+      - openapi_spec_validator
+    checks:
+      - name: "openapi_validation"
+        tool: "openapi-spec-validator"
+        description: "Validate OpenAPI spec is well-formed"
+        required: true
+        timeout_seconds: 60
+      - name: "schemathesis_fuzz"
+        tool: "schemathesis"
+        description: "Fuzz testing API endpoints based on OpenAPI spec"
+        required: true
+        config:
+          hypothesis_max_examples: 100
+          stateful: true
+        timeout_seconds: 1800
+      - name: "breaking_change_detection"
+        tool: "oasdiff"
+        description: "Detect breaking changes in API schema"
+        required: true
+        timeout_seconds: 120
+      - name: "response_schema_validation"
+        description: "Validate all responses match declared schemas"
+        required: true
+        timeout_seconds: 300
+      - name: "pact_verification"
+        tool: "pact"
+        description: "Verify consumer-driven contracts"
+        required: false
+        timeout_seconds: 600
+    expected_outputs:
+      - "sprints/<sprint_id>/qa/api_contract_report.yml"
+      - "sprints/<sprint_id>/qa/schemathesis_results.json"
+      - "sprints/<sprint_id>/qa/breaking_changes.json"
+    flake_risk: "low"
+    data_sensitivity: "none"
+    timeout_seconds: 2400
+    gate_pass_criteria:
+      openapi_valid: true
+      breaking_changes: 0
+      schema_errors: 0
+      fuzz_failures: 0
+
+  # ========================================================================
+  # DOCUMENTATION QUALITY GATE (GAP-008)
+  # ========================================================================
+
+  - gate_id: "GATE-DOCS"
+    category: "documentation"
+    track: "B"
+    # PERF FIX 2026-01-27: Run script directly to avoid 3min+ package import time
+    command: ".venv/bin/python src/pipeline_autonomo/docs_gate.py --run-dir <run_dir> --sprint-id <sprint_id>"
+    description: "Documentation quality gate validating docstring coverage, README freshness, and API documentation completeness."
+    covers_claims: ["DOCUMENTATION", "DOCSTRING-COVERAGE", "API-DOCS"]
+    enabled: true
+    stacks:
+      - interrogate
+      - pydocstyle
+      - mkdocs
+    checks:
+      - name: "docstring_coverage"
+        tool: "interrogate"
+        description: "Measure docstring coverage percentage"
+        required: true
+        config:
+          fail_under: 80
+          ignore_init_method: true
+          ignore_magic: true
+        timeout_seconds: 120
+      - name: "docstring_style"
+        tool: "pydocstyle"
+        description: "Validate docstring style (Google/NumPy format)"
+        required: true
+        config:
+          convention: "google"
+        timeout_seconds: 120
+      - name: "readme_validation"
+        description: "Validate README.md exists and is up-to-date"
+        required: true
+        timeout_seconds: 60
+      - name: "api_docs_generation"
+        tool: "mkdocs"
+        description: "Verify API documentation can be generated"
+        required: false
+        timeout_seconds: 300
+      - name: "changelog_validation"
+        description: "Validate CHANGELOG.md has entry for current version"
+        required: false
+        timeout_seconds: 60
+    expected_outputs:
+      - "sprints/<sprint_id>/qa/docs_report.yml"
+      - "sprints/<sprint_id>/qa/interrogate_report.json"
+      - "sprints/<sprint_id>/qa/docstring_coverage.txt"
+    flake_risk: "low"
+    data_sensitivity: "none"
+    timeout_seconds: 600
+    gate_pass_criteria:
+      docstring_coverage: ">= 80%"
+      public_api_documented: ">= 95%"
+      readme_exists: true
+      style_errors: "<= 10"

@@ -59,7 +59,7 @@ def _load_gate_catalog() -> Dict[str, Dict[str, Any]]:
     if _GATE_CATALOG is not None:
         return _GATE_CATALOG
 
-    catalog_path = Path(__file__).parent.parent.parent.parent / "configs" / "pipeline_autonomo" / "gate_catalog_seed.yml"
+    catalog_path = Path(__file__).parent.parent.parent.parent / "configs" / "gate_catalog_seed.yml"
     if not catalog_path.exists():
         logger.warning(f"Gate catalog not found at {catalog_path}")
         _GATE_CATALOG = {}
@@ -509,7 +509,7 @@ class GateValidationSubgraph(BaseSubgraph):
         """Run a single gate.
 
         Security: Applies @secure_gate checks via validate_gate_security().
-        See pipeline_v2.security.gate_integration for security policies per gate (G0-G8).
+        See pipeline.security.gate_integration for security policies per gate (G0-G8).
         """
         current_gate = state.get("current_gate")
         if not current_gate:

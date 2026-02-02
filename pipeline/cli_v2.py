@@ -13,17 +13,17 @@ Comandos:
     spec     - Spec Kit v3.0 Ironclad (specs impossíveis de errar)
 
 Uso:
-    python -m pipeline_v2.cli run              # Auto-resume do roadmap unificado
-    python -m pipeline_v2.cli run -o           # Com dashboards de observabilidade
-    python -m pipeline_v2.cli roadmap          # Ver status do roadmap
-    python -m pipeline_v2.cli start -s S00 -e S05  # Execução manual (legado)
-    python -m pipeline_v2.cli sprint S01       # Sprint específico
+    python -m pipeline.cli run              # Auto-resume do roadmap unificado
+    python -m pipeline.cli run -o           # Com dashboards de observabilidade
+    python -m pipeline.cli roadmap          # Ver status do roadmap
+    python -m pipeline.cli start -s S00 -e S05  # Execução manual (legado)
+    python -m pipeline.cli sprint S01       # Sprint específico
 
     # Spec Kit v3.0 Ironclad
-    python -m pipeline_v2.cli spec status                           # Status dos subsistemas
-    python -m pipeline_v2.cli spec mastigate -i roadmap.md          # Roadmap -> EARS spec
-    python -m pipeline_v2.cli spec validate -s spec.yml             # Validar com 9 gates
-    python -m pipeline_v2.cli spec process -i roadmap.md -o out.yml # Pipeline completo
+    python -m pipeline.cli spec status                           # Status dos subsistemas
+    python -m pipeline.cli spec mastigate -i roadmap.md          # Roadmap -> EARS spec
+    python -m pipeline.cli spec validate -s spec.yml             # Validar com 9 gates
+    python -m pipeline.cli spec process -i roadmap.md -o out.yml # Pipeline completo
 
 O comando `run` é o RECOMENDADO para uso normal:
 - Carrega roadmap unificado (Veritas + Forekast + Visionary)
@@ -236,7 +236,7 @@ def _run_pipeline_with_streaming(
 ) -> list:
     """Run pipeline with real-time streaming output.
 
-    GHOST CODE INTEGRATION: Uses pipeline_v2.langgraph.streaming module
+    GHOST CODE INTEGRATION: Uses pipeline.langgraph.streaming module
     for real-time progress updates during execution.
 
     Args:
@@ -541,7 +541,7 @@ def daemonize(log_file: Path, pid_file: Path, start_sprint: str, end_sprint: str
     # Build command - run same CLI but with --foreground flag
     cmd = [
         str(python_path),
-        "-m", "pipeline_v2.cli",
+        "-m", "pipeline.cli",
         "start",
         "--start", start_sprint,
         "--end", end_sprint,
@@ -1287,7 +1287,7 @@ def cmd_start(args: argparse.Namespace) -> int:
             print(f"  {sprint_id}: {info['run_id']} (started {info.get('started_at', 'unknown')})")
         print()
         print("Pipeline will resume from existing state.")
-        print("To start fresh, run: python -m pipeline_v2.cli clear-sprint <sprint_id>")
+        print("To start fresh, run: python -m pipeline.cli clear-sprint <sprint_id>")
         print()
 
         # Use the first active run's run_id
@@ -1472,7 +1472,7 @@ def cmd_status(args: argparse.Namespace) -> int:
 
     if state is None:
         print("No active pipeline run.")
-        print("Use 'pipeline_v2 init' to start a new run.")
+        print("Use 'pipeline init' to start a new run.")
         return 1
 
     print("=" * 60)
@@ -1558,8 +1558,8 @@ def cmd_run(args: argparse.Namespace) -> int:
     - Usa LangGraph control plane para execução (2026-01-21)
 
     Uso:
-        python -m pipeline_v2.cli run
-        python -m pipeline_v2.cli run -o  # com dashboards
+        python -m pipeline.cli run
+        python -m pipeline.cli run -o  # com dashboards
     """
     # Ensure Docker services are running before starting pipeline
     if not ensure_docker_services():
@@ -1733,7 +1733,7 @@ def cmd_gh_projects(args: argparse.Namespace) -> int:
         if not sync.enabled:
             print("  To enable:")
             print("  1. Create a GitHub Project (Projects V2)")
-            print("  2. Edit configs/pipeline_autonomo/gh_projects.yaml")
+            print("  2. Edit configs/pipeline/gh_projects.yaml")
             print("  3. Set enabled: true, owner, and project_number")
             print()
 
@@ -1954,8 +1954,8 @@ def cmd_langgraph(args: argparse.Namespace) -> int:
     - Idempotent node execution
 
     Usage:
-        python -m pipeline_v2.cli langgraph S01
-        python -m pipeline_v2.cli lg S01 --resume checkpoint_id
+        python -m pipeline.cli langgraph S01
+        python -m pipeline.cli lg S01 --resume checkpoint_id
     """
     # Ensure Docker services are running
     if not ensure_docker_services():
@@ -2173,7 +2173,7 @@ def cmd_lg_start(args: argparse.Namespace) -> int:
 def main() -> int:
     """Entry point do CLI."""
     parser = argparse.ArgumentParser(
-        prog="pipeline_v2",
+        prog="pipeline",
         description="Pipeline v2 - Stack Modernizado",
     )
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")

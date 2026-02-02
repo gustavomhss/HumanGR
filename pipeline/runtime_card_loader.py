@@ -29,7 +29,7 @@ from typing import Any, Optional
 
 import yaml
 
-logger = logging.getLogger("pipeline_autonomo.runtime_card_loader")
+logger = logging.getLogger("pipeline.runtime_card_loader")
 
 
 # =============================================================================
@@ -201,7 +201,7 @@ def sanitize_persona_field(text: str, field_name: str, max_length: int = 5000) -
     return sanitized
 
 # Default location for runtime cards
-DEFAULT_RUNTIME_CARDS_DIR = Path(__file__).parent.parent.parent / "configs" / "pipeline_autonomo" / "runtime_cards"
+DEFAULT_RUNTIME_CARDS_DIR = Path(__file__).parent.parent.parent / "configs" / "runtime_cards"
 
 
 @dataclass
@@ -667,7 +667,7 @@ class RuntimeCardLoader:
 
         Args:
             cards_dir: Directory containing runtime card YAML files.
-                      Defaults to configs/pipeline_autonomo/runtime_cards/
+                      Defaults to configs/pipeline/runtime_cards/
         """
         self.cards_dir = Path(cards_dir) if cards_dir else DEFAULT_RUNTIME_CARDS_DIR
         self._cache: dict[str, RuntimeCard] = {}

@@ -1,0 +1,344 @@
+# =============================================================================
+# PIPELINE EXECUTION MODE CONFIGURATION v2.0
+# =============================================================================
+# Este arquivo configura COMO o pipeline deve executar os sprints.
+#
+# MODOS DISPONIVEIS:
+#   GREENFIELD: Implementa do zero (ignora codigo existente)
+#   AUDIT_FIX:  Audita codigo existente, corrige e complementa
+#
+# Author: Pipeline Autonomo Team
+# Version: 2.0.0 (2026-01-11)
+# =============================================================================
+
+mode: AUDIT_FIX  # GREENFIELD | AUDIT_FIX
+
+# =============================================================================
+# CONFIGURACAO AUDIT_FIX
+# =============================================================================
+audit_fix_config:
+  # O que fazer com codigo existente
+  existing_code:
+    action: PRESERVE_AND_ENHANCE  # PRESERVE_AND_ENHANCE | REWRITE | IGNORE
+
+    # Quando considerar arquivo como "existente valido"
+    validation:
+      min_lines: 10                    # Arquivo com menos linhas = stub/placeholder
+      must_have_docstring: false       # Exigir docstring para considerar valido
+      must_have_tests: false           # Exigir teste correspondente
+      must_pass_type_check: false      # Exigir mypy clean
+
+    # Protecoes
+    protection:
+      never_delete_passing_tests: true
+      never_delete_with_coverage: true  # Nao deletar se tem cobertura de teste
+      require_approval_for_refactor: true
+      backup_before_modify: false       # Criar .bak antes de modificar
+
+  # Ordem de operacoes (pipeline de execucao)
+  operations:
+    - READ_EXISTING       # Ler codigo atual e inventariar
+    - RUN_TESTS_BASELINE  # Rodar testes para estabelecer baseline
+    - VALIDATE_SPECS      # Validar contra INTENT MANIFEST v2.0
+    - IDENTIFY_GAPS       # Identificar gaps (RF, INV, EDGE faltantes)
+    - PRIORITIZE_GAPS     # Ordenar gaps por severidade
+    - FIX_FAILURES        # Corrigir o que falhar nos testes
+    - ADD_MISSING         # Adicionar o que falta
+    - RUN_TESTS_FINAL     # Rodar testes finais
+    - VALIDATE_COVERAGE   # Validar cobertura
+    - GENERATE_REPORT     # Gerar relatorio de mudancas
+
+  # Prioridades de correcao (ordem de execucao)
+  fix_priorities:
+    - id: CRITICAL_INVARIANTS
+      description: "INV-* com severity CRITICAL"
+      severity: CRITICAL
+      auto_fix: true
+
+    - id: FAILING_TESTS
+      description: "Testes que estao falhando"
+      severity: HIGH
+      auto_fix: true
+
+    - id: SECURITY_ISSUES
+      description: "Vulnerabilidades de seguranca (OWASP)"
+      severity: CRITICAL
+      auto_fix: true
+
+    - id: MISSING_VALIDATION
+      description: "Validacoes de __post_init__ faltantes"
+      severity: HIGH
+      auto_fix: true
+
+    - id: MISSING_EDGE_CASES
+      description: "EDGE-* sem cobertura de teste"
+      severity: MEDIUM
+      auto_fix: true
+
+    - id: TYPE_ERRORS
+      description: "Erros de tipagem (mypy)"
+      severity: MEDIUM
+      auto_fix: true
+
+    - id: DOCUMENTATION
+      description: "Docstrings e type hints faltantes"
+      severity: LOW
+      auto_fix: false
+
+  # Limites e thresholds
+  limits:
+    max_files_to_modify_per_sprint: 15
+    max_lines_to_add_per_file: 500
+    max_lines_to_delete_per_file: 100
+    require_test_for_each_change: true
+    require_review_before_delete: true
+
+  # Thresholds de qualidade
+  quality_thresholds:
+    min_coverage_line: 90
+    min_coverage_branch: 80
+    max_complexity_per_function: 10
+    max_function_lines: 50
+    require_type_hints: true
+
+  # Gap analysis
+  gap_analysis:
+    enabled: true
+    check_rf_implementation: true      # Verificar se RF-* estao implementados
+    check_inv_enforcement: true        # Verificar se INV-* estao enforced
+    check_edge_coverage: true          # Verificar se EDGE-* tem testes
+    check_preconditions: true          # Verificar se PRE-* estao validados
+    check_postconditions: true         # Verificar se POST-* sao garantidos
+    generate_gap_report: true          # Gerar relatorio de gaps
+
+# =============================================================================
+# CONFIGURACAO GREENFIELD
+# =============================================================================
+greenfield_config:
+  # Ignorar codigo existente completamente
+  ignore_existing: true
+
+  # Criar backup antes de sobrescrever
+  backup_existing: true
+  backup_suffix: ".greenfield_backup"
+
+  # Validacoes antes de sobrescrever
+  safety_checks:
+    warn_if_tests_exist: true
+    warn_if_coverage_exists: true
+    require_explicit_confirmation: true
+
+  # Estrutura de arquivos
+  file_structure:
+    create_init_files: true
+    create_test_files: true
+    create_conftest: true
+
+# =============================================================================
+# INVENTORY CONFIGURATION
+# =============================================================================
+inventory:
+  # Quais arquivos inventariar
+  include_patterns:
+    - "src/**/*.py"
+    - "tests/**/*.py"
+
+  exclude_patterns:
+    - "**/__pycache__/**"
+    - "**/*.pyc"
+    - "**/.*"
+
+  # Metricas a coletar
+  metrics:
+    count_lines: true
+    count_functions: true
+    count_classes: true
+    extract_docstrings: false
+    extract_type_hints: false
+
+  # Testes
+  test_execution:
+    enabled: true
+    timeout_seconds: 300
+    fail_fast: true              # Parar no primeiro erro
+    collect_coverage: true
+    coverage_format: "json"
+
+# =============================================================================
+# REPORTING
+# =============================================================================
+reporting:
+  # Onde salvar relatorios
+  output_dir: "out/audit_fix"
+
+  # Formatos de relatorio
+  formats:
+    - yaml
+    - markdown
+
+  # O que incluir
+  include:
+    inventory_summary: true
+    gap_analysis: true
+    changes_made: true
+    test_results: true
+    coverage_delta: true
+    recommendations: true
+
+# =============================================================================
+# INSTRUCOES PARA OS AGENTS
+# =============================================================================
+agent_instructions: |
+  ╔══════════════════════════════════════════════════════════════════════════╗
+  ║                        MODO DE EXECUCAO: AUDIT_FIX                       ║
+  ╠══════════════════════════════════════════════════════════════════════════╣
+  ║                                                                          ║
+  ║  CONTEXTO:                                                               ║
+  ║  Voce esta operando em modo AUDIT_FIX. Isso significa que JA EXISTE     ║
+  ║  codigo implementado para este sprint. Seu trabalho NAO e reescrever,   ║
+  ║  mas sim AUDITAR, CORRIGIR e COMPLEMENTAR.                              ║
+  ║                                                                          ║
+  ╚══════════════════════════════════════════════════════════════════════════╝
+
+  ┌─────────────────────────────────────────────────────────────────────────┐
+  │ REGRAS INVIOLAVEIS                                                      │
+  ├─────────────────────────────────────────────────────────────────────────┤
+  │                                                                         │
+  │ 1. LEIA ANTES DE AGIR                                                   │
+  │    - Leia TODOS os arquivos existentes antes de qualquer modificacao   │
+  │    - Entenda a estrutura, padroes e convencoes usadas                  │
+  │    - Identifique dependencias e relacionamentos                         │
+  │                                                                         │
+  │ 2. RODE TESTES PRIMEIRO                                                 │
+  │    - Execute pytest ANTES de qualquer mudanca                          │
+  │    - Documente quais testes passam e quais falham                      │
+  │    - Use isso como baseline para comparacao                            │
+  │                                                                         │
+  │ 3. NAO REESCREVA CODIGO QUE FUNCIONA                                   │
+  │    - Se passa nos testes, NAO TOQUE                                    │
+  │    - Se tem cobertura, NAO DELETE                                      │
+  │    - Se segue os padroes, NAO REFATORE                                 │
+  │                                                                         │
+  │ 4. CORRIJA APENAS GAPS                                                  │
+  │    - Compare codigo com RF-*, INV-*, EDGE-* do INTENT MANIFEST         │
+  │    - Liste gaps encontrados                                            │
+  │    - Corrija um gap por vez, com teste                                 │
+  │                                                                         │
+  │ 5. PRESERVE COMPATIBILIDADE                                             │
+  │    - Mantenha assinaturas de funcoes publicas                          │
+  │    - Mantenha nomes de classes e modulos                               │
+  │    - Use deprecation warnings se precisar mudar API                    │
+  │                                                                         │
+  └─────────────────────────────────────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────────────────────────────────────┐
+  │ FLUXO OBRIGATORIO                                                       │
+  ├─────────────────────────────────────────────────────────────────────────┤
+  │                                                                         │
+  │  1. INVENTARIO                                                          │
+  │     ├─ Listar arquivos existentes                                      │
+  │     ├─ Contar linhas, classes, funcoes                                 │
+  │     └─ Identificar testes correspondentes                              │
+  │                                                                         │
+  │  2. BASELINE                                                            │
+  │     ├─ pytest --collect-only (contar testes)                           │
+  │     ├─ pytest -v (rodar testes)                                        │
+  │     └─ Documentar: X passando, Y falhando                              │
+  │                                                                         │
+  │  3. GAP ANALYSIS                                                        │
+  │     ├─ Para cada RF-*: esta implementado?                              │
+  │     ├─ Para cada INV-*: esta enforced em __post_init__?                │
+  │     ├─ Para cada EDGE-*: tem teste cobrindo?                           │
+  │     ├─ Para cada PRE-*: esta validado na entrada?                      │
+  │     └─ Para cada POST-*: esta garantido na saida?                      │
+  │                                                                         │
+  │  4. PRIORIZACAO                                                         │
+  │     ├─ CRITICAL: INV com severity CRITICAL, security issues            │
+  │     ├─ HIGH: Testes falhando, validacoes faltantes                     │
+  │     ├─ MEDIUM: Edge cases sem teste                                    │
+  │     └─ LOW: Documentacao, type hints                                   │
+  │                                                                         │
+  │  5. CORRECAO                                                            │
+  │     ├─ Um gap por vez                                                  │
+  │     ├─ Escrever teste PRIMEIRO                                         │
+  │     ├─ Implementar correcao                                            │
+  │     ├─ Rodar pytest                                                    │
+  │     └─ Commit com referencia ao gap (ex: "Fix INV-001")                │
+  │                                                                         │
+  │  6. VALIDACAO FINAL                                                     │
+  │     ├─ pytest completo                                                 │
+  │     ├─ Coverage >= 90%                                                 │
+  │     ├─ mypy clean                                                      │
+  │     └─ Todos os gaps corrigidos                                        │
+  │                                                                         │
+  └─────────────────────────────────────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────────────────────────────────────┐
+  │ NUNCA FACA                                                              │
+  ├─────────────────────────────────────────────────────────────────────────┤
+  │ ✗ Deletar codigo que passa nos testes                                  │
+  │ ✗ Reescrever funcoes que funcionam                                     │
+  │ ✗ Ignorar testes existentes                                            │
+  │ ✗ Criar duplicatas de codigo                                           │
+  │ ✗ Mudar assinaturas de API publica sem deprecation                     │
+  │ ✗ Adicionar dependencias novas sem justificativa                       │
+  │ ✗ Fazer refactor "preventivo" ou "cleanup"                             │
+  │ ✗ Otimizar codigo que nao foi medido                                   │
+  └─────────────────────────────────────────────────────────────────────────┘
+
+  ┌─────────────────────────────────────────────────────────────────────────┐
+  │ SEMPRE FACA                                                             │
+  ├─────────────────────────────────────────────────────────────────────────┤
+  │ ✓ Ler o codigo existente ANTES de qualquer acao                        │
+  │ ✓ Rodar pytest ANTES e DEPOIS de mudancas                              │
+  │ ✓ Referenciar RF-*/INV-*/EDGE-* nos commits                            │
+  │ ✓ Preservar compatibilidade com codigo existente                       │
+  │ ✓ Escrever teste ANTES de implementar correcao                         │
+  │ ✓ Documentar gaps encontrados                                          │
+  │ ✓ Manter coverage >= baseline                                          │
+  │ ✓ Seguir padroes e convencoes do codigo existente                      │
+  └─────────────────────────────────────────────────────────────────────────┘
+
+# =============================================================================
+# GREENFIELD AGENT INSTRUCTIONS
+# =============================================================================
+greenfield_instructions: |
+  ╔══════════════════════════════════════════════════════════════════════════╗
+  ║                      MODO DE EXECUCAO: GREENFIELD                        ║
+  ╠══════════════════════════════════════════════════════════════════════════╣
+  ║                                                                          ║
+  ║  CONTEXTO:                                                               ║
+  ║  Voce esta operando em modo GREENFIELD. Isso significa que voce deve    ║
+  ║  implementar do ZERO, ignorando qualquer codigo existente.              ║
+  ║                                                                          ║
+  ║  ATENCAO: Um backup foi criado automaticamente.                         ║
+  ║                                                                          ║
+  ╚══════════════════════════════════════════════════════════════════════════╝
+
+  ┌─────────────────────────────────────────────────────────────────────────┐
+  │ FLUXO OBRIGATORIO                                                       │
+  ├─────────────────────────────────────────────────────────────────────────┤
+  │                                                                         │
+  │ 1. LEIA O INTENT MANIFEST COMPLETO                                      │
+  │    - Entenda TODOS os RF-* (requisitos funcionais)                     │
+  │    - Entenda TODOS os INV-* (invariantes)                              │
+  │    - Entenda TODOS os EDGE-* (casos de borda)                          │
+  │    - Entenda TODOS os PRE-*/POST-* (contratos)                         │
+  │                                                                         │
+  │ 2. PLANEJE A IMPLEMENTACAO                                              │
+  │    - Defina ordem dos arquivos                                         │
+  │    - Identifique dependencias                                          │
+  │    - Planeje testes                                                    │
+  │                                                                         │
+  │ 3. IMPLEMENTE COM TDD                                                   │
+  │    - Escreva teste primeiro                                            │
+  │    - Implemente para passar                                            │
+  │    - Refatore se necessario                                            │
+  │                                                                         │
+  │ 4. VALIDE COMPLETUDE                                                    │
+  │    - Todos RF-* implementados?                                         │
+  │    - Todos INV-* enforced?                                             │
+  │    - Todos EDGE-* testados?                                            │
+  │    - Coverage >= 90%?                                                  │
+  │                                                                         │
+  └─────────────────────────────────────────────────────────────────────────┘

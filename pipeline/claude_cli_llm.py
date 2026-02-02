@@ -317,7 +317,7 @@ class ClaudeCLIConfig:
     cache_dir: str = field(
         default_factory=lambda: os.getenv(
             "CLAUDE_CACHE_DIR",
-            str(Path.home() / ".cache" / "pipeline_autonomo" / "claude_cli"),
+            str(Path.home() / ".cache" / "humangr" / "claude_cli"),
         )
     )
     cache_ttl_seconds: int = field(
@@ -1854,17 +1854,17 @@ Você é um agente que trabalha nos PRODUTOS (Veritas e Forekast), NÃO na ferra
 - context_packs/ - Documentação
 
 ### PERMITIDO - LEITURA (pode consultar para contexto):
-- src/pipeline_autonomo/ - Pode LER para usar ferramentas
-- src/pipeline_v2/ - Pode LER para usar ferramentas
+- src/pipeline/ - Pode LER para usar ferramentas
+- src/pipeline/ - Pode LER para usar ferramentas
 - configs/ - Pode LER para contexto
 
 ### PROIBIDO - ESCRITA (NUNCA modifique/crie/teste):
-- src/pipeline_autonomo/ - Pipeline é SOMENTE LEITURA
-- src/pipeline_v2/ - Pipeline v2 é SOMENTE LEITURA
-- tests/test_pipeline_autonomo/ - Testes do pipeline
-- tests/test_pipeline_v2/ - Testes do pipeline
+- src/pipeline/ - Pipeline é SOMENTE LEITURA
+- src/pipeline/ - Pipeline v2 é SOMENTE LEITURA
+- tests/test_pipeline/ - Testes do pipeline
+- tests/test_pipeline/ - Testes do pipeline
 - tests/test_e2e*.py - Testes E2E do pipeline
-- configs/pipeline_autonomo/ - Configs do pipeline
+- configs/pipeline/ - Configs do pipeline
 
 ### REORIENTAÇÃO
 Se você sentir necessidade de:

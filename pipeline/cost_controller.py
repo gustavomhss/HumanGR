@@ -26,7 +26,7 @@ import yaml
 logger = logging.getLogger(__name__)
 
 # Default location for cost policy
-DEFAULT_COST_POLICY = Path(__file__).parent.parent.parent / "configs" / "pipeline_autonomo" / "cost_policy.yml"
+DEFAULT_COST_POLICY = Path(__file__).parent.parent.parent / "configs" / "cost_policy.yml"
 
 
 @dataclass

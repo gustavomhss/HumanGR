@@ -120,7 +120,7 @@ class QdrantConfig:
     timeout: float = field(default_factory=lambda: get_env_float("QDRANT_TIMEOUT", 45.0))
 
     # Collection
-    collection: str = field(default_factory=lambda: os.getenv("QDRANT_COLLECTION", "pipeline_v2_claims"))
+    collection: str = field(default_factory=lambda: os.getenv("QDRANT_COLLECTION", "humangr_claims"))
 
     # Hybrid Search Weights (OPTIMIZED)
     dense_weight: float = field(default_factory=lambda: get_env_float("QDRANT_DENSE_WEIGHT", 0.45))
@@ -393,7 +393,7 @@ class Mem0Config:
 
     # User
     default_user_id: str = field(
-        default_factory=lambda: os.getenv("MEM0_DEFAULT_USER_ID", "pipeline_autonomo_v2")
+        default_factory=lambda: os.getenv("MEM0_DEFAULT_USER_ID", "humangr")
     )
 
     # Memory Store
@@ -684,7 +684,7 @@ def get_rag_config() -> RAGStacksConfig:
             # Double-check pattern for thread safety
             if _config is None:
                 # Try to load from YAML if available
-                yaml_path = Path(__file__).parent.parent.parent.parent / "configs" / "pipeline_autonomo" / "rag_stacks" / "rag_stacks_config.yaml"
+                yaml_path = Path(__file__).parent.parent.parent.parent / "configs" / "rag_stacks" / "rag_stacks_config.yaml"
                 if yaml_path.exists():
                     _config = RAGStacksConfig.from_yaml(str(yaml_path))
                 else:

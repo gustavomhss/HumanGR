@@ -5,7 +5,7 @@ Validates ALL 27+ stacks to ensure they are:
 2. Functional (singleton/getter exists)
 3. Actually used in code (not just defined)
 
-Run: PYTHONPATH=src python -m pipeline_v2.langgraph.validate_all_stacks
+Run: PYTHONPATH=src python -m pipeline.langgraph.validate_all_stacks
 """
 
 import os
@@ -156,23 +156,23 @@ STACK_VALIDATIONS = {
 
     # REASONING STRATEGIES (native implementations)
     "got": {
-        "import": "pipeline_v2.langgraph.stack_synergy",
-        "functional_check": lambda: getattr(__import__('pipeline_v2.langgraph.stack_synergy', fromlist=['STACK_CAPABILITIES']), 'STACK_CAPABILITIES').get('got'),
+        "import": "pipeline.langgraph.stack_synergy",
+        "functional_check": lambda: getattr(__import__('pipeline.langgraph.stack_synergy', fromlist=['STACK_CAPABILITIES']), 'STACK_CAPABILITIES').get('got'),
         "category": "reasoning",
     },
     "reflexion": {
-        "import": "pipeline_v2.langgraph.stack_synergy",
-        "functional_check": lambda: getattr(__import__('pipeline_v2.langgraph.stack_synergy', fromlist=['STACK_CAPABILITIES']), 'STACK_CAPABILITIES').get('reflexion'),
+        "import": "pipeline.langgraph.stack_synergy",
+        "functional_check": lambda: getattr(__import__('pipeline.langgraph.stack_synergy', fromlist=['STACK_CAPABILITIES']), 'STACK_CAPABILITIES').get('reflexion'),
         "category": "reasoning",
     },
     "bot": {
-        "import": "pipeline_v2.langgraph.stack_synergy",
-        "functional_check": lambda: getattr(__import__('pipeline_v2.langgraph.stack_synergy', fromlist=['STACK_CAPABILITIES']), 'STACK_CAPABILITIES').get('bot'),
+        "import": "pipeline.langgraph.stack_synergy",
+        "functional_check": lambda: getattr(__import__('pipeline.langgraph.stack_synergy', fromlist=['STACK_CAPABILITIES']), 'STACK_CAPABILITIES').get('bot'),
         "category": "reasoning",
     },
     "active_rag": {
-        "import": "pipeline_v2.langgraph.stack_synergy",
-        "functional_check": lambda: getattr(__import__('pipeline_v2.langgraph.stack_synergy', fromlist=['STACK_CAPABILITIES']), 'STACK_CAPABILITIES').get('active_rag'),
+        "import": "pipeline.langgraph.stack_synergy",
+        "functional_check": lambda: getattr(__import__('pipeline.langgraph.stack_synergy', fromlist=['STACK_CAPABILITIES']), 'STACK_CAPABILITIES').get('active_rag'),
         "category": "rag",
     },
 

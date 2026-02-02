@@ -460,7 +460,7 @@ class StackAutoWire:
     def _get_local_stack(self, stack_name: str) -> Optional[Any]:
         """Get a local module as a stack.
 
-        These are modules in pipeline_v2/langgraph that provide stack-like functionality.
+        These are modules in pipeline/langgraph that provide stack-like functionality.
         """
         if stack_name == "guardrails":
             try:
@@ -514,7 +514,7 @@ class StackAutoWire:
         # 2026-01-20: FIX - Added GoT loader (was importing from wrong path)
         if stack_name == "got":
             try:
-                # GoT is in pipeline_autonomo, NOT pipeline_v2.langgraph
+                # GoT is in pipeline_autonomo, NOT pipeline.langgraph
                 from pipeline.got_integration import (
                     decompose_spec_with_got,
                     validate_with_got,
@@ -534,7 +534,7 @@ class StackAutoWire:
         # 2026-01-20: FIX - Added Reflexion loader (was importing from wrong path)
         if stack_name == "reflexion":
             try:
-                # Reflexion is in pipeline_v2.langgraph.reflexion, NOT reflexion_integration
+                # Reflexion is in pipeline.langgraph.reflexion, NOT reflexion_integration
                 from pipeline.langgraph.reflexion.engine import (
                     REFLEXION_AVAILABLE,
                     run_self_reflection,

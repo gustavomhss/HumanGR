@@ -7,7 +7,7 @@ Components:
 - crewai_coordination: Agent coordination and delegation
 
 Note: Agent personas are loaded from runtime_cards/*.yml via runtime_card_loader.py
-      and used by crewai_hierarchy.py. See configs/pipeline_autonomo/runtime_cards/
+      and used by crewai_hierarchy.py. See configs/pipeline/runtime_cards/
 
 Usage:
     from pipeline.agents import (

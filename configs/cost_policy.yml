@@ -1,0 +1,136 @@
+# cost_policy.yml
+# Cost control policy for Pipeline Autônomo
+# IMP-07: Pipeline não possui controle de custos
+
+version: "1.0"
+created: "2025-12-24"
+description: "Cost control policy for LLM API usage in Pipeline Autônomo"
+
+# =============================================================================
+# COST POLICY - Budget and rate limits
+# =============================================================================
+cost_policy:
+  # Budget limits (USD)
+  # Maximum spend per entire pipeline run
+  max_budget_usd_per_run: 10.0
+
+  # Maximum spend per individual sprint
+  max_budget_usd_per_sprint: 2.0
+
+  # Rate limits (tokens per minute)
+  # Prevents API throttling and controls spend velocity
+  rate_limit_tokens_per_minute: 100000
+
+  # Cost per token (USD)
+  # Based on Claude Sonnet 3.5 pricing as of December 2024
+  # Source: https://www.anthropic.com/api
+  cost_per_prompt_token: 0.000003      # $3 per 1M input tokens
+  cost_per_completion_token: 0.000015  # $15 per 1M output tokens
+
+  # Warning threshold (percentage)
+  # Alert when this percentage of budget is consumed
+  warning_threshold_percent: 80.0
+
+  # Enforcement flags
+  # RED TEAM FIX HL-04 (2026-01-04): enforce_budget MUST be true
+  # Per INV-012, bypass flags are PROHIBITED.
+  # Budgets are MANDATORY to prevent runaway costs.
+  enforce_budget: true
+  enforce_rate_limit: true
+
+# =============================================================================
+# PRICING TIERS - Alternative model pricing
+# =============================================================================
+# Reference for different Claude models
+# Uncomment and modify cost_policy above to use different models
+
+pricing_reference:
+  claude-opus-3:
+    cost_per_prompt_token: 0.000015      # $15 per 1M tokens
+    cost_per_completion_token: 0.000075  # $75 per 1M tokens
+
+  claude-sonnet-3.5:
+    cost_per_prompt_token: 0.000003      # $3 per 1M tokens
+    cost_per_completion_token: 0.000015  # $15 per 1M tokens
+
+  claude-haiku-3:
+    cost_per_prompt_token: 0.00000025    # $0.25 per 1M tokens
+    cost_per_completion_token: 0.00000125 # $1.25 per 1M tokens
+
+# =============================================================================
+# BUDGET PROFILES - Pre-configured budget tiers
+# =============================================================================
+# Use these as templates for different use cases
+
+budget_profiles:
+  # Development/testing - tight limits
+  dev:
+    max_budget_usd_per_run: 1.0
+    max_budget_usd_per_sprint: 0.2
+    rate_limit_tokens_per_minute: 50000
+
+  # Standard production run
+  standard:
+    max_budget_usd_per_run: 10.0
+    max_budget_usd_per_sprint: 2.0
+    rate_limit_tokens_per_minute: 100000
+
+  # Extended production run - larger projects
+  extended:
+    max_budget_usd_per_run: 50.0
+    max_budget_usd_per_sprint: 5.0
+    rate_limit_tokens_per_minute: 200000
+
+  # Unlimited - monitoring only
+  unlimited:
+    max_budget_usd_per_run: 1000000.0
+    max_budget_usd_per_sprint: 1000000.0
+    rate_limit_tokens_per_minute: 1000000
+    enforce_budget: false
+    enforce_rate_limit: false
+
+# =============================================================================
+# MONITORING - Cost monitoring configuration
+# =============================================================================
+monitoring:
+  # Save metrics to state directory
+  save_metrics: true
+
+  # Metrics file location (relative to state_dir)
+  metrics_file: "cost_metrics.json"
+
+  # Log cost warnings
+  log_warnings: true
+
+  # Alert channels (future: webhooks, emails)
+  alerts:
+    enabled: false
+    channels: []
+
+# =============================================================================
+# REPORTING - Cost report configuration
+# =============================================================================
+reporting:
+  # Include detailed breakdown by sprint
+  include_sprint_breakdown: true
+
+  # Include detailed breakdown by agent
+  include_agent_breakdown: true
+
+  # Include individual usage records
+  include_usage_records: false
+
+  # Report format (json, yaml, markdown)
+  format: "json"
+
+# =============================================================================
+# CONTEXT ANCHOR
+# =============================================================================
+# === CONTEXT ANCHOR - DO NOT DELETE ===
+# imp_07_cost_policy:
+#   id: "cost_policy"
+#   version: "1.0"
+#   created: "2025-12-24"
+#   purpose: "Cost control configuration for Pipeline Autônomo"
+#   related_to: "IMP-07"
+# === END CONTEXT ANCHOR ===

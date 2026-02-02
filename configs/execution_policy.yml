@@ -1,0 +1,499 @@
+# execution_policy.yml
+# Política de segurança para execução real de código pelo Ace Exec
+# IMP-01: Pipeline não executa código real
+
+version: "1.0"
+created: "2025-12-23"
+description: "Security policy for real code execution in Pipeline Autônomo"
+
+# =============================================================================
+# PATH RULES - Controle de diretórios permitidos
+# =============================================================================
+path_rules:
+  # Padrões permitidos (variáveis expandidas em runtime)
+  allowed_patterns:
+    - "${RUN_DIR}/**"
+    - "${SPRINT_DIR}/**"
+    - "${WORKSPACE}/**"
+    - "/tmp/pipeline_autonomo/**"
+
+  # Padrões bloqueados (segurança)
+  blocked_patterns:
+    # Sistema
+    - "/etc/**"
+    - "/usr/**"
+    - "/var/**"
+    - "/System/**"
+    - "/Library/**"
+    - "/bin/**"
+    - "/sbin/**"
+
+    # Home sensíveis
+    - "~/.ssh/**"
+    - "~/.aws/**"
+    - "~/.config/gcloud/**"
+    - "~/.kube/**"
+    - "~/.gnupg/**"
+
+    # Git config (pode vazar credenciais)
+    - "**/.git/config"
+    - "**/.gitconfig"
+
+    # Secrets
+    - "**/.env"
+    - "**/.env.*"
+    - "**/secrets.*"
+    - "**/credentials.*"
+    - "**/*.pem"
+    - "**/*.key"
+    - "**/*.p12"
+
+# =============================================================================
+# COMMAND RULES - Controle de comandos permitidos
+# =============================================================================
+command_rules:
+  # Comandos explicitamente permitidos
+  allowlist:
+    # Python
+    - pattern: "python"
+      description: "Python interpreter"
+      args_allowed: ["*"]
+    - pattern: "python3"
+      description: "Python 3 interpreter"
+      args_allowed: ["*"]
+    - pattern: "pip"
+      description: "Python package manager"
+      args_allowed: ["install", "freeze", "list", "show", "--version"]
+    - pattern: "pip3"
+      description: "Python 3 package manager"
+      args_allowed: ["install", "freeze", "list", "show", "--version"]
+
+    # Node/NPM
+    - pattern: "npm"
+      description: "Node package manager"
+      args_allowed: ["install", "run", "test", "build", "ci", "audit", "--version"]
+    - pattern: "node"
+      description: "Node interpreter"
+      args_allowed: ["*"]
+    - pattern: "npx"
+      description: "Node package executor"
+      args_allowed: ["*"]
+
+    # Git (operações seguras + push para sprint branches)
+    # IMP-14: Habilitado push para sprint/* branches
+    - pattern: "git"
+      description: "Version control"
+      args_allowed: ["add", "commit", "status", "diff", "log", "branch", "checkout", "init", "show", "rev-parse", "--version", "fetch", "remote", "push"]
+      # NOTA: push é permitido aqui mas bloqueado abaixo para branches protegidas
+      # O GitWorkflowManager valida que push só vai para sprint/* branches
+
+    # GitHub CLI (para PRs)
+    # IMP-14: Necessário para criar e gerenciar PRs
+    - pattern: "gh"
+      description: "GitHub CLI for PR workflow"
+      args_allowed: ["pr", "auth", "status", "api"]
+
+    # Testing
+    # IMP-13: Configuracoes expandidas para execucao real de testes
+    - pattern: "pytest"
+      description: "Python test runner"
+      args_allowed: ["-v", "-x", "-s", "--tb", "--cov", "--cov-report", "--junitxml", "-k", "--timeout", "--durations", "tests/", "test/", "."]
+    - pattern: "coverage"
+      description: "Python code coverage tool"
+      args_allowed: ["run", "report", "xml", "html", "--source", "--omit", "-m", "--branch"]
+    - pattern: "jest"
+      description: "JavaScript test runner"
+      args_allowed: ["*"]
+    - pattern: "vitest"
+      description: "Vite test runner"
+      args_allowed: ["*"]
+
+    # Linting/Formatting
+    - pattern: "ruff"
+      description: "Python linter"
+      args_allowed: ["check", "format", "--fix"]
+    - pattern: "mypy"
+      description: "Python type checker"
+      args_allowed: ["*"]
+    - pattern: "black"
+      description: "Python formatter"
+      args_allowed: ["*"]
+    - pattern: "isort"
+      description: "Python import sorter"
+      args_allowed: ["*"]
+    - pattern: "eslint"
+      description: "JavaScript linter"
+      args_allowed: ["*"]
+    - pattern: "prettier"
+      description: "Code formatter"
+      args_allowed: ["*"]
+
+    # Build tools
+    - pattern: "make"
+      description: "Build automation"
+      args_allowed: ["*"]
+    - pattern: "cargo"
+      description: "Rust build tool"
+      args_allowed: ["build", "test", "check", "fmt", "clippy"]
+    - pattern: "go"
+      description: "Go build tool"
+      args_allowed: ["build", "test", "fmt", "vet", "mod"]
+
+    # File operations (safe)
+    - pattern: "ls"
+      description: "List files"
+      args_allowed: ["*"]
+    - pattern: "cat"
+      description: "Display file"
+      args_allowed: ["*"]
+    - pattern: "head"
+      description: "Display file head"
+      args_allowed: ["*"]
+    - pattern: "tail"
+      description: "Display file tail"
+      args_allowed: ["*"]
+    - pattern: "wc"
+      description: "Word count"
+      args_allowed: ["*"]
+    - pattern: "grep"
+      description: "Search in files"
+      args_allowed: ["*"]
+    - pattern: "find"
+      description: "Find files"
+      args_allowed: ["*"]
+    - pattern: "mkdir"
+      description: "Create directory"
+      args_allowed: ["-p", "*"]
+    - pattern: "touch"
+      description: "Create empty file"
+      args_allowed: ["*"]
+    - pattern: "cp"
+      description: "Copy files"
+      args_allowed: ["-r", "-R", "*"]
+    - pattern: "mv"
+      description: "Move files"
+      args_allowed: ["*"]
+    - pattern: "echo"
+      description: "Print text"
+      args_allowed: ["*"]
+    - pattern: "pwd"
+      description: "Print working directory"
+      args_allowed: []
+    - pattern: "date"
+      description: "Print date"
+      args_allowed: ["*"]
+    - pattern: "tree"
+      description: "Display directory tree"
+      args_allowed: ["*"]
+
+  # Comandos explicitamente bloqueados
+  blocklist:
+    # Destrutivos
+    - pattern: "rm"
+      reason: "Destructive operation - use careful file management instead"
+    - pattern: "rmdir"
+      reason: "Destructive operation"
+    - pattern: "shred"
+      reason: "Destructive operation"
+
+    # Privilégios elevados
+    - pattern: "sudo"
+      reason: "Elevated privileges not allowed"
+    - pattern: "su"
+      reason: "User switching not allowed"
+    - pattern: "doas"
+      reason: "Elevated privileges not allowed"
+
+    # Permissões
+    - pattern: "chmod"
+      reason: "Permission changes not allowed"
+    - pattern: "chown"
+      reason: "Ownership changes not allowed"
+    - pattern: "chgrp"
+      reason: "Group changes not allowed"
+
+    # Network (potencial exfiltração)
+    - pattern: "curl"
+      reason: "Network operations restricted - use approved APIs"
+    - pattern: "wget"
+      reason: "Network operations restricted"
+    - pattern: "nc"
+      reason: "Network operations restricted"
+    - pattern: "netcat"
+      reason: "Network operations restricted"
+    - pattern: "telnet"
+      reason: "Network operations restricted"
+    - pattern: "ssh"
+      reason: "Remote access not allowed"
+    - pattern: "scp"
+      reason: "Remote copy not allowed"
+    - pattern: "sftp"
+      reason: "Remote transfer not allowed"
+    - pattern: "rsync"
+      reason: "Remote sync not allowed"
+    - pattern: "ftp"
+      reason: "FTP not allowed"
+
+    # Git perigoso
+    # IMP-14: Push para sprint/* é permitido, mas bloqueado para branches protegidas
+    - pattern: "git push --force"
+      reason: "Force push never allowed"
+    - pattern: "git push -f"
+      reason: "Force push never allowed"
+    - pattern: "git push origin main"
+      reason: "Direct push to main blocked - use PR workflow"
+    - pattern: "git push origin master"
+      reason: "Direct push to master blocked - use PR workflow"
+    - pattern: "git push origin production"
+      reason: "Direct push to production blocked"
+    - pattern: "git push origin prod"
+      reason: "Direct push to prod blocked"
+    - pattern: "git force"
+      reason: "Force operations not allowed"
+    - pattern: "git reset --hard"
+      reason: "Hard reset not allowed"
+    - pattern: "git rebase"
+      reason: "Rebase not allowed in automated workflow"
+
+    # Dynamic execution
+    - pattern: "eval"
+      reason: "Dynamic execution not allowed"
+    - pattern: "exec"
+      reason: "Process replacement not allowed"
+    - pattern: "source"
+      reason: "Script sourcing not allowed"
+
+    # Package managers (instalação)
+    - pattern: "apt"
+      reason: "System package installation not allowed"
+    - pattern: "apt-get"
+      reason: "System package installation not allowed"
+    - pattern: "yum"
+      reason: "System package installation not allowed"
+    - pattern: "dnf"
+      reason: "System package installation not allowed"
+    - pattern: "brew"
+      reason: "System package installation not allowed"
+
+    # Containers/VMs
+    - pattern: "docker"
+      reason: "Container operations require explicit approval"
+    - pattern: "podman"
+      reason: "Container operations require explicit approval"
+    - pattern: "kubectl"
+      reason: "Kubernetes operations require explicit approval"
+
+# =============================================================================
+# FILE RULES - Controle de arquivos
+# =============================================================================
+file_rules:
+  # Tamanho máximo de arquivo criado (1MB)
+  max_file_size_bytes: 1048576
+
+  # Máximo de arquivos por execução
+  max_files_per_execution: 100
+
+  # Extensões bloqueadas
+  blocked_extensions:
+    - ".exe"
+    - ".dll"
+    - ".so"
+    - ".dylib"
+    - ".bin"
+    - ".sh"      # Shell scripts diretos (use Bash tool)
+    - ".bash"
+    - ".zsh"
+    - ".env"
+    - ".pem"
+    - ".key"
+    - ".p12"
+    - ".pfx"
+    - ".crt"
+    - ".cer"
+
+  # Nomes de arquivo bloqueados
+  blocked_names:
+    - ".env"
+    - ".env.local"
+    - ".env.production"
+    - "secrets.yml"
+    - "secrets.yaml"
+    - "secrets.json"
+    - "credentials.json"
+    - "id_rsa"
+    - "id_ed25519"
+    - "known_hosts"
+
+# =============================================================================
+# SECRET DETECTION - Detecção de segredos em código
+# =============================================================================
+secret_detection:
+  enabled: true
+
+  # Ação: "warn_and_log" ou "block"
+  action: "warn_and_log"
+
+  # Padrões regex para detectar secrets
+  patterns:
+    # Senhas em strings
+    - "(?i)password\\s*[=:]\\s*['\"][^'\"]{4,}['\"]"
+    - "(?i)passwd\\s*[=:]\\s*['\"][^'\"]{4,}['\"]"
+    - "(?i)pwd\\s*[=:]\\s*['\"][^'\"]{4,}['\"]"
+
+    # API keys
+    - "(?i)api[_-]?key\\s*[=:]\\s*['\"][^'\"]{8,}['\"]"
+    - "(?i)apikey\\s*[=:]\\s*['\"][^'\"]{8,}['\"]"
+
+    # Tokens
+    - "(?i)token\\s*[=:]\\s*['\"][^'\"]{8,}['\"]"
+    - "(?i)auth[_-]?token\\s*[=:]\\s*['\"][^'\"]{8,}['\"]"
+    - "(?i)access[_-]?token\\s*[=:]\\s*['\"][^'\"]{8,}['\"]"
+    - "(?i)bearer\\s+[a-zA-Z0-9_-]{20,}"
+
+    # Secrets genéricos
+    - "(?i)secret\\s*[=:]\\s*['\"][^'\"]{8,}['\"]"
+    - "(?i)private[_-]?key\\s*[=:]"
+
+    # AWS
+    - "AKIA[0-9A-Z]{16}"
+    - "(?i)aws[_-]?access[_-]?key[_-]?id\\s*[=:]"
+    - "(?i)aws[_-]?secret[_-]?access[_-]?key\\s*[=:]"
+
+    # GitHub
+    - "ghp_[a-zA-Z0-9]{36}"
+    - "gho_[a-zA-Z0-9]{36}"
+    - "ghu_[a-zA-Z0-9]{36}"
+    - "ghs_[a-zA-Z0-9]{36}"
+    - "ghr_[a-zA-Z0-9]{36}"
+
+    # Slack
+    - "xox[baprs]-[0-9]{10,13}-[0-9]{10,13}[a-zA-Z0-9-]*"
+
+    # Stripe
+    - "sk_live_[0-9a-zA-Z]{24}"
+    - "rk_live_[0-9a-zA-Z]{24}"
+
+    # Private keys
+    - "-----BEGIN (RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----"
+    - "-----BEGIN PGP PRIVATE KEY BLOCK-----"
+
+# =============================================================================
+# LIMITS - Limites gerais
+# =============================================================================
+limits:
+  # Timeout máximo de execução (10 minutos)
+  max_execution_time_seconds: 600
+
+  # Máximo de comandos por task
+  max_commands_per_task: 50
+
+  # Máximo de retries por comando
+  max_retries_per_command: 3
+
+  # Timeout por comando individual (30 segundos)
+  command_timeout_seconds: 30
+
+  # Máximo de output capturado por comando (100KB)
+  max_output_bytes_per_command: 102400
+
+# =============================================================================
+# WAVE 1.2: AGENT EXECUTION MODES
+# =============================================================================
+# ExecutionMode values (from redis_schemas.py):
+#   - document_only: Can only read/write documentation
+#   - code_review: Can review code but not modify
+#   - code_modify: Can modify code but not execute
+#   - code_execute: Can execute code (highest privilege)
+
+agent_execution_modes:
+  # Default mode for all agents (fail-safe)
+  default_mode: "document_only"
+
+  # L0 System Controllers - highest privilege
+  L0_System:
+    pack_driver: "code_execute"
+    ops_ctrl: "code_execute"
+    run_master: "code_execute"
+    orchestrator: "code_execute"
+
+  # L1 Executive - document only
+  L1_Executive:
+    presidente: "document_only"
+    ceo: "document_only"
+
+  # L2 VPs - limited permissions
+  L2_VPs:
+    spec_vp: "document_only"
+    exec_vp: "code_review"
+
+  # L3 Masters - varied permissions
+  L3_Masters:
+    spec_master: "document_only"
+    sprint_planner: "document_only"
+    ace_exec: "code_modify"
+    qa_master: "code_review"
+    debt_tracker: "code_review"
+
+  # L4 Squad Leads - code modification
+  L4_Squad_Leads:
+    squad_lead_ops: "code_modify"
+    squad_lead_sec: "code_review"
+    squad_lead_p1: "code_modify"
+    squad_lead_p2: "code_modify"
+    squad_lead_p3: "code_modify"
+    squad_lead_p4: "code_modify"
+    squad_lead_p5: "code_modify"
+    squad_lead_hlx: "code_modify"
+    human_layer: "document_only"
+    human_layer_specialist: "document_only"
+
+  # L5 Workers - varied by role
+  L5_Workers:
+    # Spec workers
+    product_owner: "document_only"
+    project_manager: "document_only"
+    task_decomposer: "document_only"
+    # QA workers
+    auditor: "code_review"
+    agente_auditor: "code_review"
+    refinador: "code_review"
+    clean_reviewer: "code_review"
+    edge_case_hunter: "code_review"
+    gap_hunter: "code_review"
+    red_team_agent: "code_review"
+    # Implementation workers
+    technical_planner: "code_execute"
+    dependency_mapper: "code_execute"
+
+  # L6 Specialists - mostly code execute
+  L6_Specialists:
+    oracle_architect: "code_execute"
+    blockchain_engineer: "code_execute"
+    llm_orchestrator: "code_execute"
+    data_engineer: "code_execute"
+    ui_designer: "code_modify"
+    ux_researcher: "document_only"
+    legal_tech_specialist: "document_only"
+    web3_frontend: "code_execute"
+
+  # Special agents
+  Special:
+    arbiter: "document_only"
+    retrospective_master: "document_only"
+    external_liaison: "document_only"
+    integration_officer: "code_review"
+    resource_optimizer: "code_review"
+    system_observer: "document_only"
+
+# =============================================================================
+# CONTEXT ANCHOR
+# =============================================================================
+# === CONTEXT ANCHOR - DO NOT DELETE ===
+# imp_01_execution_policy:
+#   id: "execution_policy"
+#   version: "1.1"
+#   created: "2025-12-23"
+#   updated: "2026-01-01"
+#   purpose: "Security policy for Ace Exec real code execution"
+#   related_to: "IMP-01, WAVE-1.2"
+# === END CONTEXT ANCHOR ===

@@ -12,7 +12,7 @@ This module is DEPRECATED. Use LangGraph workflow instead:
     result = run_sprint_sync(sprint_id=sprint_id)
 
     # Or via CLI:
-    PYTHONPATH=src python -m pipeline_v2.cli lg S00
+    PYTHONPATH=src python -m pipeline.cli lg S00
 
 The orchestrator has been replaced by LangGraph StateGraph which provides:
 - Native checkpointing (no Temporal required)
@@ -35,7 +35,7 @@ from datetime import datetime, timezone
 
 # Issue deprecation warning on import
 warnings.warn(
-    "pipeline_v2.orchestrator is DEPRECATED. Use pipeline_v2.langgraph.bridge instead. "
+    "pipeline.orchestrator is DEPRECATED. Use pipeline.langgraph.bridge instead. "
     "See module docstring for migration guide.",
     DeprecationWarning,
     stacklevel=2,
@@ -89,7 +89,7 @@ class SprintResult:
 
 @dataclass
 class PipelineState:
-    """Pipeline state - DEPRECATED, use pipeline_v2.langgraph.state instead."""
+    """Pipeline state - DEPRECATED, use pipeline.langgraph.state instead."""
 
     run_id: str
     sprint_id: str
@@ -101,7 +101,7 @@ class Pipeline:
     """Pipeline Orchestrator - DEPRECATED.
 
     This class is a thin wrapper that redirects to LangGraph workflow.
-    For new code, use pipeline_v2.langgraph.bridge directly.
+    For new code, use pipeline.langgraph.bridge directly.
     """
 
     def __init__(self, config: Optional[PipelineConfig] = None):

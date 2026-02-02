@@ -1,0 +1,596 @@
+# Evaluation Stacks Configuration
+# Pipeline Autonomo v2.0
+# Based on: EVAL_STACKS_CONFIGURATION_CHECKLIST.md
+#
+# Author: Agent 4 - Evaluation Stacks Implementation Specialist
+# Date: 2026-01-21
+
+# =============================================================================
+# GLOBAL SETTINGS
+# =============================================================================
+
+version: "2.0.0"
+description: "Unified evaluation stacks configuration for Pipeline Autonomo"
+
+# Current evaluation phase (gradual promotion)
+# phase_1: Observation (weeks 1-4) - Collect data, no blocking
+# phase_2: Soft Gating (weeks 5-8) - Warn but don't block
+# phase_3: Selective Hard Gating (weeks 9-12) - Block on critical metrics
+# phase_4: Full Hard Gating (weeks 13+) - Block on all thresholds
+current_phase: "phase_1"
+
+# Cross-stack integration
+langfuse_enabled: true
+alert_channels:
+  - slack
+  - langfuse
+
+# =============================================================================
+# TRULENS - ONLINE SAMPLING EVALUATION
+# =============================================================================
+
+trulens:
+  # Core Configuration
+  app_id: "claim_verification_pipeline"
+  dashboard_port: 8501
+
+  # Provider Settings
+  provider: "openai"  # openai, anthropic, local
+  model: "gpt-4o-mini"
+
+  # Metrics Configuration
+  metrics:
+    groundedness:
+      enabled: true
+      threshold: 0.70
+      weight: 0.35
+      tier: 1  # Critical
+      must_pass: true
+      description: "Is response grounded in provided context?"
+
+    relevance:
+      enabled: true
+      threshold: 0.65
+      weight: 0.25
+      tier: 2  # Important
+      must_pass: false
+      description: "Is response relevant to input query?"
+
+    coherence:
+      enabled: true
+      threshold: 0.60
+      weight: 0.20
+      tier: 2
+      must_pass: false
+      description: "Is response internally consistent?"
+
+    helpfulness:
+      enabled: true
+      threshold: 0.55
+      weight: 0.20
+      tier: 3  # Nice to have
+      must_pass: false
+      description: "Is response helpful for the user?"
+
+  # Sampling Configuration (CRITICAL - Online Mode)
+  sampling:
+    rate: 0.10  # 10% of requests
+    burst_rate: 0.30  # 30% during burst periods
+    min_samples_per_hour: 50
+    max_samples_per_hour: 500
+
+  # Gate Mode
+  mode: "observation"  # observation | soft_gate | hard_gate
+  warning_threshold: 0.5
+  block_threshold: 0.4
+
+  # Recording
+  recording:
+    enabled: true
+    batch_size: 100
+    flush_interval_seconds: 60
+    retention_days: 30
+
+  # Regression Detection
+  regression:
+    baseline_window_days: 7
+    absolute_drop_threshold: 0.05
+    relative_drop_threshold: 0.10
+    min_samples_for_baseline: 1000
+
+# =============================================================================
+# BRAINTRUST - OFFLINE REGRESSION TESTING
+# =============================================================================
+
+braintrust:
+  # Project Settings
+  project: "pipeline-eval"
+  use_sdk: true
+
+  # Experiment Naming
+  naming_convention: "{sprint_id}_{pack_id}_{timestamp}"
+
+  # Scorers Configuration
+  scorers:
+    claim_correctness:
+      threshold: 0.85
+      weight: 0.40
+      tier: 1
+      must_pass: true
+      description: "Correctness of claim verification"
+
+    evidence_grounding:
+      threshold: 0.80
+      weight: 0.30
+      tier: 1
+      must_pass: true
+      description: "Quality of supporting evidence"
+
+    response_relevance:
+      threshold: 0.70
+      weight: 0.15
+      tier: 2
+      must_pass: false
+      description: "Response relevance to query"
+
+    format_compliance:
+      threshold: 0.90
+      weight: 0.10
+      tier: 2
+      must_pass: false
+      description: "Output format compliance"
+
+    latency_budget:
+      threshold: 0.80
+      weight: 0.05
+      tier: 3
+      must_pass: false
+      description: "Within latency budget"
+
+  # Tribunal System
+  tribunal:
+    comparison_window_days: 30
+    significance_level: 0.05
+    power: 0.80
+    effect_size_threshold: 0.10
+
+    tests:
+      - "paired_t_test"
+      - "wilcoxon_signed_rank"
+      - "mann_whitney_u"
+
+    trend_detection:
+      rolling_average_window: 5
+      method: "linear_regression"
+      decline_threshold: -0.02
+      improvement_threshold: 0.02
+
+  # Gate Mode
+  mode: "tribunal_observation"  # tribunal_observation | soft_gate | promotion_gate
+  composite_score_threshold: 0.75
+  block_on_tier_1_failure: true
+
+  # Dataset Configuration
+  datasets:
+    golden_test_cases:
+      name: "pipeline_golden_tests"
+      version: "v1.0"
+      size: 500
+      categories:
+        - claim_verification
+        - evidence_extraction
+        - confidence_scoring
+
+    regression_suite:
+      name: "pipeline_regression"
+      version: "v1.0"
+      size: 200
+      auto_update: true
+      update_frequency: "weekly"
+
+# =============================================================================
+# RAGAS - RAG-SPECIFIC EVALUATION
+# =============================================================================
+
+ragas:
+  # LLM Configuration
+  llm_provider: "anthropic"
+  model: "claude-3-haiku-20240307"
+
+  # Metrics Configuration
+  metrics:
+    faithfulness:
+      enabled: true
+      threshold: 0.75
+      weight: 0.30
+      tier: 1
+      must_pass: true
+      description: "Is answer grounded in context?"
+
+    answer_relevancy:
+      enabled: true
+      threshold: 0.70
+      weight: 0.25
+      tier: 1
+      must_pass: false
+      description: "Is answer relevant to question?"
+
+    context_precision:
+      enabled: true
+      threshold: 0.65
+      weight: 0.20
+      tier: 2
+      must_pass: false
+      description: "Is retrieved context useful?"
+
+    context_recall:
+      enabled: true
+      threshold: 0.70
+      weight: 0.15
+      tier: 2
+      must_pass: false
+      description: "Does context cover required info?"
+
+    answer_similarity:
+      enabled: true
+      threshold: 0.65
+      weight: 0.05
+      tier: 3
+      must_pass: false
+      description: "Similarity to ground truth"
+
+    answer_correctness:
+      enabled: true
+      threshold: 0.70
+      weight: 0.05
+      tier: 2
+      must_pass: false
+      description: "Overall correctness"
+
+  # Custom RAG Metrics for Pipeline Autonomo
+  custom_metrics:
+    evidence_sufficiency:
+      min_sources: 3
+      ideal_sources: 5
+      threshold: 0.70
+
+    source_diversity:
+      min_domains: 2
+      threshold: 0.60
+
+    temporal_relevance:
+      max_age_days: 365
+      threshold: 0.65
+
+    citation_accuracy:
+      threshold: 0.90
+
+  # Batch Configuration
+  batch:
+    size: 50
+    parallel_workers: 4
+    timeout_per_sample_seconds: 30
+
+  # Regression Detection
+  baselines:
+    faithfulness: 0.78
+    answer_relevancy: 0.72
+    context_precision: 0.68
+    context_recall: 0.73
+
+  regression_alert_threshold: 0.05
+
+# =============================================================================
+# DEEPEVAL - DEEP EVALUATION FRAMEWORK
+# =============================================================================
+
+deepeval:
+  # Model Configuration
+  model: "gpt-4o-mini"
+  include_reason: true
+
+  # Metrics Configuration
+  metrics:
+    faithfulness:
+      threshold: 0.7
+      tier: 1
+      description: "Faithfulness to context"
+
+    hallucination:
+      threshold: 0.5  # Lower = stricter
+      tier: 1
+      must_pass: true
+      description: "Hallucination detection (lower is better)"
+
+    answer_relevancy:
+      threshold: 0.7
+      tier: 2
+      description: "Answer relevancy"
+
+    toxicity:
+      threshold: 0.5
+      tier: 3
+      description: "Toxicity check"
+
+    context_precision:
+      threshold: 0.7
+      tier: 2
+      description: "Context precision"
+
+    context_recall:
+      threshold: 0.7
+      tier: 2
+      description: "Context recall"
+
+  # Hallucination Detection Strategies
+  hallucination_strategies:
+    strict:
+      threshold: 0.3
+      action: "block"
+      use_cases:
+        - medical
+        - legal
+        - financial
+
+    moderate:
+      threshold: 0.5
+      action: "warn"
+      use_cases:
+        - general_claims
+
+    relaxed:
+      threshold: 0.7
+      action: "log"
+      use_cases:
+        - creative
+        - exploratory
+
+    claim_verification:
+      threshold: 0.4
+      action: "flag_for_review"
+      require_human_review_above: 0.6
+
+  # Production Mode
+  production_metrics:
+    - hallucination
+    - answer_relevancy
+
+# =============================================================================
+# CLEANLAB - DATA QUALITY AND LABEL CLEANING
+# =============================================================================
+
+cleanlab:
+  # TLM Configuration
+  quality_preset: "best"  # best, high, medium, low, base
+
+  # Trustworthiness Thresholds
+  trustworthiness:
+    high: 0.9
+    medium: 0.7
+    low: 0.5
+    threshold: 0.7
+
+  # Hallucination Detection
+  hallucination:
+    threshold: 0.5
+    types:
+      - factual
+      - unsupported
+      - contradictory
+      - fabricated
+
+  # Label Quality
+  label_quality:
+    possible_labels:
+      - "TRUE"
+      - "FALSE"
+      - "PARTIALLY_TRUE"
+      - "UNVERIFIABLE"
+    min_quality_score: 0.7
+    flag_threshold: 0.5
+
+  # Data Quality Pipeline Actions
+  quality_actions:
+    high_quality: "approve"
+    medium_quality: "flag_for_review"
+    low_quality: "quarantine"
+
+# =============================================================================
+# PHOENIX (ARIZE) - TRACING AND RAG DEBUGGING
+# =============================================================================
+
+phoenix:
+  # Host Configuration
+  host: "http://localhost:6006"
+  project_name: "brains_pipeline"
+
+  # Tracing
+  tracing:
+    auto_instrument: true
+    frameworks:
+      - langchain
+      - llama_index
+    span_kinds:
+      - llm
+      - retriever
+      - embedding
+      - tool
+      - chain
+      - agent
+      - reranker
+
+  # Experiment Tracking
+  experiments:
+    enabled: true
+    naming_convention: "{name}_{timestamp}"
+    metrics_to_track:
+      - accuracy
+      - latency
+      - cost
+
+  # Drift Detection
+  drift:
+    enabled: true
+    reference_window_days: 7
+    detection_threshold: 0.10
+    severity_levels:
+      none: 0.05
+      low: 0.10
+      medium: 0.20
+      high: 0.30
+
+  # PSI (Population Stability Index)
+  psi:
+    enabled: true
+    bins: 10
+    alert_threshold: 0.25
+
+# =============================================================================
+# LITERALAI - HUMAN LABELING AND DATASET CURATION
+# =============================================================================
+
+literalai:
+  # Project Settings
+  project: "brains-pipeline"
+
+  # Dataset Categories
+  datasets:
+    claim_verification:
+      description: "Human-labeled claim verification examples"
+      categories:
+        - true_claims
+        - false_claims
+        - partially_true
+        - unverifiable
+
+    edge_cases:
+      description: "Difficult or ambiguous cases"
+
+    error_corrections:
+      description: "Model errors corrected by humans"
+
+  # Quality Labels
+  quality_labels:
+    - correct
+    - incorrect
+    - partial
+    - needs_review
+    - skip
+
+  # Feedback Types
+  feedback_types:
+    - thumbs_up
+    - thumbs_down
+    - rating
+    - correction
+    - comment
+    - label
+
+  # Curation Workflow
+  curation:
+    min_reviewers_per_example: 2
+    agreement_threshold: 0.80
+    auto_approve_threshold: 0.95
+    escalation_on_disagreement: true
+
+# =============================================================================
+# COMPOSITE SCORING
+# =============================================================================
+
+composite:
+  weights:
+    groundedness: 0.30
+    faithfulness: 0.25
+    relevance: 0.20
+    correctness: 0.15
+    coherence: 0.10
+
+  # Phase-specific thresholds
+  phase_thresholds:
+    phase_1:
+      blocking_threshold: 0.0  # No blocking
+      warning_threshold: 0.5
+      acknowledge_required: false
+
+    phase_2:
+      blocking_threshold: 0.0
+      warning_threshold: 0.5
+      acknowledge_required: true
+
+    phase_3:
+      blocking_threshold: 0.4  # Block critical only
+      warning_threshold: 0.5
+      acknowledge_required: true
+
+    phase_4:
+      blocking_threshold: 0.5  # Full blocking
+      warning_threshold: 0.6
+      acknowledge_required: true
+
+# =============================================================================
+# EVALUATION POINTS
+# =============================================================================
+
+evaluation_points:
+  # TruLens (Online)
+  online_sampling:
+    spec_generation:
+      sampling_rate: 0.10
+      blocking: false
+    qa_responses:
+      sampling_rate: 0.15
+      blocking: false
+    agent_decisions:
+      sampling_rate: 0.10
+      blocking: false
+    signoff_justifications:
+      sampling_rate: 0.20
+      blocking: false
+    rag_retrievals:
+      sampling_rate: 0.10
+      blocking: false
+
+  # Braintrust (Offline)
+  regression_testing:
+    per_sprint:
+      trigger: "end_of_sprint"
+      dataset: "regression_suite"
+      blocking: false
+    per_pack:
+      trigger: "end_of_pack"
+      dataset: "golden_tests + regression_suite"
+      blocking: "can_become_yes"
+    per_release:
+      trigger: "pre_release"
+      dataset: "full_test_suite"
+      blocking: "yes_when_stable"
+    continuous:
+      trigger: "nightly"
+      dataset: "sampled_production"
+      blocking: false
+
+# =============================================================================
+# ALERTING CONFIGURATION
+# =============================================================================
+
+alerting:
+  channels:
+    slack:
+      enabled: true
+      webhook_env_var: "SLACK_WEBHOOK_URL"
+      severity_filter:
+        - moderate
+        - critical
+
+    email:
+      enabled: false
+      recipients_env_var: "ALERT_EMAIL_RECIPIENTS"
+
+    langfuse:
+      enabled: true
+      log_all: true
+
+  severity_mapping:
+    minor: "absolute_drop < 0.03"
+    moderate: "absolute_drop >= 0.03 AND absolute_drop < 0.07"
+    critical: "absolute_drop >= 0.07"

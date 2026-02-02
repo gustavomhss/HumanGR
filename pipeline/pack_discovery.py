@@ -53,7 +53,7 @@ logger = logging.getLogger(__name__)
 # CONSTANTS
 # ============================================================================
 
-# Base path do projeto (assumindo que estamos em src/pipeline_autonomo/)
+# Base path do projeto (assumindo que estamos em src/pipeline/)
 _PROJECT_ROOT = Path(__file__).parent.parent.parent
 _VERITAS_LIBRARY = _PROJECT_ROOT / "docs" / "context_packs"
 _UNIFIED_INDEX_PATH = _VERITAS_LIBRARY / "UNIFIED_PACK_INDEX.yaml"

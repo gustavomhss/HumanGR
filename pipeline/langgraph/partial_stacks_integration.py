@@ -2,27 +2,27 @@
 
 This module integrates the 5 PARTIAL stacks into the LangGraph StateGraph workflow:
 
-1. Active RAG (pipeline_v2/rag/active_rag.py)
+1. Active RAG (pipeline/rag/active_rag.py)
    - Proactive retrieval for context enrichment
    - Query prediction and prefetching
    - Integrated into INIT and EXEC nodes
 
-2. Buffer of Thoughts (pipeline_v2/reasoning/bot_chain.py)
+2. Buffer of Thoughts (pipeline/reasoning/bot_chain.py)
    - Accumulated reasoning across workflow
    - Template-based structured reasoning
    - Integrated into EXEC and GATE nodes
 
-3. RAGAS Evaluator (pipeline_v2/evaluation/ragas_eval.py)
+3. RAGAS Evaluator (pipeline/evaluation/ragas_eval.py)
    - RAG response evaluation metrics
    - Faithfulness, relevancy, precision
    - Integrated into QA/GATE nodes
 
-4. Phoenix Traces (pipeline_v2/evaluation/phoenix_traces.py)
+4. Phoenix Traces (pipeline/evaluation/phoenix_traces.py)
    - OpenTelemetry-based tracing
    - Embedding drift detection
    - Integrated across ALL nodes
 
-5. DeepEval Extended (pipeline_v2/evaluation/deepeval_extended.py)
+5. DeepEval Extended (pipeline/evaluation/deepeval_extended.py)
    - Hallucination detection
    - Faithfulness metrics
    - Integrated into GATE and SIGNOFF nodes

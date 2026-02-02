@@ -1,0 +1,460 @@
+# RAG Stacks Optimized Configuration
+# ==================================
+# Version: 1.0.0
+# Author: Agent 1 - RAG Stacks Implementation Specialist
+# Date: 2026-01-21
+# Reference: RAG_STACKS_OPTIMIZATION_CHECKLIST.md
+#
+# This configuration contains OPTIMIZED values (not defaults)
+# tuned specifically for the autonomous software development pipeline.
+
+version: "1.0.0"
+
+# ===========================================================================
+# Stack 1: Qdrant - Vector Database for Embeddings
+# ===========================================================================
+qdrant:
+  # Connection
+  url: "${QDRANT_URL:-http://localhost:6333}"
+  grpc_port: 6334
+  prefer_grpc: true
+  timeout: 45.0  # Increased from 30.0 for complex queries
+
+  # Collection
+  collection: "pipeline_v2_claims"  # Namespaced for isolation
+
+  # Hybrid Search Weights (OPTIMIZED)
+  # Total should = 1.0
+  dense_weight: 0.45   # Reduced from 0.5 to balance hybrid
+  sparse_weight: 0.40  # Increased from 0.3 for better keyword matching
+  bm25_weight: 0.15    # Reduced from 0.2, SPLADE better for modern retrieval
+
+  # Retrieval Parameters
+  default_top_k: 15    # Increased from 10 for better recall
+  score_threshold: 0.35  # Lowered from 0.5 to reduce false negatives
+
+  # Connection Pooling
+  pool_size: 10
+  batch_size: 100
+
+  # HNSW Index Parameters (Advanced)
+  hnsw:
+    ef: 256           # Increased from 128 for higher accuracy
+    m: 32             # Increased from 16 for better recall
+
+  # Quantization (Production)
+  quantization:
+    enabled: true     # Enable for 4x memory reduction
+    type: "scalar"
+    quantile: 0.99
+
+  # Storage
+  on_disk_payload: true  # Scale beyond RAM for large data
+
+  # Replication (Production)
+  replication:
+    factor: 2         # High availability
+    write_consistency: 1  # Speed over consistency
+
+  # Operation-Specific Weights
+  weights_by_operation:
+    spec:
+      dense: 0.50
+      sparse: 0.35
+      bm25: 0.15
+    exec:
+      dense: 0.40     # Code keywords matter more
+      sparse: 0.45
+      bm25: 0.15
+    gate:
+      dense: 0.45
+      sparse: 0.40
+      bm25: 0.15
+
+  # Chunk Configuration
+  chunking:
+    size: 512         # Balance: smaller = more precise, larger = more context
+    overlap: 64       # 12.5% overlap for continuity
+
+  # Prefetch for Active RAG
+  prefetch_window: 5
+
+# ===========================================================================
+# Stack 2: Active RAG - Proactive Retrieval with Gap Detection
+# ===========================================================================
+active_rag:
+  enabled: true
+
+  # Cache Configuration
+  prediction_cache_ttl: 600  # Increased from 300 for sprint context
+  max_prefetch_queries: 8    # Increased from 5 for complex tasks
+
+  # Iterative Retrieval
+  max_iterations: 4          # Increased from 3 for complex queries
+  convergence_threshold: 0.85  # Increased from 0.8 for thoroughness
+  max_refinements: 3         # Increased from 2
+  feedback_weight: 0.7       # Increased from 0.5, prefer explicit feedback
+
+  # Pattern Analysis
+  pattern_window_hours: 48   # Increased from 24 for longer history
+  min_pattern_count: 2       # Increased from 1, require repeated patterns
+
+  # Query Prediction Strategies (weights)
+  prediction_strategies:
+    historical: 0.30
+    topic: 0.25
+    template: 0.25
+    llm: 0.20
+
+  # LLM Prediction
+  llm_prediction:
+    enabled: true
+    min_confidence: 0.6  # Only use LLM if heuristics < 0.6
+    model: "claude-3-5-sonnet"
+
+  # Prefetch Configuration
+  prefetch:
+    priority:
+      historical: 1
+      template: 2
+      topic: 3
+      llm_predicted: 4
+    timeout_ms: 2000  # Don't block main query
+    async: true
+
+# ===========================================================================
+# Stack 3: Self-RAG - Self-Reflective Retrieval
+# ===========================================================================
+self_rag:
+  enabled: true
+
+  # Main Thresholds (LOWERED for better recall)
+  relevance_threshold: 0.65    # Lowered from 0.7
+  support_threshold: 0.55      # Lowered from 0.6 - QUICK WIN
+  utility_threshold: 0.55      # Increased from 0.5 for quality
+  max_iterations: 4            # Increased from 3
+
+  # Reflection Token Thresholds
+  tokens:
+    retrieval_yes_threshold: 0.45      # Lowered from 0.5, prefer retrieval
+    relevance_relevant_threshold: 0.65  # Lowered from 0.7, accept more docs
+    support_fully_supported: 0.55       # Lowered from 0.6
+    support_partially_supported: 0.35   # Increased from 0.3, stricter partial
+    utility_weight: 0.35               # Increased from 0.3
+
+  # Reflection Weights
+  reflection_weights:
+    relevance: 0.35
+    support: 0.40    # Most important for grounding
+    utility: 0.25
+
+  # Early Exit Conditions
+  early_exit:
+    enabled: true
+    all_tokens_pass: true
+    convergence_detected: true
+    max_utility_reached: 0.9
+
+  # Adaptive Iterations
+  adaptive:
+    enabled: true
+    high_quality_threshold: 0.8  # relevance > 0.8 AND support > 0.7 = 1 iteration
+    medium_quality_threshold: 0.6  # 2 iterations
+    low_quality_iterations: 4
+
+# ===========================================================================
+# Stack 4: Corrective RAG (CRAG) - Self-Correcting Retrieval
+# ===========================================================================
+corrective_rag:
+  enabled: true
+
+  # Quality Thresholds
+  quality_threshold: 0.55  # Increased from 0.5
+
+  # Ambiguity Range (NARROWED - QUICK WIN)
+  ambiguity_range:
+    low: 0.40   # Increased from 0.3
+    high: 0.65  # Decreased from 0.7
+
+  # Knowledge Strips
+  max_strips: 15           # Increased from 10
+  strip_min_length: 25     # Increased from 10 to filter noise
+  strip_relevance_threshold: 0.35  # Increased from 0.3
+  strip_confidence_min: 0.60       # Increased from 0.5
+
+  # Strip Type Weights
+  strip_type_weights:
+    factual: 1.0
+    definition: 0.9
+    statistic: 1.1    # Boost stats
+    citation: 1.2     # Boost citations
+    example: 0.8
+    opinion: 0.5      # Demote opinions
+
+  # Web Search Fallback
+  web_search:
+    enabled: true
+    max_requests_per_minute: 10
+    timeout_seconds: 5.0
+    max_results: 5
+    prefer_sources:
+      - "wikipedia"
+      - "arxiv"
+      - "gov"
+      - "edu"
+
+  # Action Hysteresis
+  hysteresis:
+    enabled: true
+    correct_stay_threshold: 0.55  # Stay correct with lower threshold
+    incorrect_stay_threshold: 0.50
+
+# ===========================================================================
+# Stack 5: MemoRAG - Memory-Augmented Retrieval with State Compression
+# ===========================================================================
+memo_rag:
+  enabled: true
+
+  # Cache Configuration (EXPANDED - QUICK WIN)
+  cache_size: 5000         # Increased from 1000 for sprint-level caching
+  compression_ratio: 0.25  # Decreased from 0.3 for more aggressive compression
+
+  # Episodic Memory
+  episodic_memory_window: 250  # Increased from 100 for longer sprint context
+  lru_eviction_batch: 10       # Increased from 1 for performance
+
+  # Sprint State Compression
+  compression:
+    keep_top_k_queries: 25     # Increased from 10
+    topic_extraction_limit: 30  # Increased from 20
+    entity_extraction_limit: 20 # Increased from 10
+    min_query_similarity: 0.3   # New: cluster similar queries
+
+  # Deduplication
+  deduplication:
+    enabled: true
+    similarity_threshold: 0.85
+
+  # Access Pattern Tracking
+  access_tracking:
+    recency_weight: 0.6
+    frequency_weight: 0.4
+
+# ===========================================================================
+# Stack 6: Mem0 - Long-Term Memory for Interactions
+# ===========================================================================
+mem0:
+  enabled: true
+
+  # Connection
+  url: "${MEM0_URL:-http://localhost:8080}"
+  timeout: 45.0  # Increased from 30.0
+
+  # User Configuration
+  default_user_id: "pipeline_autonomo_v2"
+
+  # Memory Store
+  memory_type: "hybrid"    # Changed from "episodic" to support both
+  retention_days: 90       # Increased from 30
+  max_memories_per_user: 2500  # Increased from 1000
+  embedding_model: "nomic-embed-text"  # Consistent with Qdrant
+
+  # Memory Categories
+  categories:
+    preferences:
+      priority: 1
+      retention: "permanent"
+    few_shots:
+      priority: 2
+      retention: "90_days"
+    interactions:
+      priority: 3
+      retention: "30_days"
+
+  # Retrieval
+  retrieval:
+    limit_per_category: 5
+    sort_by: "relevance"
+
+# ===========================================================================
+# Stack 7: Letta - Stateful Agent Memory
+# ===========================================================================
+letta:
+  enabled: true
+
+  # Connection
+  service_url: "${LETTA_SERVICE_URL:-http://localhost:8283}"
+  timeout: 90.0  # Increased from 60.0
+  default_model: "claude-3-5-sonnet"  # Better quality than letta-free
+
+  # Agent Memory Configuration
+  memory:
+    persona_token_limit: 3000   # Increased from 2000 for richer personas
+    human_token_limit: 1500     # Decreased from 2000, less human more agent
+    memory_pressure_threshold: 0.85  # Decreased from 0.9 for earlier archival
+    recall_topk: 15             # Increased from 10
+
+  # Persona Templates
+  personas:
+    spec_master: |
+      You are the Spec Master, responsible for creating precise specifications.
+      You have deep expertise in requirement analysis and technical writing.
+      You always ensure specifications are complete, testable, and unambiguous.
+      Key traits: Precise, thorough, detail-oriented, systematic.
+
+    ace_exec: |
+      You are the Ace Exec, the elite code executor.
+      You write clean, efficient, well-tested code.
+      You follow best practices and patterns from the codebase.
+      Key traits: Efficient, practical, quality-focused, pragmatic.
+
+    qa_master: |
+      You are the QA Master, guardian of quality.
+      You ensure all outputs meet the highest standards.
+      You identify edge cases and potential issues proactively.
+      Key traits: Critical, thorough, systematic, detail-oriented.
+
+  # Memory Segments
+  segments:
+    core:
+      archival: false
+    learnings:
+      archival: true
+      threshold: 5000
+    context:
+      archival: true
+      threshold: 3000
+
+# ===========================================================================
+# Stack 8: A-MEM - Atomic Notes Memory (Zettelkasten)
+# ===========================================================================
+amem:
+  enabled: true
+
+  # Linking Configuration (OPTIMIZED)
+  link_threshold: 0.65      # Lowered from 0.7 for more connections
+  max_links: 15             # Increased from 10
+  min_note_length: 50       # Increased from 10 for quality filter
+  embedding_model: "nomic-embed-text"
+
+  # Note Configuration
+  max_notes_per_topic: 200  # Increased from 100
+  link_decay_days: 30       # New: fresh links preferred
+  auto_link_on_create: true
+
+  # Note Type Weights
+  note_type_weights:
+    error: 1.5              # Errors are high value
+    correction: 1.4
+    learning: 1.2
+    pattern: 1.1
+    observation: 0.8
+    note: 0.7
+
+  # Linking Calculation Weights
+  link_score_weights:
+    semantic: 0.40
+    topic_overlap: 0.25
+    entity_overlap: 0.20
+    type_compatibility: 0.15
+
+  # Retrieval Configuration
+  retrieval:
+    graph_depth: 2
+    limit: 15
+    expand_top_links: 5
+
+# ===========================================================================
+# Stack 9: GraphRAG - Graph-Enhanced Retrieval
+# ===========================================================================
+graphrag:
+  enabled: true
+
+  # Connection
+  service_url: "${GRAPHRAG_SERVICE_URL:-http://localhost:50052}"
+  timeout: 90.0  # Increased from 60.0
+
+  # Search Configuration
+  search_type: "hybrid"     # Changed from "local" for best of both
+  top_k: 15                 # Increased from 10
+
+  # Graph Configuration
+  graph:
+    community_level: 2      # Medium granularity
+    entity_types:
+      - "claim"
+      - "source"
+      - "topic"
+    relationship_types:
+      - "supports"
+      - "contradicts"
+      - "cites"
+    min_community_size: 3   # Filter noise
+
+  # Search Type Selection
+  search_type_rules:
+    local:
+      condition: "has_specific_entities"
+    global:
+      condition: "is_summary_or_topic_query"
+    hybrid:
+      condition: "default"
+
+  # Claim Verification
+  claim_verification:
+    support_ratio_threshold: 2.0  # support_count > contradict_count * 2
+    confidence_weight: "source_credibility"
+
+# ===========================================================================
+# Cross-Stack Integration
+# ===========================================================================
+orchestration:
+  enabled: true
+
+  # Query Routing
+  routing:
+    claim_verification:
+      primary: "graphrag"
+      secondary: "self_rag"
+    code_retrieval:
+      primary: "active_rag"
+      fallback: "corrective_rag"
+      fallback_threshold: 0.6
+    spec_generation:
+      primary: "active_rag"
+      prefetch_depth: 2
+    default:
+      primary: "active_rag"
+
+  # Memory Coordination
+  memory_coordination:
+    enabled: true
+    stores:
+      - "letta"
+      - "mem0"
+      - "amem"
+    parallel_retrieval: true
+    merge_limit: 10
+
+# ===========================================================================
+# Performance Optimizations
+# ===========================================================================
+performance:
+  # Connection Pooling (All HTTP clients)
+  connection_pooling:
+    enabled: true
+    max_connections: 100
+    max_keepalive_connections: 20
+    keepalive_expiry: 30
+
+  # Async Operations
+  async:
+    prefetch_everywhere: true
+    parallel_retrieval: true
+    non_blocking_cache: true
+
+  # Caching
+  caching:
+    query_cache_ttl: 300
+    embedding_cache_ttl: 3600
+    result_cache_ttl: 600

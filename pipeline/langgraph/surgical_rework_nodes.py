@@ -13,9 +13,9 @@ Key Nodes:
 
 CANONICAL INTEGRATION (2026-01-31):
 - Uses CrewAI for ALL execution (create_exec_crew)
-- Uses pipeline_autonomo.task_context for TaskContext/TaskResult
-- Uses pipeline_autonomo.gate_runner for validation
-- Uses pipeline_autonomo.instruction_builder for rework instructions
+- Uses pipeline.task_context for TaskContext/TaskResult
+- Uses pipeline.gate_runner for validation
+- Uses pipeline.instruction_builder for rework instructions
 - NO direct daemon calls - CrewAI is the orchestrator
 
 Usage:
@@ -61,7 +61,7 @@ from .state import (
 )
 
 # CANONICAL IMPORTS (2026-01-31)
-# TaskContext and TaskResult from pipeline_autonomo (source of truth)
+# TaskContext and TaskResult from pipeline (source of truth)
 from pipeline.task_context import TaskContext, TaskResult
 
 # CrewAI is the official orchestrator for ALL phases

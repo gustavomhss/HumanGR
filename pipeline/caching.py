@@ -562,13 +562,13 @@ def load_config(config_name: str, config_dir: Optional[Path] = None) -> Dict[str
 
     Args:
         config_name: Configuration name (without extension)
-        config_dir: Optional directory (default: configs/pipeline_autonomo)
+        config_dir: Optional directory (default: configs)
 
     Returns:
         Configuration dictionary
     """
     if config_dir is None:
-        config_dir = Path(__file__).parent.parent.parent / "configs" / "pipeline_autonomo"
+        config_dir = Path(__file__).parent.parent.parent / "configs"
 
     # Try YAML first
     yaml_path = config_dir / f"{config_name}.yaml"

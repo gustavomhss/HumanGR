@@ -276,7 +276,7 @@ def ensure_gate_selection_exists(
 ) -> Path:
     """Ensure gate_selection.yml exists, create if not.
 
-    MIGRATION FIX from pipeline_v2/langgraph/task_executor.py
+    MIGRATION FIX from pipeline/langgraph/task_executor.py
     This function guarantees the gate_selection.yml file exists before
     gate validation runs, preventing FileNotFoundError.
 
@@ -302,7 +302,7 @@ def ensure_gate_selection_exists(
         raise RuntimeError(
             f"gate_selection.yml not found at {gate_selection_path} and "
             "gate_selector is not available to create it. "
-            "Ensure pipeline_autonomo.gate_selector is installed."
+            "Ensure pipeline.gate_selector is installed."
         )
 
     logger.info(f"Creating gate_selection.yml for {sprint_id} (track={track}, profile={profile})")
@@ -2127,7 +2127,7 @@ def run_gate(
     """Execute a gate command with timeout handling.
 
     Security: Applies @secure_gate checks via _run_with_security_gate_sync().
-    See pipeline_v2.security.gate_integration for security policies per gate (G0-G8).
+    See pipeline.security.gate_integration for security policies per gate (G0-G8).
 
     Args:
         gate_id: Gate identifier (e.g., "G0", "G1")

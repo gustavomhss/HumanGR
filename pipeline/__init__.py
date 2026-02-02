@@ -2,7 +2,7 @@
 HumanGR Pipeline - Fork isolado do Brains Pipeline
 
 Este é um pipeline COMPLETAMENTE SEPARADO do Veritas.
-Nunca importa nada de pipeline_autonomo ou pipeline_v2.
+Nunca importa nada de pipeline_autonomo ou pipeline.
 
 SEPARAÇÃO ABSOLUTA:
 - Qdrant collection: humangr_* (NUNCA pipeline_*)

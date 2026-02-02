@@ -264,7 +264,7 @@ SHARED_MEMORY_AVAILABLE = False
 def get_crewai_shared_memory_config() -> dict | None:
     """Get shared memory configuration for CrewAI crews.
 
-    GHOST CODE INTEGRATION: Uses pipeline_v2.agents.crewai_shared_memory
+    GHOST CODE INTEGRATION: Uses pipeline.agents.crewai_shared_memory
 
     Returns:
         Memory config dict for CrewAI, or None if not available.
@@ -295,7 +295,7 @@ CREW_COORDINATION_AVAILABLE = False
 def get_coordinated_crew_executor():
     """Get crew coordinator for multi-crew orchestration.
 
-    GHOST CODE INTEGRATION: Uses pipeline_v2.agents.crewai_coordination
+    GHOST CODE INTEGRATION: Uses pipeline.agents.crewai_coordination
 
     Returns:
         CrewCoordinator instance, or None if not available.

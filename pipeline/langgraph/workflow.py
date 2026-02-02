@@ -3335,10 +3335,10 @@ class WorkflowNodes:
 
                 # FIX: Add required keyword arguments repo_root and track
                 # FIX 2026-01-23: Correct repo_root calculation
-                # run_dir = .../brains/out/runs/lg_xxx
-                # parent = .../brains/out/runs
-                # parent.parent = .../brains/out
-                # parent.parent.parent = .../brains  <- CORRECT
+                # run_dir = .HL-MCP/out/runs/lg_xxx
+                # parent = .HL-MCP/out/runs
+                # parent.parent = .HL-MCP/out
+                # parent.parent.parent = .HL-MCP  <- CORRECT
                 repo_root = self.run_dir.parent.parent.parent
 
                 # GAP-5: Build validation_context from context_pack for gate validation
@@ -5640,7 +5640,7 @@ def build_workflow(
             Set to False only for testing or legacy mode.
         use_subgraphs: If True, use modular subgraphs for gate, QA, and signoff
             operations. This provides better testability and modularity.
-            GHOST CODE INTEGRATION (2026-01-30): Enables pipeline_v2.langgraph.subgraphs
+            GHOST CODE INTEGRATION (2026-01-30): Enables pipeline.langgraph.subgraphs
 
     Returns:
         Compiled StateGraph, or None if LangGraph not available.
