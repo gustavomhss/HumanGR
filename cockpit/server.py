@@ -169,7 +169,7 @@ class PipelineController:
         try:
             # Find running pipeline.cli processes
             result = subprocess.run(
-                ["pgrep", "-f", "pipeline.cli"],
+                ["pgrep", "-f", "pipeline.cli_v2"],
                 capture_output=True,
                 text=True,
                 timeout=5,
@@ -285,7 +285,7 @@ class PipelineController:
             # Build pipeline start command
             cmd = [
                 str(python_path),
-                "-m", "pipeline.cli",
+                "-m", "pipeline.cli_v2",
                 "start",
                 "--start", start_sprint,
                 "--end", end_sprint,
@@ -473,7 +473,7 @@ class PipelineController:
     def _kill_all_pipeline_processes(self):
         """Kill ALL pipeline-related processes using pkill."""
         patterns = [
-            "pipeline.cli",
+            "pipeline.cli_v2",
             "pipeline.orchestrator",
             "crewai.*start",
         ]
@@ -522,7 +522,7 @@ class PipelineController:
 
             cmd = [
                 str(python_path),
-                "-m", "pipeline.cli",
+                "-m", "pipeline.cli_v2",
                 "lg-resume",
                 checkpoint_id,
             ]
