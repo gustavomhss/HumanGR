@@ -1,0 +1,279 @@
+# HumanGR Context Packs Index
+# Generated: 2026-02-01
+# COMPLETE SEPARATION from Veritas/Pipeline
+
+separation:
+  product_id: "HUMANGR"
+  product_name: "Human Layer MCP Server"
+  qdrant_collection: "humangr_context_packs"
+  qdrant_prefix: "humangr_"
+
+  verification:
+    - "Collection prefix: humangr_ (NOT pipeline_)"
+    - "Product ID: HUMANGR (NOT VERITAS)"
+    - "No imports from pipeline_autonomo or pipeline_v2"
+    - "Standalone uploader script"
+
+context_packs:
+  total: 41
+  format: "S{XX}_CONTEXT.md"
+
+  by_wave:
+    W0_Foundation:
+      sprints: ["S00", "S01", "S02"]
+      count: 3
+      objective: "Setup projeto e modelos base"
+
+    W1_CoreEngine:
+      sprints: ["S03", "S04", "S05", "S06", "S07", "S08", "S09", "S10", "S11", "S12", "S13", "S14"]
+      count: 12
+      objective: "Motor de validação completo (7 layers, consensus, veto)"
+
+    W2_OSSRelease:
+      sprints: ["S15", "S16", "S17", "S18", "S19", "S20", "S21", "S22", "S23", "S24"]
+      count: 10
+      objective: "Lançamento open source (MCP server, CLI, docs)"
+      milestone: "M1 - OSS Launch"
+
+    W3_CloudMVP:
+      sprints: ["S25", "S26", "S27", "S28", "S29", "S30", "S31", "S32", "S33", "S34", "S35"]
+      count: 11
+      objective: "Versão cloud com billing"
+      milestone: "M2 - Cloud MVP"
+
+    W4_Growth:
+      sprints: ["S36", "S37", "S38", "S39", "S40"]
+      count: 5
+      objective: "Features avançadas e scale"
+      milestone: "M3 - Growth"
+
+sprints:
+  # Wave 0: Foundation
+  S00:
+    name: "project-setup"
+    title: "Project Setup & Architecture"
+    file: "S00_CONTEXT.md"
+
+  S01:
+    name: "enums-constants"
+    title: "Core Enums & Constants"
+    file: "S01_CONTEXT.md"
+
+  S02:
+    name: "data-models"
+    title: "Core Data Models"
+    file: "S02_CONTEXT.md"
+
+  # Wave 1: Core Engine
+  S03:
+    name: "llm-client-base"
+    title: "LLM Client Base & Claude"
+    file: "S03_CONTEXT.md"
+
+  S04:
+    name: "llm-providers"
+    title: "Additional LLM Providers"
+    file: "S04_CONTEXT.md"
+
+  S05:
+    name: "layer-base"
+    title: "Layer Base Class"
+    file: "S05_CONTEXT.md"
+
+  S06:
+    name: "layer-hl1-ux"
+    title: "Layer HL-1: UX & Usability"
+    file: "S06_CONTEXT.md"
+
+  S07:
+    name: "layer-hl2-functionality"
+    title: "Layer HL-2: Functionality"
+    file: "S07_CONTEXT.md"
+
+  S08:
+    name: "layer-hl3-edge-cases"
+    title: "Layer HL-3: Edge Cases"
+    file: "S08_CONTEXT.md"
+
+  S09:
+    name: "layer-hl4-security"
+    title: "Layer HL-4: Security (STRONG veto)"
+    file: "S09_CONTEXT.md"
+
+  S10:
+    name: "layer-hl5-performance"
+    title: "Layer HL-5: Performance"
+    file: "S10_CONTEXT.md"
+
+  S11:
+    name: "layer-hl6-compliance"
+    title: "Layer HL-6: Compliance (STRONG veto)"
+    file: "S11_CONTEXT.md"
+
+  S12:
+    name: "layer-hl7-final-review"
+    title: "Layer HL-7: Final Human Review (STRONG veto)"
+    file: "S12_CONTEXT.md"
+
+  S13:
+    name: "consensus-engine"
+    title: "Consensus Engine"
+    file: "S13_CONTEXT.md"
+
+  S14:
+    name: "veto-gate"
+    title: "Veto Gate"
+    file: "S14_CONTEXT.md"
+
+  # Wave 2: OSS Release
+  S15:
+    name: "mcp-server-base"
+    title: "MCP Server Base"
+    file: "S15_CONTEXT.md"
+
+  S16:
+    name: "mcp-tools"
+    title: "MCP Tools"
+    file: "S16_CONTEXT.md"
+
+  S17:
+    name: "mcp-resources"
+    title: "MCP Resources"
+    file: "S17_CONTEXT.md"
+
+  S18:
+    name: "cli-base"
+    title: "CLI Base"
+    file: "S18_CONTEXT.md"
+
+  S19:
+    name: "cli-commands"
+    title: "CLI Commands"
+    file: "S19_CONTEXT.md"
+
+  S20:
+    name: "docs-getting-started"
+    title: "Docs: Getting Started"
+    file: "S20_CONTEXT.md"
+
+  S21:
+    name: "docs-guides"
+    title: "Docs: Guides"
+    file: "S21_CONTEXT.md"
+
+  S22:
+    name: "docs-api"
+    title: "Docs: API Reference"
+    file: "S22_CONTEXT.md"
+
+  S23:
+    name: "github-oss-setup"
+    title: "GitHub & OSS Setup"
+    file: "S23_CONTEXT.md"
+
+  S24:
+    name: "oss-launch"
+    title: "OSS Launch Milestone"
+    file: "S24_CONTEXT.md"
+
+  # Wave 3: Cloud MVP
+  S25:
+    name: "cloud-infrastructure"
+    title: "Cloud Infrastructure"
+    file: "S25_CONTEXT.md"
+
+  S26:
+    name: "database-setup"
+    title: "Database Setup"
+    file: "S26_CONTEXT.md"
+
+  S27:
+    name: "auth-setup"
+    title: "Authentication"
+    file: "S27_CONTEXT.md"
+
+  S28:
+    name: "cloud-api-base"
+    title: "Cloud API Base"
+    file: "S28_CONTEXT.md"
+
+  S29:
+    name: "cloud-api-endpoints"
+    title: "Cloud API Endpoints"
+    file: "S29_CONTEXT.md"
+
+  S30:
+    name: "cloud-websocket"
+    title: "WebSocket Real-time"
+    file: "S30_CONTEXT.md"
+
+  S31:
+    name: "dashboard-setup"
+    title: "Dashboard Setup"
+    file: "S31_CONTEXT.md"
+
+  S32:
+    name: "dashboard-pages"
+    title: "Dashboard Pages"
+    file: "S32_CONTEXT.md"
+
+  S33:
+    name: "dashboard-components"
+    title: "Dashboard Components"
+    file: "S33_CONTEXT.md"
+
+  S34:
+    name: "billing-integration"
+    title: "Billing Integration"
+    file: "S34_CONTEXT.md"
+
+  S35:
+    name: "billing-tiers"
+    title: "Billing Tiers"
+    file: "S35_CONTEXT.md"
+
+  # Wave 4: Growth
+  S36:
+    name: "perspectives-implementation"
+    title: "6 Perspectives"
+    file: "S36_CONTEXT.md"
+
+  S37:
+    name: "cicd-integrations"
+    title: "CI/CD Integrations"
+    file: "S37_CONTEXT.md"
+
+  S38:
+    name: "cockpit-visual"
+    title: "Cockpit Visual"
+    file: "S38_CONTEXT.md"
+
+  S39:
+    name: "analytics"
+    title: "Analytics & Trends"
+    file: "S39_CONTEXT.md"
+
+  S40:
+    name: "team-features"
+    title: "Team Features"
+    file: "S40_CONTEXT.md"
+
+stats:
+  total_files: 42
+  total_sprints: 41
+  files:
+    - "PRODUCT_PACK.md"
+    - "S00_CONTEXT.md - S40_CONTEXT.md (41 sprints)"
+    - "CONTEXT_PACKS_INDEX.yaml"
+    - "SPRINT_INDEX.yaml"
+
+qdrant_upload:
+  script: "../scripts/upload_to_qdrant.py"
+  command: "python scripts/upload_to_qdrant.py"
+  requirements:
+    - "qdrant-client"
+    - "voyageai (or sentence-transformers as fallback)"
+  environment:
+    - "VOYAGE_API_KEY (optional, uses fallback if not set)"
+    - "QDRANT_HOST (default: localhost)"
+    - "QDRANT_PORT (default: 6333)"

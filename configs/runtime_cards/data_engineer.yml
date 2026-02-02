@@ -1,0 +1,177 @@
+# Runtime Card: data_engineer
+# TASK-RC-016: Data pipeline engineering
+# Version: 1.0.0 (2026-01-31)
+
+agent_id: "data_engineer"
+version: "1.0.0"
+
+# Hierarchy
+level: 6  # L6_Workers
+reports_to: "squad_lead_ops"
+
+# Core persona
+role: "Data Engineer"
+goal: "Design and maintain data pipelines for claim processing and evidence collection"
+backstory: |
+  You are the Data Engineer, responsible for all data infrastructure
+  including ETL pipelines, data quality, and storage systems. You
+  ensure data flows reliably and efficiently through the Veritas
+  system.
+
+key_skills:
+  - "ETL pipeline design"
+  - "Data quality assurance"
+  - "Database optimization"
+  - "Vector embeddings management"
+  - "Real-time data streaming"
+
+key_constraints:
+  - "Data must be validated before processing"
+  - "PII must be handled according to policy"
+  - "All pipelines must be idempotent"
+  - "Monitor data quality metrics"
+  - "Document data lineage"
+
+pack_discovery:
+  enabled: true
+  before_action: "SEMPRE chame discover_packs() ANTES de executar qualquer tarefa"
+  api_import: "from pipeline_autonomo.pack_discovery import discover_packs, load_pack"
+  indices:
+    - "docs/veritas_library/UNIFIED_PACK_INDEX.yaml"
+  required_check: "Verificar se context pack foi carregado antes de agir"
+  pat026_warning: "NUNCA execute sprint sem ler context pack"
+
+# =============================================================================
+# F4-001: SQUAD MEMORY INTEGRATION (2026-02-01)
+# =============================================================================
+squad_memory:
+  enabled: true
+  squad_id: "ops_squad"
+  role: "worker"
+  squad_lead: "run_master"
+
+  readable_segments:
+    - "infrastructure_patterns"
+    - "performance_optimizations"
+
+  submittable_findings:
+    - "data_pipeline_pattern"
+    - "quality_metric"
+    - "optimization_insight"
+
+  awareness_prompt: |
+    SQUAD MEMORY: Voce faz parte do ops_squad liderado por run_master.
+    Use os padroes de pipeline de dados catalogados pelo squad.
+    Insights de otimizacao serao enviados ao squad lead automaticamente.
+
+
+# =============================================================================
+# GRAPH STACKS INTEGRATION (2026-02-01)
+# =============================================================================
+# ALL 6 graph stacks configured for this agent with role-specific operations.
+# Access via GraphStackOrchestrator with FAIL-CLOSED pattern.
+graph_stacks:
+  # FalkorDB - Knowledge graph for evidence and relationships
+  falkordb_enabled: true
+  falkordb_operations:
+    - "batch_create_nodes"
+    - "batch_create_edges"
+    - "traverse"
+    - "create_index"
+
+  # Neo4j Enhanced - Vector search and GDS algorithms
+  neo4j_enabled: true
+  neo4j_operations:
+    - "similarity_search"
+    - "run_gds_algorithm"
+    - "batch_operation"
+
+  # Neo4j Algorithms - PageRank, community detection, clustering
+  neo4j_algorithms_enabled: true
+  neo4j_algorithms_operations:
+    - "run_pagerank"
+    - "detect_communities"
+    - "claim_clustering"
+
+  # Neo4j Analytics - Advanced claim/source analysis
+  neo4j_analytics_enabled: true
+  neo4j_analytics_operations:
+    - "trace_claim_propagation"
+
+  # GoT Enhanced - Multi-path reasoning and thought graphs
+  got_enabled: true
+  got_operations:
+    - "analyze_multi_perspective"
+    - "build_reasoning_graph"
+    - "aggregate_thoughts"
+
+  # Graphiti - Temporal knowledge graph for facts over time
+  graphiti_enabled: true
+  graphiti_operations:
+    - "ingest_episode"
+    - "query_temporal"
+    - "get_fact_history"
+    - "invalidate_fact"
+
+# =============================================================================
+# RAG STACKS INTEGRATION (2026-02-01)
+# =============================================================================
+# RAG stacks for infrastructure and operations work
+rag_stacks:
+  graphrag:
+    enabled: true
+    priority: 1
+    use_cases:
+      - "Map infrastructure dependencies"
+      - "Understand system relationships"
+    parameters:
+      include_reasoning_steps: true
+      top_k: 10
+
+  memo_rag:
+    enabled: true
+    priority: 2
+    use_cases:
+      - "Recall past incidents"
+      - "Remember recovery procedures"
+    parameters:
+      use_episodic_memory: true
+      sprint_context: false
+
+  self_rag:
+    enabled: true
+    priority: 3
+    use_cases:
+      - "Find operational patterns"
+      - "Query configuration examples"
+    parameters:
+      critique_response: true
+      min_confidence: 0.7
+
+  qdrant_hybrid:
+    enabled: true
+    priority: 4
+    use_cases:
+      - "Search infrastructure docs"
+      - "General pattern search"
+    parameters:
+      collection_name: "infrastructure"
+      top_k: 5
+
+  colbert:
+    enabled: false
+    reason: "Token-level matching less relevant for infra"
+
+  corrective_rag:
+    enabled: false
+    reason: "Not primary concern for ops"
+
+  raptor_rag:
+    enabled: false
+    reason: "Hierarchical docs not primary concern"
+
+  awareness_prompt: |
+    RAG STACKS: Voce tem acesso a 4 RAG stacks para trabalho de infraestrutura.
+    PRIORIDADE: GraphRAG > MemoRAG > Self-RAG > Qdrant
+    Use GraphRAG para entender dependencias do sistema.
+    Use MemoRAG para lembrar de incidentes passados.

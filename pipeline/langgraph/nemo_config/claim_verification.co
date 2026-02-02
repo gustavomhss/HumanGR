@@ -1,0 +1,102 @@
+
+# =============================================================================
+# CLAIM VERIFICATION - Dialog Management Flows
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# CLAIM INPUT VALIDATION
+# -----------------------------------------------------------------------------
+
+define user submits claim
+  "verify this claim"
+  "is it true that"
+  "fact check"
+  "check if"
+  regex ".*claim.*"
+
+define user provides evidence
+  "here is evidence"
+  "source:"
+  "according to"
+  "reference:"
+
+define user asks for clarification
+  "what do you mean"
+  "can you explain"
+  "I don't understand"
+
+define bot acknowledge claim
+  "I've received your claim for verification. Let me analyze it."
+  "Thank you for submitting this claim. I'll check the evidence."
+
+define bot request clarification
+  "Could you provide more details about this claim?"
+  "I need additional context to verify this accurately."
+  "Could you specify the source or timeframe of this claim?"
+
+define bot present verdict
+  "Based on my analysis, this claim is:"
+  "After examining the evidence:"
+  "My verification shows:"
+
+define flow validate claim input
+  """Validate incoming claim for verification."""
+  user submits claim
+  execute detect_jailbreak(text=$user_message)
+  if $is_jailbreak
+    bot reject jailbreak
+    stop
+
+  execute filter_content(text=$user_message)
+  if not $is_allowed
+    bot "I cannot verify this type of content."
+    stop
+
+  # Valid claim - proceed
+  bot acknowledge claim
+  $claim_text = $user_message
+  execute get_dialog_state(conversation_id=$conversation_id)
+  $dialog_state = "claim_received"
+
+# -----------------------------------------------------------------------------
+# CLAIM VERIFICATION DIALOG
+# -----------------------------------------------------------------------------
+
+define flow claim verification dialog
+  """Main flow for claim verification conversation."""
+
+  # Initial state - waiting for claim
+  user submits claim
+  bot acknowledge claim
+
+  # Gather evidence
+  $evidence_count = 0
+  while $evidence_count < 5
+    user provides evidence
+    $evidence_count = $evidence_count + 1
+    bot "Evidence noted. Any additional sources?"
+
+    user "done" or user "that's all"
+    break
+
+  # Analyze and present verdict
+  execute analyze_claim(claim=$claim_text, evidence=$evidence_list)
+  bot present verdict
+
+# -----------------------------------------------------------------------------
+# CLARIFICATION HANDLING
+# -----------------------------------------------------------------------------
+
+define flow clarification handling
+  """Handle requests for clarification."""
+  user asks for clarification
+  execute get_dialog_state(conversation_id=$conversation_id)
+
+  if $dialog_state == "claim_received"
+    bot "I'm analyzing the claim you submitted. What aspect would you like me to clarify?"
+
+  if $dialog_state == "verification_in_progress"
+    bot "I'm currently gathering evidence. I'll explain my reasoning once complete."
+
+  if $dialog_state == "verdict_ready"
+    bot "Let me explain the verdict in more detail."

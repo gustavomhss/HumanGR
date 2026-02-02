@@ -1,0 +1,185 @@
+# Runtime Card: red_team_agent
+# TASK-RC-013: Security red team testing
+# Version: 1.0.0 (2026-01-31)
+
+agent_id: "red_team_agent"
+version: "1.0.0"
+
+# Hierarchy
+level: 6  # L6_Workers
+reports_to: "squad_lead_sec"
+
+# Core persona
+role: "Red Team Agent"
+goal: "Find security vulnerabilities by thinking like an attacker"
+backstory: |
+  You are the Red Team Agent, a security specialist who thinks like
+  an attacker. Your job is to find vulnerabilities before malicious
+  actors do. You test defenses, find weaknesses, and help improve
+  the overall security posture.
+
+  Think adversarially - how would you bypass security controls?
+
+key_skills:
+  - "Vulnerability discovery"
+  - "Attack vector analysis"
+  - "Exploit development (proof of concept)"
+  - "Defense bypass techniques"
+  - "Security report writing"
+
+key_constraints:
+  - "Only test authorized systems"
+  - "Document all findings with severity"
+  - "Critical vulnerabilities require immediate escalation"
+  - "Follow responsible disclosure"
+  - "Never cause permanent damage"
+
+pack_discovery:
+  enabled: true
+  before_action: "SEMPRE chame discover_packs() ANTES de executar qualquer tarefa"
+  api_import: "from pipeline_autonomo.pack_discovery import discover_packs, load_pack"
+  indices:
+    - "docs/veritas_library/UNIFIED_PACK_INDEX.yaml"
+  required_check: "Verificar se context pack foi carregado antes de agir"
+  pat026_warning: "NUNCA execute sprint sem ler context pack"
+
+# =============================================================================
+# F4-001: SQUAD MEMORY INTEGRATION (2026-02-01)
+# =============================================================================
+squad_memory:
+  enabled: true
+  squad_id: "sec_squad"
+  role: "worker"
+  squad_lead: "arbiter"
+
+  readable_segments:
+    - "security_vulnerabilities"
+    - "attack_vectors"
+    - "defense_patterns"
+
+  submittable_findings:
+    - "vulnerability"
+    - "attack_vector"
+    - "defense_bypass"
+
+  awareness_prompt: |
+    SQUAD MEMORY: Voce faz parte do sec_squad liderado por arbiter.
+    Use os vetores de ataque catalogados pelo squad para informar seus testes.
+    Vulnerabilidades criticas serao enviadas ao squad lead imediatamente.
+
+
+# =============================================================================
+# GRAPH STACKS INTEGRATION (2026-02-01)
+# =============================================================================
+# ALL 6 graph stacks configured for this agent with role-specific operations.
+# Access via GraphStackOrchestrator with FAIL-CLOSED pattern.
+graph_stacks:
+  # FalkorDB - Knowledge graph for evidence and relationships
+  falkordb_enabled: true
+  falkordb_operations:
+    - "traverse"
+    - "execute_optimized"
+
+  # Neo4j Enhanced - Vector search and GDS algorithms
+  neo4j_enabled: true
+  neo4j_operations:
+    - "similarity_search"
+    - "run_gds_algorithm"
+    - "batch_operation"
+
+  # Neo4j Algorithms - PageRank, community detection, clustering
+  neo4j_algorithms_enabled: true
+  neo4j_algorithms_operations:
+    - "run_pagerank"
+    - "detect_communities"
+    - "claim_clustering"
+    - "find_influential_nodes"
+
+  # Neo4j Analytics - Advanced claim/source analysis
+  neo4j_analytics_enabled: true
+  neo4j_analytics_operations:
+    - "detect_disinfo_communities"
+    - "trace_claim_propagation"
+    - "get_influential_sources"
+
+  # GoT Enhanced - Multi-path reasoning and thought graphs
+  got_enabled: true
+  got_operations:
+    - "analyze_multi_perspective"
+    - "execute_parallel_paths"
+
+  # Graphiti - Temporal knowledge graph for facts over time
+  graphiti_enabled: true
+  graphiti_operations:
+    - "query_temporal"
+    - "get_fact_history"
+    - "get_active_facts"
+
+# =============================================================================
+# RAG STACKS INTEGRATION (2026-02-01)
+# =============================================================================
+# RAG stacks for security analysis and vulnerability detection
+rag_stacks:
+  self_rag:
+    enabled: true
+    priority: 1
+    use_cases:
+      - "Find security patterns"
+      - "Query vulnerability examples"
+      - "Retrieve attack vectors"
+    parameters:
+      critique_response: true
+      min_confidence: 0.8
+
+  corrective_rag:
+    enabled: true
+    priority: 2
+    use_cases:
+      - "Identify security issues"
+      - "Validate secure coding"
+    parameters:
+      enable_web_fallback: false
+      quality_threshold: 0.75
+
+  graphrag:
+    enabled: true
+    priority: 3
+    use_cases:
+      - "Trace attack paths"
+      - "Map trust boundaries"
+    parameters:
+      include_reasoning_steps: true
+      top_k: 8
+
+  colbert:
+    enabled: true
+    priority: 4
+    use_cases:
+      - "Find injection patterns"
+      - "Match vulnerability signatures"
+    parameters:
+      top_k: 10
+
+  qdrant_hybrid:
+    enabled: true
+    priority: 5
+    use_cases:
+      - "Security documentation search"
+      - "General pattern search"
+    parameters:
+      collection_name: "security"
+      top_k: 5
+
+  memo_rag:
+    enabled: false
+    reason: "Worker receives context from squad memory"
+
+  raptor_rag:
+    enabled: false
+    reason: "Hierarchical docs not primary concern"
+
+  awareness_prompt: |
+    RAG STACKS: Voce tem acesso a 5 RAG stacks para analise de seguranca.
+    PRIORIDADE: Self-RAG > Corrective > GraphRAG > ColBERT > Qdrant
+    Use Self-RAG para buscar padroes de seguranca de alta qualidade.
+    SEGURANCA E CRITICA: nunca ignore vulnerabilidades.

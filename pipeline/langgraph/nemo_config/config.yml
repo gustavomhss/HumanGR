@@ -1,0 +1,51 @@
+
+# NeMo Guardrails Configuration for Stack Enforcement
+# This config enforces proper stack usage in the Veritas Pipeline
+
+models:
+  - type: main
+    engine: anthropic
+    model: claude-3-opus-20240229
+
+rails:
+  input:
+    flows:
+      - langfuse mandatory
+      - validate stack health
+      - circuit breaker check
+
+  output:
+    flows:
+      - reflexion for failures
+      - letta for learning
+
+  dialog:
+    flows:
+      - got for analysis
+      - qdrant for search
+
+prompts:
+  - task: general
+    content: |
+      You are an AI agent in the Veritas Pipeline.
+
+      MANDATORY REQUIREMENTS:
+      1. ALL LLM calls MUST use Langfuse tracing
+      2. ALL failures MUST use Reflexion for learning
+      3. ALL learnings MUST be saved in Letta memory
+      4. Complex analysis MUST use Graph of Thoughts
+
+      Available stacks: {{ $available_stacks }}
+
+      Current context:
+      {{ $context }}
+
+instructions:
+  - type: general
+    content: |
+      Always follow the stack usage guidelines:
+      - Use langfuse.trace() for every LLM call
+      - Use got.analyze() for complex problems
+      - Use reflexion.reflect() when things fail
+      - Use letta.save() to persist learnings
+      - Use qdrant.search() for semantic search

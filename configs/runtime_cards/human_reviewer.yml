@@ -1,0 +1,267 @@
+# Runtime Card: Human Reviewer
+# =============================
+# QA Worker: Human-like validation using 6-perspective testing
+# Classification: CRITICAL (failure blocks QA)
+#
+# Used by: QAMasterOrchestrator._execute_worker("human_reviewer")
+#          QAMasterOrchestrator._run_human_layers()
+# Reference: qa_master_orchestrator.py, human_layer/ module
+# Config: configs/pipeline_autonomo/human_layer_config.yaml
+
+agent_id: human_reviewer
+tier: L5_WORKER
+classification: CRITICAL
+
+# Persona for CrewAI agent
+role: "Human-Like QA Validator"
+goal: "Validate code and systems from 6 distinct human perspectives to catch issues that automated tests miss"
+backstory: |
+  You are a specialized QA agent that thinks like real humans would when interacting with
+  software systems. You embody 6 different human perspectives to stress-test implementations:
+
+  1. TIRED USER: End of a long day, low patience, wants minimal friction
+     - Multiple click frustration, abandonment scenarios, confusing errors
+
+  2. MALICIOUS INSIDER: Employee with system access, bad intentions
+     - Privilege escalation, data exfiltration, audit bypass attempts
+
+  3. CONFUSED NEWBIE: First-time user, no domain knowledge
+     - Onboarding clarity, terminology confusion, help availability
+
+  4. POWER USER: Expert user, wants efficiency
+     - Shortcuts, bulk operations, API access, advanced features
+
+  5. AUDITOR: Compliance officer, needs evidence
+     - Audit trails, data provenance, compliance controls, evidence chain
+
+  6. 3AM OPERATOR: On-call engineer at 3am
+     - Diagnostics, rollback procedures, minimal context needs, runbooks
+
+  You generate tests from each perspective and identify gaps that pure technical testing misses.
+  Your validation is critical because humans are the ultimate users of any system.
+
+# Integration with human_layer module
+human_layer_integration:
+  enabled: true
+  module: pipeline_autonomo.human_layer
+  components:
+    - PerspectiveTestGenerator    # 6-perspective test generation
+    - HumanLayerConfidenceScorer  # Confidence scoring
+    - PredictiveTriage            # Triage decisions
+    - CognitiveOrchestrator       # Central coordinator
+
+  # Perspective weights (from human_layer_config.yaml)
+  perspective_weights:
+    tired_user: 1.0
+    malicious_insider: 1.5  # Security weighted higher
+    confused_newbie: 1.0
+    power_user: 0.8
+    auditor: 1.2
+    3am_operator: 1.0
+
+# Task configuration
+task_config:
+  max_iterations: 5
+  timeout_seconds: 600  # Longer - runs 6 perspective tests
+  output_format: structured
+  max_tests_per_perspective: 3
+
+# Output schema
+output_schema:
+  perspective_results:
+    type: dict
+    properties:
+      tired_user:
+        tests_generated: "number"
+        issues_found: "list"
+        passed: "boolean"
+      malicious_insider:
+        tests_generated: "number"
+        issues_found: "list"
+        passed: "boolean"
+      confused_newbie:
+        tests_generated: "number"
+        issues_found: "list"
+        passed: "boolean"
+      power_user:
+        tests_generated: "number"
+        issues_found: "list"
+        passed: "boolean"
+      auditor:
+        tests_generated: "number"
+        issues_found: "list"
+        passed: "boolean"
+      3am_operator:
+        tests_generated: "number"
+        issues_found: "list"
+        passed: "boolean"
+  summary:
+    type: string
+  total_tests:
+    type: number
+  passed:
+    type: boolean
+
+# Stacks to use
+stacks:
+  - got           # Graph of Thoughts for multi-perspective reasoning
+  - reflexion     # Learn from validation failures
+  - langfuse      # Observability
+  - trust_boundary  # Security validation
+
+# Human Layer definitions used
+human_layers:
+  - HL-1_Humano_Usuario      # Tired User perspective
+  - HL-2_Humano_Operador     # 3AM Operator perspective
+  - HL-3_Humano_Mantenedor   # Power User (maintainability)
+  - HL-4_Humano_Decisor      # Trust/explainability (Auditor)
+  - HL-5_Humano_Seguranca    # Security (Malicious Insider)
+  - HL-6_Humano_Hacker       # Adversarial testing
+  - HL-7_Humano_Simplificador # Confused Newbie (simplification)
+
+# CrewAI hierarchy
+hierarchy:
+  reports_to: qa_master
+  level: L5
+  can_escalate_to:
+    - qa_master
+    - exec_vp
+
+# =============================================================================
+# F4-001: SQUAD MEMORY INTEGRATION (2026-02-01)
+# =============================================================================
+squad_memory:
+  enabled: true
+  squad_id: "qa_squad"
+  role: "worker"
+  squad_lead: "qa_master"
+
+  readable_segments:
+    - "code_quality_patterns"
+    - "common_bugs"
+    - "security_findings"
+    - "human_layer_learnings"
+
+  submittable_findings:
+    - "human_perspective_issue"
+    - "usability"
+    - "security"
+
+  awareness_prompt: |
+    SQUAD MEMORY: Voce faz parte do qa_squad liderado por qa_master.
+    Use os padroes de qualidade e seguranca catalogados pelo squad.
+    Suas descobertas de perspectivas humanas serao enviadas ao squad lead automaticamente.
+
+
+# =============================================================================
+# GRAPH STACKS INTEGRATION (2026-02-01)
+# =============================================================================
+# ALL 6 graph stacks configured for this agent with role-specific operations.
+# Access via GraphStackOrchestrator with FAIL-CLOSED pattern.
+graph_stacks:
+  # FalkorDB - Knowledge graph for evidence and relationships
+  falkordb_enabled: true
+  falkordb_operations:
+    - "traverse"
+    - "execute_optimized"
+
+  # Neo4j Enhanced - Vector search and GDS algorithms
+  neo4j_enabled: true
+  neo4j_operations:
+    - "similarity_search"
+    - "create_vector_index"
+
+  # Neo4j Algorithms - PageRank, community detection, clustering
+  neo4j_algorithms_enabled: true
+  neo4j_algorithms_operations:
+    - "run_pagerank"
+
+  # Neo4j Analytics - Advanced claim/source analysis
+  neo4j_analytics_enabled: true
+  neo4j_analytics_operations:
+    - "trace_claim_propagation"
+    - "get_claim_verification_chain"
+    - "analyze_source_credibility"
+
+  # GoT Enhanced - Multi-path reasoning and thought graphs
+  got_enabled: true
+  got_operations:
+    - "analyze_multi_perspective"
+    - "build_reasoning_graph"
+    - "aggregate_thoughts"
+    - "execute_parallel_paths"
+
+  # Graphiti - Temporal knowledge graph for facts over time
+  graphiti_enabled: true
+  graphiti_operations:
+    - "query_temporal"
+    - "get_fact_history"
+    - "get_active_facts"
+
+# =============================================================================
+# RAG STACKS INTEGRATION (2026-02-01)
+# =============================================================================
+# RAG stacks for human-perspective validation across 6 personas
+rag_stacks:
+  self_rag:
+    enabled: true
+    priority: 1
+    use_cases:
+      - "Retrieve human perspective patterns"
+      - "Find usability issue examples"
+      - "Query security persona tests"
+    parameters:
+      critique_response: true
+      min_confidence: 0.75
+
+  graphrag:
+    enabled: true
+    priority: 2
+    use_cases:
+      - "Map user journey flows"
+      - "Understand system interaction paths"
+      - "Trace security attack vectors"
+    parameters:
+      include_reasoning_steps: true
+      top_k: 8
+
+  corrective_rag:
+    enabled: true
+    priority: 3
+    use_cases:
+      - "Identify usability issues"
+      - "Validate security controls"
+      - "Check accessibility compliance"
+    parameters:
+      enable_web_fallback: false
+      quality_threshold: 0.7
+
+  qdrant_hybrid:
+    enabled: true
+    priority: 4
+    use_cases:
+      - "Search UX documentation"
+      - "Find security test patterns"
+      - "General persona search"
+    parameters:
+      collection_name: "human_layers"
+      top_k: 5
+
+  colbert:
+    enabled: false
+    reason: "Token-level matching less relevant for human perspective"
+
+  memo_rag:
+    enabled: false
+    reason: "Worker receives context from squad memory"
+
+  raptor_rag:
+    enabled: false
+    reason: "Hierarchical docs not needed for human validation"
+
+  awareness_prompt: |
+    RAG STACKS: Voce tem acesso a 4 RAG stacks para validacao de perspectivas humanas.
+    PRIORIDADE: Self-RAG > GraphRAG > Corrective > Qdrant
+    Use Self-RAG para buscar padroes de validacao de 6 perspectivas.
+    Use GraphRAG para mapear jornadas de usuario e vetores de ataque.
+    HUMAN REVIEWER (CRITICAL): pense como humanos REAIS usariam o sistema.

@@ -1,0 +1,605 @@
+# Human Layer - Sprint Index
+# Generated: 2026-02-01
+# Source: MASTER_REQUIREMENTS_MAP.md + SPRINT_PLAN.md
+
+product:
+  id: HUMANGR
+  name: Human Layer MCP Server
+  description: "7 Layers of Human Judgment for AI Agent Validation"
+  version: "1.0.0"
+
+waves:
+  W0:
+    name: Foundation
+    priority: P0-CRITICAL
+    sprints: [S00, S01, S02]
+    objective: "Setup projeto e modelos base"
+
+  W1:
+    name: Core Engine
+    priority: P0-CRITICAL
+    sprints: [S03, S04, S05, S06, S07, S08, S09, S10, S11, S12, S13, S14]
+    objective: "Motor de validação completo"
+
+  W2:
+    name: OSS Release
+    priority: P0-CRITICAL
+    sprints: [S15, S16, S17, S18, S19, S20, S21, S22, S23, S24]
+    objective: "Lançamento open source"
+
+  W3:
+    name: Cloud MVP
+    priority: P1-HIGH
+    sprints: [S25, S26, S27, S28, S29, S30, S31, S32, S33, S34, S35]
+    objective: "Versão cloud com billing"
+
+  W4:
+    name: Growth
+    priority: P2-MEDIUM
+    sprints: [S36, S37, S38, S39, S40]
+    objective: "Features avançadas e scale"
+
+sprints:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # WAVE 0: FOUNDATION
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  S00:
+    name: project-setup
+    title: "Project Setup & Architecture"
+    wave: W0
+    priority: P0-CRITICAL
+    type: setup
+    dependencies: []
+    deliverables:
+      - pyproject.toml
+      - src/hl_mcp/__init__.py
+      - .github/workflows/ci.yml
+    objective: "Criar estrutura do projeto e CI"
+
+  S01:
+    name: enums-constants
+    title: "Core Enums & Constants"
+    wave: W0
+    priority: P0-CRITICAL
+    type: implementation
+    dependencies: [S00]
+    deliverables:
+      - src/hl_mcp/models/enums.py
+      - tests/test_models/test_enums.py
+    objective: "Enums fundamentais (VetoLevel, Severity, LayerID)"
+
+  S02:
+    name: data-models
+    title: "Core Data Models"
+    wave: W0
+    priority: P0-CRITICAL
+    type: implementation
+    dependencies: [S01]
+    deliverables:
+      - src/hl_mcp/models/findings.py
+      - src/hl_mcp/models/layers.py
+      - src/hl_mcp/models/report.py
+      - tests/test_models/
+    objective: "Models Pydantic (Finding, LayerResult, Report)"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # WAVE 1: CORE ENGINE
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  S03:
+    name: llm-client-base
+    title: "LLM Client Base & Claude"
+    wave: W1
+    priority: P0-CRITICAL
+    type: implementation
+    dependencies: [S02]
+    deliverables:
+      - src/hl_mcp/llm/base.py
+      - src/hl_mcp/llm/claude.py
+      - tests/test_llm/test_claude.py
+    objective: "Interface base LLM e client Claude"
+
+  S04:
+    name: llm-providers
+    title: "Additional LLM Providers"
+    wave: W1
+    priority: P1-HIGH
+    type: implementation
+    dependencies: [S03]
+    deliverables:
+      - src/hl_mcp/llm/openai.py
+      - src/hl_mcp/llm/gemini.py
+      - src/hl_mcp/llm/ollama.py
+      - src/hl_mcp/llm/factory.py
+    objective: "Clients OpenAI, Gemini, Ollama"
+
+  S05:
+    name: layer-base
+    title: "Layer Base Class"
+    wave: W1
+    priority: P0-CRITICAL
+    type: implementation
+    dependencies: [S03]
+    deliverables:
+      - src/hl_mcp/layers/base.py
+      - src/hl_mcp/layers/prompts.py
+      - tests/test_layers/test_base.py
+    objective: "Classe base para Human Layers"
+
+  S06:
+    name: layer-hl1-ux
+    title: "Layer HL-1: UX & Usability"
+    wave: W1
+    priority: P0-CRITICAL
+    type: implementation
+    dependencies: [S05]
+    deliverables:
+      - src/hl_mcp/layers/hl1_ux.py
+      - tests/test_layers/test_hl1_ux.py
+    objective: "Implementar layer HL-1"
+
+  S07:
+    name: layer-hl2-functionality
+    title: "Layer HL-2: Functionality"
+    wave: W1
+    priority: P0-CRITICAL
+    type: implementation
+    dependencies: [S05]
+    deliverables:
+      - src/hl_mcp/layers/hl2_functionality.py
+      - tests/test_layers/test_hl2_functionality.py
+    objective: "Implementar layer HL-2"
+
+  S08:
+    name: layer-hl3-edge-cases
+    title: "Layer HL-3: Edge Cases"
+    wave: W1
+    priority: P0-CRITICAL
+    type: implementation
+    dependencies: [S05]
+    deliverables:
+      - src/hl_mcp/layers/hl3_edge_cases.py
+      - tests/test_layers/test_hl3_edge_cases.py
+    objective: "Implementar layer HL-3"
+
+  S09:
+    name: layer-hl4-security
+    title: "Layer HL-4: Security"
+    wave: W1
+    priority: P0-CRITICAL
+    type: implementation
+    dependencies: [S05]
+    deliverables:
+      - src/hl_mcp/layers/hl4_security.py
+      - tests/test_layers/test_hl4_security.py
+    objective: "Implementar layer HL-4 (STRONG veto)"
+
+  S10:
+    name: layer-hl5-performance
+    title: "Layer HL-5: Performance"
+    wave: W1
+    priority: P0-CRITICAL
+    type: implementation
+    dependencies: [S05]
+    deliverables:
+      - src/hl_mcp/layers/hl5_performance.py
+      - tests/test_layers/test_hl5_performance.py
+    objective: "Implementar layer HL-5"
+
+  S11:
+    name: layer-hl6-compliance
+    title: "Layer HL-6: Compliance"
+    wave: W1
+    priority: P0-CRITICAL
+    type: implementation
+    dependencies: [S05]
+    deliverables:
+      - src/hl_mcp/layers/hl6_compliance.py
+      - tests/test_layers/test_hl6_compliance.py
+    objective: "Implementar layer HL-6 (STRONG veto)"
+
+  S12:
+    name: layer-hl7-final-review
+    title: "Layer HL-7: Final Human Review"
+    wave: W1
+    priority: P0-CRITICAL
+    type: implementation
+    dependencies: [S05]
+    deliverables:
+      - src/hl_mcp/layers/hl7_final_review.py
+      - tests/test_layers/test_hl7_final_review.py
+    objective: "Implementar layer HL-7 (STRONG veto)"
+
+  S13:
+    name: consensus-engine
+    title: "Consensus Engine"
+    wave: W1
+    priority: P0-CRITICAL
+    type: implementation
+    dependencies: [S06, S07, S08, S09, S10, S11, S12]
+    deliverables:
+      - src/hl_mcp/core/consensus.py
+      - tests/test_core/test_consensus.py
+    objective: "Motor de consenso 2/3"
+
+  S14:
+    name: veto-gate
+    title: "Veto Gate"
+    wave: W1
+    priority: P0-CRITICAL
+    type: implementation
+    dependencies: [S13]
+    deliverables:
+      - src/hl_mcp/core/veto.py
+      - src/hl_mcp/core/decision.py
+      - tests/test_core/test_veto.py
+    objective: "Gate de veto final"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # WAVE 2: OSS RELEASE
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  S15:
+    name: mcp-server-base
+    title: "MCP Server Base"
+    wave: W2
+    priority: P0-CRITICAL
+    type: implementation
+    dependencies: [S14]
+    deliverables:
+      - src/hl_mcp/server/server.py
+      - src/hl_mcp/server/config.py
+    objective: "Base do MCP Server"
+
+  S16:
+    name: mcp-tools
+    title: "MCP Tools"
+    wave: W2
+    priority: P0-CRITICAL
+    type: implementation
+    dependencies: [S15]
+    deliverables:
+      - src/hl_mcp/server/tools.py
+    objective: "Tools do MCP (validate, etc.)"
+
+  S17:
+    name: mcp-resources
+    title: "MCP Resources"
+    wave: W2
+    priority: P1-HIGH
+    type: implementation
+    dependencies: [S15]
+    deliverables:
+      - src/hl_mcp/server/resources.py
+    objective: "Resources do MCP"
+
+  S18:
+    name: cli-base
+    title: "CLI Base"
+    wave: W2
+    priority: P0-CRITICAL
+    type: implementation
+    dependencies: [S14]
+    deliverables:
+      - src/hl_mcp/cli/main.py
+    objective: "CLI com Typer"
+
+  S19:
+    name: cli-commands
+    title: "CLI Commands"
+    wave: W2
+    priority: P0-CRITICAL
+    type: implementation
+    dependencies: [S18]
+    deliverables:
+      - src/hl_mcp/cli/commands/init.py
+      - src/hl_mcp/cli/commands/validate.py
+      - src/hl_mcp/cli/commands/serve.py
+    objective: "Comandos CLI (init, validate, serve)"
+
+  S20:
+    name: docs-getting-started
+    title: "Docs: Getting Started"
+    wave: W2
+    priority: P0-CRITICAL
+    type: documentation
+    dependencies: [S19]
+    deliverables:
+      - docs/index.md
+      - docs/getting-started.md
+      - docs/quickstart.md
+    objective: "Documentação inicial"
+
+  S21:
+    name: docs-guides
+    title: "Docs: Guides"
+    wave: W2
+    priority: P1-HIGH
+    type: documentation
+    dependencies: [S20]
+    deliverables:
+      - docs/guides/layers.md
+      - docs/guides/perspectives.md
+      - docs/guides/cicd.md
+    objective: "Guias de uso"
+
+  S22:
+    name: docs-api
+    title: "Docs: API Reference"
+    wave: W2
+    priority: P1-HIGH
+    type: documentation
+    dependencies: [S20]
+    deliverables:
+      - docs/api/
+    objective: "Referência de API"
+
+  S23:
+    name: github-oss-setup
+    title: "GitHub & OSS Setup"
+    wave: W2
+    priority: P0-CRITICAL
+    type: setup
+    dependencies: [S22]
+    deliverables:
+      - README.md
+      - CONTRIBUTING.md
+      - CODE_OF_CONDUCT.md
+      - SECURITY.md
+    objective: "Setup GitHub profile"
+
+  S24:
+    name: oss-launch
+    title: "OSS Launch Milestone"
+    wave: W2
+    priority: P0-CRITICAL
+    type: milestone
+    dependencies: [S23]
+    deliverables:
+      - Release v1.0.0
+      - PyPI package
+    objective: "🚀 Lançar OSS"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # WAVE 3: CLOUD MVP
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  S25:
+    name: cloud-infrastructure
+    title: "Cloud Infrastructure"
+    wave: W3
+    priority: P1-HIGH
+    type: infrastructure
+    dependencies: [S24]
+    deliverables:
+      - docker-compose.yml
+      - Dockerfile
+    objective: "Infraestrutura cloud"
+
+  S26:
+    name: database-setup
+    title: "Database Setup"
+    wave: W3
+    priority: P1-HIGH
+    type: infrastructure
+    dependencies: [S25]
+    deliverables:
+      - src/hl_mcp/cloud/db/
+      - alembic/
+    objective: "PostgreSQL + Alembic"
+
+  S27:
+    name: auth-setup
+    title: "Authentication"
+    wave: W3
+    priority: P1-HIGH
+    type: implementation
+    dependencies: [S25]
+    deliverables:
+      - src/hl_mcp/cloud/auth/
+    objective: "Auth com Clerk"
+
+  S28:
+    name: cloud-api-base
+    title: "Cloud API Base"
+    wave: W3
+    priority: P1-HIGH
+    type: implementation
+    dependencies: [S27]
+    deliverables:
+      - src/hl_mcp/cloud/api/
+    objective: "FastAPI base"
+
+  S29:
+    name: cloud-api-endpoints
+    title: "Cloud API Endpoints"
+    wave: W3
+    priority: P1-HIGH
+    type: implementation
+    dependencies: [S28]
+    deliverables:
+      - src/hl_mcp/cloud/api/routes/
+    objective: "Endpoints REST"
+
+  S30:
+    name: cloud-websocket
+    title: "WebSocket Real-time"
+    wave: W3
+    priority: P2-MEDIUM
+    type: implementation
+    dependencies: [S28]
+    deliverables:
+      - src/hl_mcp/cloud/ws/
+    objective: "WebSocket para real-time"
+
+  S31:
+    name: dashboard-setup
+    title: "Dashboard Setup"
+    wave: W3
+    priority: P1-HIGH
+    type: implementation
+    dependencies: [S29]
+    deliverables:
+      - dashboard/
+    objective: "Next.js dashboard"
+
+  S32:
+    name: dashboard-pages
+    title: "Dashboard Pages"
+    wave: W3
+    priority: P1-HIGH
+    type: implementation
+    dependencies: [S31]
+    deliverables:
+      - dashboard/app/
+    objective: "Páginas do dashboard"
+
+  S33:
+    name: dashboard-components
+    title: "Dashboard Components"
+    wave: W3
+    priority: P1-HIGH
+    type: implementation
+    dependencies: [S31]
+    deliverables:
+      - dashboard/components/
+    objective: "Componentes UI"
+
+  S34:
+    name: billing-integration
+    title: "Billing Integration"
+    wave: W3
+    priority: P1-HIGH
+    type: implementation
+    dependencies: [S28]
+    deliverables:
+      - src/hl_mcp/cloud/billing/
+    objective: "Integração Stripe"
+
+  S35:
+    name: billing-tiers
+    title: "Billing Tiers"
+    wave: W3
+    priority: P1-HIGH
+    type: implementation
+    dependencies: [S34]
+    deliverables:
+      - src/hl_mcp/cloud/billing/tiers.py
+    objective: "7 tiers de pricing"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # WAVE 4: GROWTH
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  S36:
+    name: perspectives-implementation
+    title: "6 Perspectives"
+    wave: W4
+    priority: P2-MEDIUM
+    type: implementation
+    dependencies: [S24]
+    deliverables:
+      - src/hl_mcp/perspectives/
+    objective: "6 perspectivas de teste"
+
+  S37:
+    name: cicd-integrations
+    title: "CI/CD Integrations"
+    wave: W4
+    priority: P2-MEDIUM
+    type: implementation
+    dependencies: [S24]
+    deliverables:
+      - human-layer-action/
+    objective: "GitHub Action, GitLab CI"
+
+  S38:
+    name: cockpit-visual
+    title: "Cockpit Visual"
+    wave: W4
+    priority: P2-MEDIUM
+    type: implementation
+    dependencies: [S33]
+    deliverables:
+      - dashboard/app/cockpit/
+    objective: "Dashboard visual real-time"
+
+  S39:
+    name: analytics
+    title: "Analytics & Trends"
+    wave: W4
+    priority: P2-MEDIUM
+    type: implementation
+    dependencies: [S29]
+    deliverables:
+      - src/hl_mcp/cloud/analytics/
+    objective: "Analytics e métricas"
+
+  S40:
+    name: team-features
+    title: "Team Features"
+    wave: W4
+    priority: P2-MEDIUM
+    type: implementation
+    dependencies: [S27]
+    deliverables:
+      - src/hl_mcp/cloud/teams/
+    objective: "Features de equipe"
+
+# ═══════════════════════════════════════════════════════════════════════════
+# MILESTONES
+# ═══════════════════════════════════════════════════════════════════════════
+
+milestones:
+  M1:
+    name: OSS Launch
+    sprint: S24
+    criteria:
+      - "All W0 + W1 + W2 sprints complete"
+      - "Tests passing (>85% coverage)"
+      - "Docs complete"
+      - "PyPI published"
+    target_date: "TBD"
+
+  M2:
+    name: Cloud MVP
+    sprint: S35
+    criteria:
+      - "All W3 sprints complete"
+      - "Dashboard functional"
+      - "Billing working"
+      - "Auth working"
+    target_date: "TBD"
+
+  M3:
+    name: Growth
+    sprint: S40
+    criteria:
+      - "All W4 sprints complete"
+      - "CI/CD integrations"
+      - "Advanced analytics"
+    target_date: "TBD"
+
+# ═══════════════════════════════════════════════════════════════════════════
+# STATS
+# ═══════════════════════════════════════════════════════════════════════════
+
+stats:
+  total_sprints: 41
+  by_wave:
+    W0: 3
+    W1: 12
+    W2: 10
+    W3: 11
+    W4: 5
+  by_priority:
+    P0-CRITICAL: 25
+    P1-HIGH: 12
+    P2-MEDIUM: 4
+  by_type:
+    setup: 3
+    implementation: 32
+    documentation: 3
+    infrastructure: 2
+    milestone: 1

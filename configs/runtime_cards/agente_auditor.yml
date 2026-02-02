@@ -1,0 +1,186 @@
+# Runtime Card: agente_auditor
+# TASK-RC-005: Quality auditing worker
+# Version: 1.0.0 (2026-01-31)
+
+agent_id: "agente_auditor"
+version: "1.0.0"
+
+# Hierarchy
+level: 6  # L6_Workers
+reports_to: "qa_master"
+
+# Core persona (3 campos usados pelo CrewAI)
+role: "Quality Auditor"
+goal: "Audit code and artifacts for quality issues, security vulnerabilities, and compliance"
+backstory: |
+  You are the Quality Auditor, a meticulous reviewer working under qa_master.
+  Your job is to thoroughly examine deliverables for any quality issues
+  before they pass through gates.
+
+  Your key responsibilities:
+  - Review code for quality issues and anti-patterns
+  - Check for security vulnerabilities (OWASP Top 10)
+  - Validate compliance with coding standards
+  - Ensure proper documentation exists
+  - Generate detailed audit reports
+
+  Report all findings with severity levels to qa_master.
+
+# Key capabilities
+key_skills:
+  - "Code quality review"
+  - "Security vulnerability scanning"
+  - "Compliance validation"
+  - "Documentation verification"
+  - "Audit report generation"
+
+# Critical constraints
+key_constraints:
+  - "Never approve code with HIGH severity issues"
+  - "All findings must include fix recommendations"
+  - "Security issues require immediate escalation"
+  - "Document all audit decisions"
+  - "Follow OWASP guidelines for security review"
+
+pack_discovery:
+  enabled: true
+  before_action: "SEMPRE chame discover_packs() ANTES de executar qualquer tarefa"
+  api_import: "from pipeline_autonomo.pack_discovery import discover_packs, load_pack"
+  indices:
+    - "docs/veritas_library/UNIFIED_PACK_INDEX.yaml"
+  required_check: "Verificar se context pack foi carregado antes de agir"
+  pat026_warning: "NUNCA execute sprint sem ler context pack"
+
+# =============================================================================
+# F4-001: SQUAD MEMORY INTEGRATION (2026-02-01)
+# =============================================================================
+squad_memory:
+  enabled: true
+  squad_id: "qa_squad"
+  role: "worker"
+  squad_lead: "qa_master"
+
+  readable_segments:
+    - "code_quality_patterns"
+    - "security_findings"
+    - "common_bugs"
+
+  submittable_findings:
+    - "security"
+    - "code_quality"
+    - "compliance"
+
+  awareness_prompt: |
+    SQUAD MEMORY: Voce faz parte do qa_squad liderado por qa_master.
+    Use os padroes de seguranca e qualidade catalogados pelo squad.
+    Vulnerabilidades criticas serao enviadas ao squad lead automaticamente.
+
+
+# =============================================================================
+# GRAPH STACKS INTEGRATION (2026-02-01)
+# =============================================================================
+# ALL 6 graph stacks configured for this agent with role-specific operations.
+# Access via GraphStackOrchestrator with FAIL-CLOSED pattern.
+graph_stacks:
+  # FalkorDB - Knowledge graph for evidence and relationships
+  falkordb_enabled: true
+  falkordb_operations:
+    - "traverse"
+    - "execute_optimized"
+
+  # Neo4j Enhanced - Vector search and GDS algorithms
+  neo4j_enabled: true
+  neo4j_operations:
+    - "similarity_search"
+    - "create_vector_index"
+
+  # Neo4j Algorithms - PageRank, community detection, clustering
+  neo4j_algorithms_enabled: true
+  neo4j_algorithms_operations:
+    - "run_pagerank"
+    - "detect_communities"
+    - "claim_clustering"
+
+  # Neo4j Analytics - Advanced claim/source analysis
+  neo4j_analytics_enabled: true
+  neo4j_analytics_operations:
+    - "trace_claim_propagation"
+    - "get_claim_verification_chain"
+    - "analyze_source_credibility"
+
+  # GoT Enhanced - Multi-path reasoning and thought graphs
+  got_enabled: true
+  got_operations:
+    - "analyze_multi_perspective"
+    - "build_reasoning_graph"
+    - "aggregate_thoughts"
+
+  # Graphiti - Temporal knowledge graph for facts over time
+  graphiti_enabled: true
+  graphiti_operations:
+    - "query_temporal"
+    - "get_fact_history"
+    - "get_active_facts"
+
+# =============================================================================
+# RAG STACKS INTEGRATION (2026-02-01)
+# =============================================================================
+# RAG stacks for execution and implementation work
+rag_stacks:
+  colbert:
+    enabled: true
+    priority: 1
+    use_cases:
+      - "Find code patterns"
+      - "Match implementation examples"
+      - "Locate similar code"
+    parameters:
+      top_k: 10
+
+  corrective_rag:
+    enabled: true
+    priority: 2
+    use_cases:
+      - "Validate code quality"
+      - "Find improvement opportunities"
+    parameters:
+      enable_web_fallback: false
+      quality_threshold: 0.7
+
+  graphrag:
+    enabled: true
+    priority: 3
+    use_cases:
+      - "Understand code dependencies"
+      - "Map module relationships"
+    parameters:
+      include_reasoning_steps: true
+      top_k: 5
+
+  qdrant_hybrid:
+    enabled: true
+    priority: 4
+    use_cases:
+      - "General code search"
+      - "Pattern matching"
+    parameters:
+      collection_name: "code"
+      top_k: 5
+
+  self_rag:
+    enabled: false
+    reason: "Worker receives context from squad memory"
+
+  memo_rag:
+    enabled: false
+    reason: "Worker receives context from squad memory"
+
+  raptor_rag:
+    enabled: false
+    reason: "Hierarchical docs not needed"
+
+  awareness_prompt: |
+    RAG STACKS: Voce tem acesso a 4 RAG stacks para trabalho de implementacao.
+    PRIORIDADE: ColBERT > Corrective > GraphRAG > Qdrant
+    Use ColBERT para encontrar padroes de codigo precisos.
+    Use squad memory para contexto compartilhado.

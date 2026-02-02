@@ -1,0 +1,404 @@
+# =============================================================================
+# AGENT COORDINATION FLOWS - Veritas Pipeline (Colang 2.0)
+# P2-022: NeMo Colang Flows for Agent Orchestration
+# =============================================================================
+
+import core
+
+# =============================================================================
+# SECTION 1: AGENT LIFECYCLE FLOWS
+# =============================================================================
+
+flow agent_startup
+    """Initialize agent with required context and stacks."""
+    $agent_initialized = False
+
+    # Validate required stacks
+    execute validate_agent_stacks
+    if $stacks_valid
+        # Initialize observability
+        execute init_langfuse_trace
+        # Load agent context
+        execute load_agent_context
+        $agent_initialized = True
+        bot say "Agent initialized with all required stacks."
+    else
+        bot say "BLOCKED: Cannot initialize agent - missing required stacks: {{ $missing_stacks }}"
+        abort
+
+flow agent_shutdown
+    """Graceful agent shutdown with state persistence."""
+    if $agent_initialized
+        # Persist any pending learnings
+        execute persist_pending_learnings
+        # Flush observability traces
+        execute flush_langfuse_traces
+        # Save agent state
+        execute save_agent_state
+        bot say "Agent shutdown complete. State persisted."
+    else
+        bot say "Agent was not initialized."
+
+flow agent_heartbeat
+    """Periodic agent health check."""
+    while True
+        await 30s
+        execute check_agent_health
+        if not $agent_healthy
+            bot say "WARNING: Agent health degraded - {{ $health_issues }}"
+            execute trigger_recovery_flow
+
+# =============================================================================
+# SECTION 2: GATE VALIDATION FLOWS
+# =============================================================================
+
+flow gate_execution_start
+    """Start gate execution with proper instrumentation."""
+    user said "run gate" or user said "execute gate" or user said "validate"
+
+    # Must have langfuse
+    if not $langfuse_active
+        bot say "BLOCKED: Gate execution requires Langfuse tracing."
+        abort
+
+    # Start trace
+    execute start_gate_trace
+    $gate_start_time = $current_time
+    bot say "Starting gate execution with tracing enabled."
+
+flow gate_pass
+    """Handle successful gate validation."""
+    $gate_result = "PASS"
+
+    # Record success metrics
+    execute record_gate_success
+
+    # Save learning about what worked
+    if $letta_active
+        execute save_success_learning
+
+    bot say "Gate PASSED. Metrics recorded."
+
+flow gate_fail
+    """Handle gate failure with proper analysis."""
+    $gate_result = "FAIL"
+
+    # MUST use GoT for analysis
+    execute analyze_with_got
+
+    # MUST use Reflexion for learning
+    execute reflect_on_failure
+
+    # MUST persist the learning
+    if $letta_active
+        execute save_failure_learning
+
+    bot say "Gate FAILED. Root cause analyzed and learning persisted."
+
+flow gate_warn
+    """Handle gate warning status."""
+    $gate_result = "WARN"
+
+    # Record warning metrics
+    execute record_gate_warning
+
+    # Optional analysis
+    if $got_active
+        execute analyze_warning
+
+    bot say "Gate WARNING. Review recommended before proceeding."
+
+# =============================================================================
+# SECTION 3: SPRINT EXECUTION FLOWS
+# =============================================================================
+
+flow sprint_start
+    """Initialize sprint execution."""
+    user said "start sprint" or user said "execute sprint" or user said "run sprint"
+
+    # Validate all required stacks for sprint
+    execute validate_sprint_stacks
+    if not $all_stacks_ready
+        bot say "BLOCKED: Sprint requires these stacks: {{ $required_stacks }}"
+        abort
+
+    # Initialize sprint trace
+    execute start_sprint_trace
+
+    # Load sprint context pack
+    execute load_context_pack
+    if not $context_loaded
+        bot say "BLOCKED: PAT-026 - Cannot execute sprint without reading context pack."
+        abort
+
+    $sprint_active = True
+    bot say "Sprint {{ $sprint_id }} started with all stacks ready."
+
+flow sprint_complete
+    """Complete sprint with validation."""
+    if $sprint_active
+        # Validate all deliverables
+        execute validate_deliverables
+
+        # Run final gates
+        execute run_final_gates
+
+        # Persist sprint results
+        execute persist_sprint_results
+
+        # Complete trace
+        execute complete_sprint_trace
+
+        $sprint_active = False
+        bot say "Sprint {{ $sprint_id }} completed. Deliverables validated."
+    else
+        bot say "No active sprint to complete."
+
+flow sprint_abort
+    """Abort sprint with proper cleanup."""
+    if $sprint_active
+        # Record abort reason
+        execute record_sprint_abort
+
+        # Cleanup partial work
+        execute cleanup_sprint_artifacts
+
+        # Persist what we learned
+        execute save_abort_learning
+
+        # Complete trace with abort status
+        execute complete_sprint_trace_aborted
+
+        $sprint_active = False
+        bot say "Sprint {{ $sprint_id }} aborted. Reason recorded."
+
+# =============================================================================
+# SECTION 4: ERROR HANDLING FLOWS
+# =============================================================================
+
+flow handle_stack_error
+    """Handle errors from stack operations."""
+    when StackError
+        # Log error
+        execute log_stack_error
+
+        # Check circuit breaker
+        execute check_circuit_breaker
+        if $circuit_should_open
+            execute open_circuit_breaker
+
+        # Try fallback if available
+        if $fallback_available
+            execute use_stack_fallback
+            bot say "Stack error handled via fallback."
+        else
+            bot say "Stack {{ $stack_name }} error: {{ $error_message }}. No fallback available."
+
+flow handle_timeout
+    """Handle operation timeouts."""
+    when TimeoutError
+        # Log timeout
+        execute log_timeout
+
+        # Check if retryable
+        if $retry_count < $max_retries
+            $retry_count = $retry_count + 1
+            execute retry_operation
+            bot say "Operation timed out. Retry {{ $retry_count }}/{{ $max_retries }}."
+        else
+            execute escalate_timeout
+            bot say "Operation timed out after {{ $max_retries }} retries. Escalating."
+
+flow handle_validation_error
+    """Handle validation errors."""
+    when ValidationError
+        # Log validation error
+        execute log_validation_error
+
+        # Analyze with GoT if complex
+        if $error_complexity > 2
+            execute analyze_with_got
+
+        # Create actionable feedback
+        execute create_validation_feedback
+
+        bot say "Validation error: {{ $validation_message }}. Feedback created."
+
+# =============================================================================
+# SECTION 5: SECURITY FLOWS
+# =============================================================================
+
+flow check_trust_boundary
+    """Verify trust boundary before operations."""
+    user said "access" or user said "modify" or user said "delete"
+
+    # Check agent tier
+    execute check_agent_tier
+
+    # Validate permission
+    execute validate_permission
+    if not $permission_granted
+        bot say "BLOCKED: Trust boundary violation. Agent tier {{ $agent_tier }} cannot {{ $action }} {{ $resource }}."
+        abort
+
+    bot say "Trust boundary check passed."
+
+flow detect_injection
+    """Detect potential injection attacks."""
+    when UserInput
+        execute scan_for_injection
+        if $injection_detected
+            bot say "BLOCKED: Potential injection attack detected in input."
+            execute log_security_event
+            abort
+
+flow sanitize_output
+    """Sanitize sensitive data from outputs."""
+    when BotOutput
+        execute scan_for_sensitive_data
+        if $sensitive_data_found
+            execute redact_sensitive_data
+            bot say "{{ $redacted_output }}"
+        else
+            bot say "{{ $original_output }}"
+
+# =============================================================================
+# SECTION 6: MEMORY FLOWS
+# =============================================================================
+
+flow save_learning
+    """Persist a learning to Letta memory."""
+    user said "save learning" or user said "remember this" or user said "persist"
+
+    if not $letta_active
+        bot say "WARNING: Letta not available. Learning not persisted."
+    else
+        execute categorize_learning
+        execute save_to_letta
+        bot say "Learning saved: {{ $learning_summary }}"
+
+flow retrieve_relevant_context
+    """Retrieve relevant context from memory."""
+    user said "what do you know about" or user said "remember" or user said "context for"
+
+    # Search in Qdrant
+    execute search_qdrant
+
+    # Get from Letta if available
+    if $letta_active
+        execute get_letta_context
+
+    # Combine contexts
+    execute merge_contexts
+
+    bot say "Found {{ $context_count }} relevant items: {{ $context_summary }}"
+
+flow apply_reflexion
+    """Apply Reflexion pattern for self-improvement."""
+    when OperationFailed
+        # Generate reflection
+        execute generate_reflection
+
+        # Analyze what went wrong
+        execute analyze_failure_pattern
+
+        # Create improvement plan
+        execute create_improvement_plan
+
+        # Persist reflection
+        execute save_reflection
+
+        bot say "Reflexion applied. Improvement plan: {{ $improvement_summary }}"
+
+# =============================================================================
+# SECTION 7: OBSERVABILITY FLOWS
+# =============================================================================
+
+flow trace_operation
+    """Wrap operation with Langfuse trace."""
+    when AnyOperation
+        # Start span
+        execute start_langfuse_span
+
+        # Execute operation
+        try
+            execute run_operation
+            execute end_langfuse_span_success
+        catch
+            execute end_langfuse_span_error
+            raise
+
+flow record_metrics
+    """Record operation metrics."""
+    when OperationComplete
+        execute record_duration_metric
+        execute record_success_metric
+        if $cost > 0
+            execute record_cost_metric
+
+flow emit_event
+    """Emit event for pipeline observability."""
+    when StateChange
+        execute format_event
+        execute emit_to_redis_stream
+        execute log_event
+
+# =============================================================================
+# SECTION 8: COORDINATION FLOWS
+# =============================================================================
+
+flow request_handoff
+    """Request handoff to another agent."""
+    user said "handoff to" or user said "pass to" or user said "delegate"
+
+    # Validate target agent
+    execute validate_target_agent
+    if not $target_valid
+        bot say "Invalid handoff target: {{ $target_agent }}"
+        abort
+
+    # Prepare handoff context
+    execute prepare_handoff_context
+
+    # Execute handoff
+    execute execute_handoff
+
+    bot say "Handoff to {{ $target_agent }} complete. Context transferred."
+
+flow request_signoff
+    """Request signoff from authority."""
+    user said "request signoff" or user said "need approval" or user said "get sign off"
+
+    # Prepare signoff request
+    execute prepare_signoff_request
+
+    # Submit for approval
+    execute submit_signoff_request
+
+    # Wait for response
+    execute wait_for_signoff
+    if $signoff_granted
+        bot say "Signoff granted by {{ $signoff_authority }}."
+    else
+        bot say "Signoff denied: {{ $denial_reason }}"
+
+flow parallel_execution
+    """Execute multiple operations in parallel."""
+    user said "run in parallel" or user said "concurrent" or user said "simultaneously"
+
+    # Validate operations can run in parallel
+    execute validate_parallel_safety
+    if not $parallel_safe
+        bot say "Operations cannot run in parallel: {{ $conflict_reason }}"
+        abort
+
+    # Execute in parallel
+    parallel
+        execute run_operation_1
+        execute run_operation_2
+        execute run_operation_3
+
+    # Merge results
+    execute merge_parallel_results
+
+    bot say "Parallel execution complete. Results merged."

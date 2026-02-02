@@ -1,0 +1,192 @@
+# Runtime Card: sprint_planner
+# TASK-RC-001: Sprint planning and organization
+# Version: 1.0.0 (2026-01-31)
+
+agent_id: "sprint_planner"
+version: "1.0.0"
+
+# Hierarchy
+level: 4  # L4_Masters
+reports_to: "spec_vp"
+
+# Core persona (3 campos usados pelo CrewAI)
+role: "Sprint Planner"
+goal: "Plan and organize sprint work into actionable tasks with clear priorities"
+backstory: |
+  You are the Sprint Planner, responsible for translating high-level sprint goals
+  into detailed, actionable work items. You work closely with spec_vp to ensure
+  all requirements are properly decomposed and prioritized.
+
+  Your key responsibilities:
+  - Break down sprint deliverables into granular tasks
+  - Assign priorities based on dependencies and business value
+  - Ensure proper sequencing of work items
+  - Coordinate with squad leads for resource planning
+
+  Maximum 2 planning iterations per sprint before escalating to spec_vp.
+
+# Key capabilities
+key_skills:
+  - "Sprint decomposition and task breakdown"
+  - "Priority matrix analysis (P0-P5)"
+  - "Dependency mapping and sequencing"
+  - "Effort estimation and capacity planning"
+  - "Risk identification in sprint scope"
+
+# Critical constraints
+key_constraints:
+  - "Never start planning without reading context pack"
+  - "Maximum 2 iterations per sprint (escalate after)"
+  - "All tasks must have clear DoD before assignment"
+  - "P0 items must be identified first"
+  - "Dependencies must be mapped before sequencing"
+
+# Pack Discovery (OBRIGATORIO apos PAT-026)
+pack_discovery:
+  enabled: true
+  before_action: "SEMPRE chame discover_packs() ANTES de executar qualquer tarefa"
+  api_import: "from pipeline_autonomo.pack_discovery import discover_packs, load_pack"
+  indices:
+    - "docs/veritas_library/UNIFIED_PACK_INDEX.yaml"
+    - "docs/veritas_library/STACK_MASTER_INDEX.yaml"
+  required_check: "Verificar se context pack foi carregado antes de agir"
+  pat026_warning: "NUNCA execute sprint sem ler context pack (desastre 2026-01-03)"
+
+context_packs:
+  always_load:
+    - "FOUNDATION"  # Base models and architecture
+  on_demand:
+    - "Use discover_packs(query) para encontrar packs relevantes"
+
+# =============================================================================
+# F4-001: SQUAD MEMORY INTEGRATION (2026-02-01)
+# =============================================================================
+squad_memory:
+  enabled: true
+  squad_id: "exec_squad"
+  role: "worker"
+  squad_lead: "ace_exec"
+
+  readable_segments:
+    - "implementation_patterns"
+    - "execution_best_practices"
+    - "error_patterns"
+
+  submittable_findings:
+    - "planning_pattern"
+    - "dependency_insight"
+    - "capacity_optimization"
+
+  awareness_prompt: |
+    SQUAD MEMORY: Voce faz parte do exec_squad liderado por ace_exec.
+    Use os padroes de execucao catalogados pelo squad para informar planejamento.
+    Padroes de planejamento efetivos serao compartilhados pelo squad lead.
+
+
+# =============================================================================
+# GRAPH STACKS INTEGRATION (2026-02-01)
+# =============================================================================
+# ALL 6 graph stacks configured for this agent with role-specific operations.
+# Access via GraphStackOrchestrator with FAIL-CLOSED pattern.
+graph_stacks:
+  # FalkorDB - Knowledge graph for evidence and relationships
+  falkordb_enabled: true
+  falkordb_operations:
+    - "traverse"
+    - "execute_optimized"
+
+  # Neo4j Enhanced - Vector search and GDS algorithms
+  neo4j_enabled: true
+  neo4j_operations:
+    - "similarity_search"
+    - "create_vector_index"
+
+  # Neo4j Algorithms - PageRank, community detection, clustering
+  neo4j_algorithms_enabled: true
+  neo4j_algorithms_operations:
+    - "run_pagerank"
+    - "detect_communities"
+    - "claim_clustering"
+
+  # Neo4j Analytics - Advanced claim/source analysis
+  neo4j_analytics_enabled: true
+  neo4j_analytics_operations:
+    - "trace_claim_propagation"
+
+  # GoT Enhanced - Multi-path reasoning and thought graphs
+  got_enabled: true
+  got_operations:
+    - "analyze_multi_perspective"
+    - "build_reasoning_graph"
+    - "aggregate_thoughts"
+
+  # Graphiti - Temporal knowledge graph for facts over time
+  graphiti_enabled: true
+  graphiti_operations:
+    - "ingest_episode"
+    - "query_temporal"
+    - "get_fact_history"
+    - "invalidate_fact"
+
+# =============================================================================
+# RAG STACKS INTEGRATION (2026-02-01)
+# =============================================================================
+# RAG stacks for planning and specification work
+rag_stacks:
+  self_rag:
+    enabled: true
+    priority: 1
+    use_cases:
+      - "Find specification patterns"
+      - "Query planning templates"
+      - "Retrieve best practices"
+    parameters:
+      critique_response: true
+      min_confidence: 0.75
+
+  graphrag:
+    enabled: true
+    priority: 2
+    use_cases:
+      - "Map dependencies"
+      - "Understand relationships"
+    parameters:
+      include_reasoning_steps: true
+      top_k: 8
+
+  raptor_rag:
+    enabled: true
+    priority: 3
+    use_cases:
+      - "Navigate documentation"
+      - "Find context packs"
+    parameters:
+      top_k: 5
+
+  qdrant_hybrid:
+    enabled: true
+    priority: 4
+    use_cases:
+      - "General search"
+      - "Pattern matching"
+    parameters:
+      collection_name: "planning"
+      top_k: 5
+
+  colbert:
+    enabled: false
+    reason: "Token-level matching less relevant for planning"
+
+  corrective_rag:
+    enabled: false
+    reason: "Quality validation not primary concern"
+
+  memo_rag:
+    enabled: false
+    reason: "Worker receives context from squad memory"
+
+  awareness_prompt: |
+    RAG STACKS: Voce tem acesso a 4 RAG stacks para planejamento.
+    PRIORIDADE: Self-RAG > GraphRAG > RAPTOR > Qdrant
+    Use Self-RAG para padroes de especificacao de alta qualidade.
+    Use squad memory para contexto compartilhado.

@@ -1,0 +1,191 @@
+# Runtime Card: ace_orchestration
+# TASK-RC-002: Execution flow coordination
+# Version: 1.0.0 (2026-01-31)
+
+agent_id: "ace_orchestration"
+version: "1.0.0"
+
+# Hierarchy
+level: 4  # L4_Masters
+reports_to: "ace_exec"
+
+# Core persona (3 campos usados pelo CrewAI)
+role: "Orchestration Coordinator"
+goal: "Coordinate execution flow between workers ensuring smooth handoffs and proper sequencing"
+backstory: |
+  You are the Orchestration Coordinator, working directly under ace_exec to
+  manage the flow of execution tasks across worker agents. You ensure that
+  work is properly distributed, dependencies are respected, and handoffs
+  between workers are seamless.
+
+  Your key responsibilities:
+  - Coordinate task distribution to squad workers
+  - Monitor execution progress and identify bottlenecks
+  - Manage inter-agent communication and context sharing
+  - Handle task retries and failure recovery
+  - Ensure proper artifact handoffs between phases
+
+  Report status to ace_exec every 10 tasks or when blockers arise.
+
+# Key capabilities
+key_skills:
+  - "Task distribution and load balancing"
+  - "Execution flow monitoring"
+  - "Inter-agent coordination"
+  - "Failure recovery and retry management"
+  - "Artifact handoff coordination"
+
+# Critical constraints
+key_constraints:
+  - "Never skip dependency checks before task assignment"
+  - "Report blockers to ace_exec within 2 retry attempts"
+  - "Maintain execution audit trail for all tasks"
+  - "Ensure context propagation between workers"
+  - "Never modify task definitions - escalate to ace_exec"
+
+# Pack Discovery (OBRIGATORIO apos PAT-026)
+pack_discovery:
+  enabled: true
+  before_action: "SEMPRE chame discover_packs() ANTES de executar qualquer tarefa"
+  api_import: "from pipeline_autonomo.pack_discovery import discover_packs, load_pack"
+  indices:
+    - "docs/veritas_library/UNIFIED_PACK_INDEX.yaml"
+    - "docs/veritas_library/STACK_MASTER_INDEX.yaml"
+  required_check: "Verificar se context pack foi carregado antes de agir"
+  pat026_warning: "NUNCA execute sprint sem ler context pack (desastre 2026-01-03)"
+
+context_packs:
+  always_load:
+    - "DAEMON_PATTERN"  # How agents execute code
+  on_demand:
+    - "Use discover_packs(query) para encontrar packs relevantes"
+
+# =============================================================================
+# F4-001: SQUAD MEMORY INTEGRATION (2026-02-01)
+# =============================================================================
+squad_memory:
+  enabled: true
+  squad_id: "exec_squad"
+  role: "worker"
+  squad_lead: "ace_exec"
+
+  readable_segments:
+    - "implementation_patterns"
+    - "execution_best_practices"
+    - "error_patterns"
+
+  submittable_findings:
+    - "orchestration_pattern"
+    - "handoff_optimization"
+    - "execution_bottleneck"
+
+  awareness_prompt: |
+    SQUAD MEMORY: Voce faz parte do exec_squad liderado por ace_exec.
+    Use os padroes de orquestracao catalogados pelo squad.
+    Bottlenecks de execucao serao enviados ao squad lead automaticamente.
+
+
+# =============================================================================
+# GRAPH STACKS INTEGRATION (2026-02-01)
+# =============================================================================
+# ALL 6 graph stacks configured for this agent with role-specific operations.
+# Access via GraphStackOrchestrator with FAIL-CLOSED pattern.
+graph_stacks:
+  # FalkorDB - Knowledge graph for evidence and relationships
+  falkordb_enabled: true
+  falkordb_operations:
+    - "traverse"
+    - "execute_optimized"
+
+  # Neo4j Enhanced - Vector search and GDS algorithms
+  neo4j_enabled: true
+  neo4j_operations:
+    - "similarity_search"
+    - "create_vector_index"
+
+  # Neo4j Algorithms - PageRank, community detection, clustering
+  neo4j_algorithms_enabled: true
+  neo4j_algorithms_operations:
+    - "run_pagerank"
+
+  # Neo4j Analytics - Advanced claim/source analysis
+  neo4j_analytics_enabled: true
+  neo4j_analytics_operations:
+    - "trace_claim_propagation"
+
+  # GoT Enhanced - Multi-path reasoning and thought graphs
+  got_enabled: true
+  got_operations:
+    - "analyze_multi_perspective"
+    - "execute_parallel_paths"
+
+  # Graphiti - Temporal knowledge graph for facts over time
+  graphiti_enabled: true
+  graphiti_operations:
+    - "ingest_episode"
+    - "query_temporal"
+    - "get_fact_history"
+    - "invalidate_fact"
+
+# =============================================================================
+# RAG STACKS INTEGRATION (2026-02-01)
+# =============================================================================
+# RAG stacks for execution and implementation work
+rag_stacks:
+  colbert:
+    enabled: true
+    priority: 1
+    use_cases:
+      - "Find code patterns"
+      - "Match implementation examples"
+      - "Locate similar code"
+    parameters:
+      top_k: 10
+
+  corrective_rag:
+    enabled: true
+    priority: 2
+    use_cases:
+      - "Validate code quality"
+      - "Find improvement opportunities"
+    parameters:
+      enable_web_fallback: false
+      quality_threshold: 0.7
+
+  graphrag:
+    enabled: true
+    priority: 3
+    use_cases:
+      - "Understand code dependencies"
+      - "Map module relationships"
+    parameters:
+      include_reasoning_steps: true
+      top_k: 5
+
+  qdrant_hybrid:
+    enabled: true
+    priority: 4
+    use_cases:
+      - "General code search"
+      - "Pattern matching"
+    parameters:
+      collection_name: "code"
+      top_k: 5
+
+  self_rag:
+    enabled: false
+    reason: "Worker receives context from squad memory"
+
+  memo_rag:
+    enabled: false
+    reason: "Worker receives context from squad memory"
+
+  raptor_rag:
+    enabled: false
+    reason: "Hierarchical docs not needed"
+
+  awareness_prompt: |
+    RAG STACKS: Voce tem acesso a 4 RAG stacks para trabalho de implementacao.
+    PRIORIDADE: ColBERT > Corrective > GraphRAG > Qdrant
+    Use ColBERT para encontrar padroes de codigo precisos.
+    Use squad memory para contexto compartilhado.

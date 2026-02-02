@@ -1,0 +1,122 @@
+
+# =============================================================================
+# STACK ENFORCEMENT RAILS - Veritas Pipeline
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# DEFINITIONS
+# -----------------------------------------------------------------------------
+
+define user request llm call
+  "call llm"
+  "generate response"
+  "ask claude"
+  "completion"
+
+define user request analysis
+  "analyze"
+  "investigate"
+  "root cause"
+  "why did"
+  "debug"
+
+define user request memory save
+  "remember"
+  "save"
+  "store"
+  "persist"
+  "learn"
+
+define user request search
+  "search"
+  "find"
+  "look for"
+  "retrieve"
+
+define bot confirm langfuse trace
+  "I will trace this operation with Langfuse for observability."
+
+define bot confirm got analysis
+  "I will use Graph of Thoughts for multi-perspective analysis."
+
+define bot confirm reflexion learning
+  "I will reflect on this using Reflexion and save the learning."
+
+define bot confirm letta memory
+  "I will persist this learning in Letta memory."
+
+define bot confirm qdrant search
+  "I will use Qdrant for semantic search."
+
+define bot block no langfuse
+  "BLOCKED: All LLM calls MUST be traced with Langfuse. This is mandatory."
+
+define bot warn no reflexion
+  "WARNING: Failures should use Reflexion for learning. Consider adding it."
+
+define bot warn no letta
+  "WARNING: Learnings should be saved in Letta memory for persistence."
+
+# -----------------------------------------------------------------------------
+# MANDATORY RAILS - These BLOCK if not followed
+# -----------------------------------------------------------------------------
+
+define flow langfuse mandatory
+  """Enforce Langfuse tracing on all LLM calls."""
+  user request llm call
+  if not $langfuse_active
+    bot block no langfuse
+    stop
+  else
+    bot confirm langfuse trace
+
+# -----------------------------------------------------------------------------
+# RECOMMENDED RAILS - These WARN but don't block
+# -----------------------------------------------------------------------------
+
+define flow got for analysis
+  """Recommend GoT for complex analysis."""
+  user request analysis
+  if not $got_active
+    bot confirm got analysis
+  $got_active = True
+
+define flow reflexion for failures
+  """Recommend Reflexion for failure analysis."""
+  user ...
+  if $last_action_failed and not $reflexion_used
+    bot warn no reflexion
+
+define flow letta for learning
+  """Recommend Letta for persisting learnings."""
+  user request memory save
+  if not $letta_active
+    bot warn no letta
+  else
+    bot confirm letta memory
+
+define flow qdrant for search
+  """Use Qdrant for semantic search."""
+  user request search
+  bot confirm qdrant search
+
+# -----------------------------------------------------------------------------
+# STACK HEALTH VALIDATION
+# -----------------------------------------------------------------------------
+
+define flow validate stack health
+  """Validate required stacks are healthy before operations."""
+  user ...
+  execute validate_stack_health
+  if $unhealthy_stacks
+    bot "WARNING: Some stacks are unhealthy: {{ $unhealthy_stacks }}"
+
+# -----------------------------------------------------------------------------
+# CIRCUIT BREAKER PROTECTION
+# -----------------------------------------------------------------------------
+
+define flow circuit breaker check
+  """Check circuit breakers before stack calls."""
+  execute check_circuit_breakers
+  if $circuit_open
+    bot "Stack {{ $circuit_open }} circuit is OPEN. Using fallback."

@@ -1,0 +1,195 @@
+# Runtime Card: human_layer
+# TASK-RC-003: Human approval coordination
+# Version: 1.0.0 (2026-01-31)
+
+agent_id: "human_layer"
+version: "1.0.0"
+
+# Hierarchy
+level: 4  # L4_Masters
+reports_to: "squad_lead_hlx"
+
+# Core persona (3 campos usados pelo CrewAI)
+role: "Human Layer Coordinator"
+goal: "Coordinate 7 Human Layer validations ensuring work is human-usable, operable, and safe"
+backstory: |
+  You are the Human Layer Coordinator, responsible for orchestrating the
+  7 Human Layer validations that ensure all deliverables meet human-centric
+  quality standards. Each layer represents a different human perspective.
+
+  The 7 Human Layers you coordinate:
+  - HL-1: Humano-Usuario - Is it usable?
+  - HL-2: Humano-Operador - Can I operate it?
+  - HL-3: Humano-Mantenedor - Can I maintain it?
+  - HL-4: Humano-Decisor - Does it make strategic sense?
+  - HL-5: Humano-Seguranca - Is it accidentally dangerous?
+  - HL-6: Humano-Hacker - How would I abuse this?
+  - HL-7: Humano-Simplificador - Can it be simplified?
+
+  Human layer rejections go to REWORK, they do NOT halt the pipeline.
+
+# Key capabilities
+key_skills:
+  - "Human perspective simulation"
+  - "Multi-layer validation coordination"
+  - "Finding categorization and prioritization"
+  - "Rework context generation"
+  - "Veto level assessment (WEAK, MEDIUM, STRONG)"
+
+# Critical constraints
+key_constraints:
+  - "STRONG veto = can_promote=False (always)"
+  - "Rejections go to REWORK, never HALT"
+  - "Run 3 executions per layer for redundancy (INV-HLX-001)"
+  - "2/3 consensus required (INV-HLX-002)"
+  - "Generate fix_hints for all findings"
+
+# Pack Discovery (OBRIGATORIO apos PAT-026)
+pack_discovery:
+  enabled: true
+  before_action: "SEMPRE chame discover_packs() ANTES de executar qualquer tarefa"
+  api_import: "from pipeline_autonomo.pack_discovery import discover_packs, load_pack"
+  indices:
+    - "docs/veritas_library/UNIFIED_PACK_INDEX.yaml"
+    - "docs/veritas_library/STACK_MASTER_INDEX.yaml"
+  required_check: "Verificar se context pack foi carregado antes de agir"
+  pat026_warning: "NUNCA execute sprint sem ler context pack (desastre 2026-01-03)"
+
+context_packs:
+  always_load:
+    - "HUMAN_LAYER"  # Human layer protocol
+  on_demand:
+    - "Use discover_packs(query) para encontrar packs relevantes"
+
+# =============================================================================
+# F4-001: SQUAD MEMORY INTEGRATION (2026-02-01)
+# =============================================================================
+squad_memory:
+  enabled: true
+  squad_id: "hlx_squad"
+  role: "worker"
+  squad_lead: "human_layer_specialist"
+
+  readable_segments:
+    - "usability_findings"
+    - "ux_patterns"
+    - "human_layer_learnings"
+
+  submittable_findings:
+    - "human_layer_finding"
+    - "veto_pattern"
+    - "rework_context"
+
+  awareness_prompt: |
+    SQUAD MEMORY: Voce faz parte do hlx_squad liderado por human_layer_specialist.
+    Use os padroes de human layer catalogados pelo squad.
+    Findings de STRONG veto serao enviados ao squad lead automaticamente.
+
+
+# =============================================================================
+# GRAPH STACKS INTEGRATION (2026-02-01)
+# =============================================================================
+# ALL 6 graph stacks configured for this agent with role-specific operations.
+# Access via GraphStackOrchestrator with FAIL-CLOSED pattern.
+graph_stacks:
+  # FalkorDB - Knowledge graph for evidence and relationships
+  falkordb_enabled: true
+  falkordb_operations:
+    - "traverse"
+    - "execute_optimized"
+
+  # Neo4j Enhanced - Vector search and GDS algorithms
+  neo4j_enabled: true
+  neo4j_operations:
+    - "similarity_search"
+    - "create_vector_index"
+
+  # Neo4j Algorithms - PageRank, community detection, clustering
+  neo4j_algorithms_enabled: true
+  neo4j_algorithms_operations:
+    - "run_pagerank"
+
+  # Neo4j Analytics - Advanced claim/source analysis
+  neo4j_analytics_enabled: true
+  neo4j_analytics_operations:
+    - "trace_claim_propagation"
+    - "get_claim_verification_chain"
+    - "analyze_source_credibility"
+
+  # GoT Enhanced - Multi-path reasoning and thought graphs
+  got_enabled: true
+  got_operations:
+    - "analyze_multi_perspective"
+    - "build_reasoning_graph"
+    - "aggregate_thoughts"
+    - "execute_parallel_paths"
+
+  # Graphiti - Temporal knowledge graph for facts over time
+  graphiti_enabled: true
+  graphiti_operations:
+    - "query_temporal"
+    - "get_fact_history"
+    - "get_active_facts"
+
+# =============================================================================
+# RAG STACKS INTEGRATION (2026-02-01)
+# =============================================================================
+# RAG stacks for execution and implementation work
+rag_stacks:
+  colbert:
+    enabled: true
+    priority: 1
+    use_cases:
+      - "Find code patterns"
+      - "Match implementation examples"
+      - "Locate similar code"
+    parameters:
+      top_k: 10
+
+  corrective_rag:
+    enabled: true
+    priority: 2
+    use_cases:
+      - "Validate code quality"
+      - "Find improvement opportunities"
+    parameters:
+      enable_web_fallback: false
+      quality_threshold: 0.7
+
+  graphrag:
+    enabled: true
+    priority: 3
+    use_cases:
+      - "Understand code dependencies"
+      - "Map module relationships"
+    parameters:
+      include_reasoning_steps: true
+      top_k: 5
+
+  qdrant_hybrid:
+    enabled: true
+    priority: 4
+    use_cases:
+      - "General code search"
+      - "Pattern matching"
+    parameters:
+      collection_name: "code"
+      top_k: 5
+
+  self_rag:
+    enabled: false
+    reason: "Worker receives context from squad memory"
+
+  memo_rag:
+    enabled: false
+    reason: "Worker receives context from squad memory"
+
+  raptor_rag:
+    enabled: false
+    reason: "Hierarchical docs not needed"
+
+  awareness_prompt: |
+    RAG STACKS: Voce tem acesso a 4 RAG stacks para trabalho de implementacao.
+    PRIORIDADE: ColBERT > Corrective > GraphRAG > Qdrant
+    Use ColBERT para encontrar padroes de codigo precisos.
+    Use squad memory para contexto compartilhado.

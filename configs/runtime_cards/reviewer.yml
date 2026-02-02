@@ -1,0 +1,205 @@
+# Runtime Card: Reviewer (Clean Code)
+# ====================================
+# QA Worker: Clean code review and best practices
+# Classification: IMPORTANT (failure generates warnings)
+#
+# Used by: QAMasterOrchestrator._execute_worker("reviewer")
+# Reference: qa_master_orchestrator.py, L5_workers_part1_cerebros.yaml
+
+agent_id: reviewer
+tier: L5_WORKER
+classification: IMPORTANT
+
+# Persona for CrewAI agent
+role: "Clean Code Reviewer"
+goal: "Review code for clean code principles, best practices, and architectural patterns"
+backstory: |
+  You are an experienced software engineer who champions clean code principles.
+  Your expertise spans multiple programming paradigms and you have a keen eye
+  for code that will be maintainable, readable, and robust over time.
+
+  You focus on:
+  - SOLID principles adherence
+  - DRY (Don't Repeat Yourself) violations
+  - KISS (Keep It Simple, Stupid) violations
+  - Proper error handling and logging
+  - Clear naming conventions
+  - Appropriate abstraction levels
+  - Code organization and structure
+  - Documentation where needed (but not over-documentation)
+
+  You provide constructive feedback that helps developers improve their craft.
+  Your reviews are not about personal preferences but about industry best practices.
+
+# Task configuration
+task_config:
+  max_iterations: 5
+  timeout_seconds: 180
+  output_format: structured
+
+# Output schema
+output_schema:
+  overall_assessment:
+    type: string
+    enum: ["APPROVED", "NEEDS_WORK"]
+  strengths:
+    type: list
+    items:
+      type: string
+  improvements:
+    type: list
+    items:
+      area: "string"
+      description: "string"
+      priority: "HIGH | MEDIUM | LOW"
+      suggestion: "string"
+  summary:
+    type: string
+  passed:
+    type: boolean
+
+# Stacks to use
+stacks:
+  - got           # Graph of Thoughts for analysis
+  - langfuse      # Observability
+
+# CrewAI hierarchy
+hierarchy:
+  reports_to: qa_master
+  level: L5
+  can_escalate_to:
+    - qa_master
+
+# =============================================================================
+# F4-001: SQUAD MEMORY INTEGRATION (2026-02-01)
+# =============================================================================
+squad_memory:
+  enabled: true
+  squad_id: "qa_squad"
+  role: "worker"
+  squad_lead: "qa_master"
+
+  readable_segments:
+    - "code_quality_patterns"
+    - "review_feedback_patterns"
+    - "common_bugs"
+
+  submittable_findings:
+    - "code_quality"
+    - "clean_code_violation"
+
+  awareness_prompt: |
+    SQUAD MEMORY: Voce faz parte do qa_squad liderado por qa_master.
+    Use os padroes de codigo limpo catalogados pelo squad.
+    Violacoes criticas de clean code serao enviadas ao squad lead automaticamente.
+
+
+# =============================================================================
+# RAG STACKS INTEGRATION (2026-02-01)
+# =============================================================================
+# RAG stacks for clean code review and best practices
+rag_stacks:
+  self_rag:
+    enabled: true
+    priority: 1
+    use_cases:
+      - "Retrieve clean code principles"
+      - "Find SOLID examples"
+      - "Query best practices"
+    parameters:
+      critique_response: true
+      min_confidence: 0.75
+
+  corrective_rag:
+    enabled: true
+    priority: 2
+    use_cases:
+      - "Identify clean code violations"
+      - "Validate against principles"
+      - "Find improvement opportunities"
+    parameters:
+      enable_web_fallback: false
+      quality_threshold: 0.7
+
+  colbert:
+    enabled: true
+    priority: 3
+    use_cases:
+      - "Find DRY violations"
+      - "Match naming patterns"
+      - "Locate similar structures"
+    parameters:
+      top_k: 8
+
+  qdrant_hybrid:
+    enabled: true
+    priority: 4
+    use_cases:
+      - "Search coding standards"
+      - "General best practices"
+    parameters:
+      collection_name: "clean_code"
+      top_k: 5
+
+  graphrag:
+    enabled: false
+    reason: "Architecture review not primary focus"
+
+  memo_rag:
+    enabled: false
+    reason: "Worker receives context from squad memory"
+
+  raptor_rag:
+    enabled: false
+    reason: "Hierarchical docs not needed for code review"
+
+  awareness_prompt: |
+    RAG STACKS: Voce tem acesso a 4 RAG stacks para revisao de codigo limpo.
+    PRIORIDADE: Self-RAG > Corrective > ColBERT > Qdrant
+    Use Self-RAG para buscar principios de clean code.
+    Use Corrective RAG para validar codigo contra melhores praticas.
+    REVIEWER: foque em SOLID, DRY, KISS - nao em preferencias pessoais.
+
+# =============================================================================
+# GRAPH STACKS INTEGRATION (2026-02-01)
+# =============================================================================
+# ALL 6 graph stacks configured for this agent with role-specific operations.
+# Access via GraphStackOrchestrator with FAIL-CLOSED pattern.
+graph_stacks:
+  # FalkorDB - Knowledge graph for evidence and relationships
+  falkordb_enabled: true
+  falkordb_operations:
+    - "traverse"
+    - "execute_optimized"
+
+  # Neo4j Enhanced - Vector search and GDS algorithms
+  neo4j_enabled: true
+  neo4j_operations:
+    - "similarity_search"
+    - "create_vector_index"
+
+  # Neo4j Algorithms - PageRank, community detection, clustering
+  neo4j_algorithms_enabled: true
+  neo4j_algorithms_operations:
+    - "run_pagerank"
+
+  # Neo4j Analytics - Advanced claim/source analysis
+  neo4j_analytics_enabled: true
+  neo4j_analytics_operations:
+    - "trace_claim_propagation"
+    - "get_claim_verification_chain"
+    - "analyze_source_credibility"
+
+  # GoT Enhanced - Multi-path reasoning and thought graphs
+  got_enabled: true
+  got_operations:
+    - "analyze_multi_perspective"
+    - "build_reasoning_graph"
+    - "aggregate_thoughts"
+
+  # Graphiti - Temporal knowledge graph for facts over time
+  graphiti_enabled: true
+  graphiti_operations:
+    - "query_temporal"
+    - "get_fact_history"
+    - "get_active_facts"

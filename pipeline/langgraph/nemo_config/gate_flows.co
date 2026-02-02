@@ -1,0 +1,382 @@
+# =============================================================================
+# GATE VALIDATION FLOWS - Veritas Pipeline (Colang 2.0)
+# P2-022: NeMo Colang Flows for Gate Validation (G0-G8)
+# =============================================================================
+
+import core
+
+# =============================================================================
+# SECTION 1: GATE DEFINITIONS
+# =============================================================================
+
+# G0 - Spec Compliance Gate
+flow gate_g0_spec_compliance
+    """Validate specification compliance."""
+    $gate_id = "G0"
+    $gate_name = "Spec Compliance"
+
+    # Must have context pack loaded
+    if not $context_pack_loaded
+        bot say "BLOCKED: G0 requires context pack to be loaded."
+        abort
+
+    # Run spec validation
+    execute validate_spec_compliance
+    execute validate_deliverables_exist
+    execute validate_interfaces_match
+
+    if $spec_violations > 0
+        $gate_result = "FAIL"
+        execute analyze_spec_violations
+        bot say "G0 FAIL: {{ $spec_violations }} spec violations found."
+    else if $spec_warnings > 0
+        $gate_result = "WARN"
+        bot say "G0 WARN: {{ $spec_warnings }} spec warnings found."
+    else
+        $gate_result = "PASS"
+        bot say "G0 PASS: All specs compliant."
+
+# G1 - Quality Gate
+flow gate_g1_quality
+    """Validate code quality metrics."""
+    $gate_id = "G1"
+    $gate_name = "Quality"
+
+    # Run quality checks
+    execute run_linter
+    execute run_type_checker
+    execute check_docstrings
+    execute check_test_coverage
+
+    # Evaluate results
+    if $lint_errors > 0 or $type_errors > 0
+        $gate_result = "FAIL"
+        bot say "G1 FAIL: {{ $lint_errors }} lint errors, {{ $type_errors }} type errors."
+    else if $coverage < 90
+        $gate_result = "WARN"
+        bot say "G1 WARN: Coverage {{ $coverage }}% below 90% threshold."
+    else
+        $gate_result = "PASS"
+        bot say "G1 PASS: Quality metrics satisfied."
+
+# G2 - Security Gate
+flow gate_g2_security
+    """Validate security requirements."""
+    $gate_id = "G2"
+    $gate_name = "Security"
+
+    # Run security scans
+    execute scan_for_vulnerabilities
+    execute check_credential_exposure
+    execute validate_input_sanitization
+    execute check_owasp_top_10
+
+    if $critical_vulnerabilities > 0
+        $gate_result = "FAIL"
+        bot say "G2 FAIL: {{ $critical_vulnerabilities }} critical vulnerabilities."
+    else if $high_vulnerabilities > 0
+        $gate_result = "WARN"
+        bot say "G2 WARN: {{ $high_vulnerabilities }} high severity issues."
+    else
+        $gate_result = "PASS"
+        bot say "G2 PASS: No security issues found."
+
+# G3 - Integration Gate
+flow gate_g3_integration
+    """Validate integration with external systems."""
+    $gate_id = "G3"
+    $gate_name = "Integration"
+
+    # Check stack integrations
+    execute validate_stack_connections
+    execute test_api_endpoints
+    execute validate_data_flows
+
+    if $integration_failures > 0
+        $gate_result = "FAIL"
+        bot say "G3 FAIL: {{ $integration_failures }} integration failures."
+    else if $integration_warnings > 0
+        $gate_result = "WARN"
+        bot say "G3 WARN: {{ $integration_warnings }} integration warnings."
+    else
+        $gate_result = "PASS"
+        bot say "G3 PASS: All integrations working."
+
+# G4 - Blindagem Gate (Anti-Manipulation)
+flow gate_g4_blindagem
+    """Validate anti-manipulation protections."""
+    $gate_id = "G4"
+    $gate_name = "Blindagem"
+
+    # Run blindagem checks
+    execute check_injection_prevention
+    execute check_fraud_detection
+    execute check_rate_limiting
+    execute check_audit_trails
+
+    if $blindagem_critical > 0
+        $gate_result = "FAIL"
+        bot say "G4 FAIL: {{ $blindagem_critical }} critical blindagem issues."
+    else if $blindagem_warnings > 0
+        $gate_result = "WARN"
+        bot say "G4 WARN: {{ $blindagem_warnings }} blindagem warnings."
+    else
+        $gate_result = "PASS"
+        bot say "G4 PASS: Blindagem protections verified."
+
+# G5 - Performance Gate
+flow gate_g5_performance
+    """Validate performance requirements."""
+    $gate_id = "G5"
+    $gate_name = "Performance"
+
+    # Run performance tests
+    execute run_load_tests
+    execute check_response_times
+    execute check_memory_usage
+    execute check_cpu_usage
+
+    if $perf_critical_violations > 0
+        $gate_result = "FAIL"
+        bot say "G5 FAIL: {{ $perf_critical_violations }} performance violations."
+    else if $perf_warnings > 0
+        $gate_result = "WARN"
+        bot say "G5 WARN: {{ $perf_warnings }} performance warnings."
+    else
+        $gate_result = "PASS"
+        bot say "G5 PASS: Performance requirements met."
+
+# G6 - Observability Gate
+flow gate_g6_observability
+    """Validate observability requirements."""
+    $gate_id = "G6"
+    $gate_name = "Observability"
+
+    # Check observability
+    execute check_langfuse_coverage
+    execute check_logging_completeness
+    execute check_metrics_collection
+    execute check_trace_propagation
+
+    if not $langfuse_coverage_sufficient
+        $gate_result = "FAIL"
+        bot say "G6 FAIL: Langfuse coverage insufficient ({{ $langfuse_coverage }}%)."
+    else if $logging_gaps > 0
+        $gate_result = "WARN"
+        bot say "G6 WARN: {{ $logging_gaps }} logging gaps found."
+    else
+        $gate_result = "PASS"
+        bot say "G6 PASS: Observability complete."
+
+# G7 - Deliverable Gate
+flow gate_g7_deliverable
+    """Validate deliverables exist and are complete."""
+    $gate_id = "G7"
+    $gate_name = "Deliverable"
+
+    # Check deliverables
+    execute list_expected_deliverables
+    execute check_deliverables_exist
+    execute validate_deliverable_quality
+
+    if $missing_deliverables > 0
+        $gate_result = "FAIL"
+        bot say "G7 FAIL: {{ $missing_deliverables }} deliverables missing."
+    else if $incomplete_deliverables > 0
+        $gate_result = "WARN"
+        bot say "G7 WARN: {{ $incomplete_deliverables }} deliverables incomplete."
+    else
+        $gate_result = "PASS"
+        bot say "G7 PASS: All deliverables present and valid."
+
+# G8 - Mutation Testing Gate
+flow gate_g8_mutation
+    """Validate mutation testing results."""
+    $gate_id = "G8"
+    $gate_name = "Mutation"
+
+    # Run mutation testing
+    execute run_mutation_tests
+    execute calculate_kill_rate
+
+    if $kill_rate < 70
+        $gate_result = "FAIL"
+        bot say "G8 FAIL: Kill rate {{ $kill_rate }}% below 70% threshold."
+    else if $kill_rate < 80
+        $gate_result = "WARN"
+        bot say "G8 WARN: Kill rate {{ $kill_rate }}% acceptable but below ideal."
+    else
+        $gate_result = "PASS"
+        bot say "G8 PASS: Kill rate {{ $kill_rate }}% exceeds threshold."
+
+# =============================================================================
+# SECTION 2: GATE ORCHESTRATION FLOWS
+# =============================================================================
+
+flow run_all_gates
+    """Run all gates in sequence."""
+    user said "run all gates" or user said "full validation" or user said "complete gate check"
+
+    $total_gates = 9
+    $passed_gates = 0
+    $failed_gates = 0
+    $warned_gates = 0
+
+    # Run each gate
+    gate_g0_spec_compliance
+    execute record_gate_result
+    if $gate_result == "PASS"
+        $passed_gates = $passed_gates + 1
+    else if $gate_result == "FAIL"
+        $failed_gates = $failed_gates + 1
+    else
+        $warned_gates = $warned_gates + 1
+
+    gate_g1_quality
+    execute record_gate_result
+    if $gate_result == "PASS"
+        $passed_gates = $passed_gates + 1
+    else if $gate_result == "FAIL"
+        $failed_gates = $failed_gates + 1
+    else
+        $warned_gates = $warned_gates + 1
+
+    # Continue for remaining gates...
+    gate_g2_security
+    gate_g3_integration
+    gate_g4_blindagem
+    gate_g5_performance
+    gate_g6_observability
+    gate_g7_deliverable
+    gate_g8_mutation
+
+    # Summary
+    bot say "Gate Summary: {{ $passed_gates }} PASS, {{ $warned_gates }} WARN, {{ $failed_gates }} FAIL"
+
+flow run_critical_gates
+    """Run only critical gates (G0, G1, G2, G4)."""
+    user said "run critical gates" or user said "quick validation"
+
+    gate_g0_spec_compliance
+    gate_g1_quality
+    gate_g2_security
+    gate_g4_blindagem
+
+    bot say "Critical gates complete."
+
+flow run_gate_by_id
+    """Run a specific gate by ID."""
+    user said "run gate G0" or user said "run gate G1" or user said "run gate G2" or user said "run gate G3" or user said "run gate G4" or user said "run gate G5" or user said "run gate G6" or user said "run gate G7" or user said "run gate G8"
+
+    if $gate_id == "G0"
+        gate_g0_spec_compliance
+    else if $gate_id == "G1"
+        gate_g1_quality
+    else if $gate_id == "G2"
+        gate_g2_security
+    else if $gate_id == "G3"
+        gate_g3_integration
+    else if $gate_id == "G4"
+        gate_g4_blindagem
+    else if $gate_id == "G5"
+        gate_g5_performance
+    else if $gate_id == "G6"
+        gate_g6_observability
+    else if $gate_id == "G7"
+        gate_g7_deliverable
+    else if $gate_id == "G8"
+        gate_g8_mutation
+
+# =============================================================================
+# SECTION 3: GATE FAILURE HANDLING
+# =============================================================================
+
+flow handle_gate_failure
+    """Handle gate failure with proper analysis and learning."""
+    when GateFailure
+
+    # Log failure
+    execute log_gate_failure
+
+    # Analyze with GoT
+    execute analyze_failure_with_got
+    $root_causes = $got_analysis_result
+
+    # Generate reflection
+    execute generate_reflexion
+    $reflection = $reflexion_result
+
+    # Persist learning
+    execute save_failure_learning
+
+    # Generate remediation plan
+    execute generate_remediation_plan
+
+    bot say "Gate {{ $gate_id }} failure analyzed. Root causes: {{ $root_causes }}. Plan: {{ $remediation_plan }}"
+
+flow retry_failed_gate
+    """Retry a failed gate after remediation."""
+    user said "retry gate" or user said "rerun failed gate"
+
+    if not $last_failed_gate
+        bot say "No failed gate to retry."
+    else
+        # Check if remediation was applied
+        execute check_remediation_applied
+        if not $remediation_applied
+            bot say "Cannot retry: remediation not yet applied."
+        else
+            # Rerun the gate
+            run_gate_by_id
+            if $gate_result == "PASS"
+                bot say "Gate {{ $gate_id }} now PASSES after remediation."
+            else
+                bot say "Gate {{ $gate_id }} still failing. Further analysis needed."
+
+flow escalate_gate_failure
+    """Escalate persistent gate failure."""
+    user said "escalate gate" or user said "need help with gate"
+
+    # Prepare escalation
+    execute prepare_gate_escalation
+
+    # Identify appropriate escalation target
+    execute identify_escalation_target
+
+    # Submit escalation
+    execute submit_escalation
+
+    bot say "Gate {{ $gate_id }} failure escalated to {{ $escalation_target }}."
+
+# =============================================================================
+# SECTION 4: GATE METRICS AND OBSERVABILITY
+# =============================================================================
+
+flow record_gate_metrics
+    """Record gate execution metrics."""
+    when GateComplete
+
+    execute record_gate_duration
+    execute record_gate_result
+    execute record_gate_details
+    execute update_gate_history
+
+flow generate_gate_report
+    """Generate comprehensive gate report."""
+    user said "gate report" or user said "gate summary" or user said "validation report"
+
+    execute collect_gate_results
+    execute calculate_gate_statistics
+    execute generate_report_markdown
+
+    bot say "Gate report generated: {{ $report_summary }}"
+
+flow check_gate_trends
+    """Analyze gate trends over time."""
+    user said "gate trends" or user said "gate history" or user said "gate analytics"
+
+    execute load_gate_history
+    execute calculate_trends
+    execute identify_patterns
+
+    bot say "Gate trends: {{ $trend_summary }}. Patterns: {{ $identified_patterns }}"

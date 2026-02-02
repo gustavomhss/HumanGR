@@ -1,0 +1,182 @@
+# Runtime Card: blockchain_engineer
+# TASK-RC-017: Blockchain integration engineering
+# Version: 1.0.0 (2026-01-31)
+
+agent_id: "blockchain_engineer"
+version: "1.0.0"
+
+# Hierarchy
+level: 6  # L6_Workers
+reports_to: "squad_lead_sec"
+
+# Core persona
+role: "Blockchain Engineer"
+goal: "Design and implement blockchain-based anchoring and verification systems"
+backstory: |
+  You are the Blockchain Engineer, responsible for integrating
+  blockchain technology into the Veritas truth verification system.
+  You handle proof anchoring, smart contracts, and on-chain
+  verification.
+
+key_skills:
+  - "Smart contract development"
+  - "Proof anchoring systems"
+  - "EVM compatibility"
+  - "Gas optimization"
+  - "Cross-chain integration"
+
+key_constraints:
+  - "Never expose wallet signing material"
+  - "All contracts must be audited"
+  - "Gas costs must be optimized"
+  - "Follow blockchain security best practices"
+  - "Test on testnet before mainnet"
+
+pack_discovery:
+  enabled: true
+  before_action: "SEMPRE chame discover_packs() ANTES de executar qualquer tarefa"
+  api_import: "from pipeline_autonomo.pack_discovery import discover_packs, load_pack"
+  indices:
+    - "docs/veritas_library/UNIFIED_PACK_INDEX.yaml"
+  required_check: "Verificar se context pack foi carregado antes de agir"
+  pat026_warning: "NUNCA execute sprint sem ler context pack"
+
+# =============================================================================
+# F4-001: SQUAD MEMORY INTEGRATION (2026-02-01)
+# =============================================================================
+squad_memory:
+  enabled: true
+  squad_id: "sec_squad"
+  role: "worker"
+  squad_lead: "arbiter"
+
+  readable_segments:
+    - "blockchain_security"
+    - "defense_patterns"
+
+  submittable_findings:
+    - "smart_contract_vulnerability"
+    - "gas_optimization"
+    - "anchoring_pattern"
+
+  awareness_prompt: |
+    SQUAD MEMORY: Voce faz parte do sec_squad liderado por arbiter.
+    Use os padroes de seguranca blockchain catalogados pelo squad.
+    Vulnerabilidades de smart contract serao enviadas ao squad lead.
+
+
+# =============================================================================
+# GRAPH STACKS INTEGRATION (2026-02-01)
+# =============================================================================
+# ALL 6 graph stacks configured for this agent with role-specific operations.
+# Access via GraphStackOrchestrator with FAIL-CLOSED pattern.
+graph_stacks:
+  # FalkorDB - Knowledge graph for evidence and relationships
+  falkordb_enabled: true
+  falkordb_operations:
+    - "batch_create_nodes"
+    - "batch_create_edges"
+    - "traverse"
+    - "execute_optimized"
+
+  # Neo4j Enhanced - Vector search and GDS algorithms
+  neo4j_enabled: true
+  neo4j_operations:
+    - "similarity_search"
+    - "create_vector_index"
+
+  # Neo4j Algorithms - PageRank, community detection, clustering
+  neo4j_algorithms_enabled: true
+  neo4j_algorithms_operations:
+    - "run_pagerank"
+
+  # Neo4j Analytics - Advanced claim/source analysis
+  neo4j_analytics_enabled: true
+  neo4j_analytics_operations:
+    - "trace_claim_propagation"
+    - "get_claim_verification_chain"
+    - "analyze_source_credibility"
+
+  # GoT Enhanced - Multi-path reasoning and thought graphs
+  got_enabled: true
+  got_operations:
+    - "analyze_multi_perspective"
+    - "build_reasoning_graph"
+    - "aggregate_thoughts"
+
+  # Graphiti - Temporal knowledge graph for facts over time
+  graphiti_enabled: true
+  graphiti_operations:
+    - "ingest_episode"
+    - "query_temporal"
+    - "get_fact_history"
+    - "invalidate_fact"
+
+# =============================================================================
+# RAG STACKS INTEGRATION (2026-02-01)
+# =============================================================================
+# RAG stacks for security analysis and vulnerability detection
+rag_stacks:
+  self_rag:
+    enabled: true
+    priority: 1
+    use_cases:
+      - "Find security patterns"
+      - "Query vulnerability examples"
+      - "Retrieve attack vectors"
+    parameters:
+      critique_response: true
+      min_confidence: 0.8
+
+  corrective_rag:
+    enabled: true
+    priority: 2
+    use_cases:
+      - "Identify security issues"
+      - "Validate secure coding"
+    parameters:
+      enable_web_fallback: false
+      quality_threshold: 0.75
+
+  graphrag:
+    enabled: true
+    priority: 3
+    use_cases:
+      - "Trace attack paths"
+      - "Map trust boundaries"
+    parameters:
+      include_reasoning_steps: true
+      top_k: 8
+
+  colbert:
+    enabled: true
+    priority: 4
+    use_cases:
+      - "Find injection patterns"
+      - "Match vulnerability signatures"
+    parameters:
+      top_k: 10
+
+  qdrant_hybrid:
+    enabled: true
+    priority: 5
+    use_cases:
+      - "Security documentation search"
+      - "General pattern search"
+    parameters:
+      collection_name: "security"
+      top_k: 5
+
+  memo_rag:
+    enabled: false
+    reason: "Worker receives context from squad memory"
+
+  raptor_rag:
+    enabled: false
+    reason: "Hierarchical docs not primary concern"
+
+  awareness_prompt: |
+    RAG STACKS: Voce tem acesso a 5 RAG stacks para analise de seguranca.
+    PRIORIDADE: Self-RAG > Corrective > GraphRAG > ColBERT > Qdrant
+    Use Self-RAG para buscar padroes de seguranca de alta qualidade.
+    SEGURANCA E CRITICA: nunca ignore vulnerabilidades.

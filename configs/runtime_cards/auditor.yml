@@ -1,0 +1,220 @@
+# Runtime Card: Auditor
+# =======================
+# QA Worker: Code and spec auditing
+# Classification: CRITICAL (failure blocks QA)
+#
+# Used by: QAMasterOrchestrator._execute_worker("auditor")
+# Reference: qa_master_orchestrator.py, L5_workers_part1_cerebros.yaml
+
+agent_id: auditor
+tier: L5_WORKER
+classification: CRITICAL
+
+# Persona for CrewAI agent
+role: "Code Quality Auditor"
+goal: "Audit code implementations against specifications to identify quality issues, potential bugs, and deviations from requirements"
+backstory: |
+  You are a meticulous code auditor with expertise in software quality assurance.
+  Your role is to systematically review code implementations and verify they meet
+  the specified requirements (RF), enforce invariants (INV), and handle edge cases (EDGE).
+
+  You focus on:
+  - Code correctness and logic errors
+  - Adherence to specifications
+  - Security vulnerabilities
+  - Performance anti-patterns
+  - Code maintainability issues
+
+  You produce clear, actionable findings with severity ratings and fix suggestions.
+
+# Task configuration
+task_config:
+  max_iterations: 5
+  timeout_seconds: 120
+  output_format: structured
+
+# Output schema
+output_schema:
+  findings:
+    type: list
+    items:
+      severity: "CRITICAL | HIGH | MEDIUM | LOW"
+      category: "string"
+      description: "string"
+      location: "file:line"
+      fix_hint: "string"
+  summary:
+    type: string
+  passed:
+    type: boolean
+
+# Stacks to use (from cerebro config)
+stacks:
+  - got
+  - cleanlab
+  - qdrant_hybrid
+  - langfuse
+
+# =============================================================================
+# F2-001: LETTA MEMORY AWARENESS (2026-02-01)
+# =============================================================================
+letta_memory:
+  enabled: true
+  agent_id: "auditor"
+  segments:
+    - "audit_patterns"    # Common issues found in audits
+    - "fix_suggestions"   # Effective fix hints given
+    - "severity_calibration"  # How severity was determined
+  awareness_prompt: |
+    MEMÓRIA PERSISTENTE: Você tem acesso a auditorias passadas via Letta.
+    Use padrões de issues comuns para calibrar a severidade.
+    Seus fix_hints efetivos são salvos como referência futura.
+
+# =============================================================================
+# F4-001: SQUAD MEMORY INTEGRATION (2026-02-01)
+# =============================================================================
+squad_memory:
+  enabled: true
+  squad_id: "qa_squad"
+  role: "worker"
+  squad_lead: "qa_master"
+
+  readable_segments:
+    - "code_quality_patterns"
+    - "common_bugs"
+    - "security_findings"
+
+  submittable_findings:
+    - "code_quality"
+    - "security"
+    - "severity_pattern"
+
+  awareness_prompt: |
+    SQUAD MEMORY: Voce faz parte do qa_squad liderado por qa_master.
+    Use os padroes de auditoria catalogados pelo squad para calibrar severidade.
+    Seus findings de alta severidade serao enviados ao squad lead automaticamente.
+
+
+# =============================================================================
+# RAG STACKS INTEGRATION (2026-02-01)
+# =============================================================================
+# RAG stacks for code auditing and quality issue detection
+rag_stacks:
+  # Primary: Self-RAG for high-quality audit patterns
+  self_rag:
+    enabled: true
+    priority: 1
+    use_cases:
+      - "Retrieve proven audit patterns"
+      - "Find similar code quality issues"
+      - "Query severity calibration"
+    parameters:
+      critique_response: true
+      min_confidence: 0.75
+
+  # Secondary: Corrective RAG for issue identification
+  corrective_rag:
+    enabled: true
+    priority: 2
+    use_cases:
+      - "Identify code quality issues"
+      - "Validate against coding standards"
+      - "Find potential bugs"
+    parameters:
+      enable_web_fallback: false
+      quality_threshold: 0.7
+
+  # Tertiary: ColBERT for precise code matching
+  colbert:
+    enabled: true
+    priority: 3
+    use_cases:
+      - "Find exact code patterns"
+      - "Match known anti-patterns"
+      - "Locate specific issue signatures"
+    parameters:
+      top_k: 10
+
+  # Quaternary: GraphRAG for issue propagation
+  graphrag:
+    enabled: true
+    priority: 4
+    use_cases:
+      - "Trace issue propagation paths"
+      - "Map code dependencies"
+      - "Understand bug origins"
+    parameters:
+      include_reasoning_steps: true
+      top_k: 5
+
+  # Quinary: Qdrant for general search
+  qdrant_hybrid:
+    enabled: true
+    priority: 5
+    use_cases:
+      - "Search audit documentation"
+      - "General pattern search"
+    parameters:
+      collection_name: "audits"
+      top_k: 5
+
+  memo_rag:
+    enabled: false
+    reason: "Worker receives context from squad memory"
+
+  raptor_rag:
+    enabled: false
+    reason: "Hierarchical docs not needed for code audit"
+
+  awareness_prompt: |
+    RAG STACKS: Voce tem acesso a 5 RAG stacks para auditoria de codigo.
+    PRIORIDADE: Self-RAG > Corrective > ColBERT > GraphRAG > Qdrant
+    Use Self-RAG para buscar padroes de auditoria de alta qualidade.
+    Use ColBERT para encontrar padroes de codigo precisos.
+    AUDITOR: submeta findings ao qa_master via squad memory.
+
+# =============================================================================
+# GRAPH STACKS INTEGRATION (2026-02-01)
+# =============================================================================
+# ALL 6 graph stacks configured for this agent with role-specific operations.
+# Access via GraphStackOrchestrator with FAIL-CLOSED pattern.
+graph_stacks:
+  # FalkorDB - Knowledge graph for evidence and relationships
+  falkordb_enabled: true
+  falkordb_operations:
+    - "traverse"
+    - "execute_optimized"
+
+  # Neo4j Enhanced - Vector search and GDS algorithms
+  neo4j_enabled: true
+  neo4j_operations:
+    - "similarity_search"
+    - "create_vector_index"
+
+  # Neo4j Algorithms - PageRank, community detection, clustering
+  neo4j_algorithms_enabled: true
+  neo4j_algorithms_operations:
+    - "run_pagerank"
+    - "detect_communities"
+    - "claim_clustering"
+
+  # Neo4j Analytics - Advanced claim/source analysis
+  neo4j_analytics_enabled: true
+  neo4j_analytics_operations:
+    - "trace_claim_propagation"
+    - "get_claim_verification_chain"
+    - "analyze_source_credibility"
+
+  # GoT Enhanced - Multi-path reasoning and thought graphs
+  got_enabled: true
+  got_operations:
+    - "analyze_multi_perspective"
+    - "build_reasoning_graph"
+    - "aggregate_thoughts"
+
+  # Graphiti - Temporal knowledge graph for facts over time
+  graphiti_enabled: true
+  graphiti_operations:
+    - "query_temporal"
+    - "get_fact_history"
+    - "get_active_facts"

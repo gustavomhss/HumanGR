@@ -1,0 +1,131 @@
+
+# =============================================================================
+# EDGE CASE HANDLING - Special Situation Flows
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# AMBIGUOUS CLAIMS
+# -----------------------------------------------------------------------------
+
+define user submits ambiguous claim
+  "they say that"
+  "people believe"
+  "everyone knows"
+  "it's obvious that"
+
+define bot handle ambiguous
+  "This claim seems ambiguous. Could you specify who made this claim and when?"
+  "To verify accurately, I need a specific, verifiable statement. Can you rephrase?"
+
+define flow handle ambiguous claims
+  """Handle vague or ambiguous claims."""
+  user submits ambiguous claim
+  bot handle ambiguous
+  $needs_clarification = true
+
+# -----------------------------------------------------------------------------
+# OPINION VS FACT
+# -----------------------------------------------------------------------------
+
+define user submits opinion
+  "I think"
+  "in my opinion"
+  "I believe"
+  "personally"
+
+define bot distinguish opinion
+  "This appears to be an opinion rather than a verifiable factual claim."
+  "Opinions differ from facts. Would you like to rephrase as a factual claim?"
+
+define flow distinguish opinion vs fact
+  """Distinguish between opinions and verifiable facts."""
+  user submits opinion
+  bot distinguish opinion
+
+# -----------------------------------------------------------------------------
+# PARTIAL CLAIMS
+# -----------------------------------------------------------------------------
+
+define user submits incomplete claim
+  "what about"
+  "and also"
+  "plus"
+  regex "^but .*"
+
+define bot request complete claim
+  "Could you provide the complete claim you'd like me to verify?"
+  "I need the full context to verify accurately."
+
+define flow handle incomplete claims
+  """Handle partial or incomplete claims."""
+  user submits incomplete claim
+  bot request complete claim
+
+# -----------------------------------------------------------------------------
+# MULTIPLE CLAIMS
+# -----------------------------------------------------------------------------
+
+define user submits multiple claims
+  "first claim" and "second claim"
+  regex ".*and also.*and also.*"
+
+define bot handle multiple
+  "I notice multiple claims. Let me address them one at a time for accuracy."
+  "For best results, I'll verify each claim separately."
+
+define flow handle multiple claims
+  """Handle multiple claims in one message."""
+  user submits multiple claims
+  bot handle multiple
+  # Split and process individually
+
+# -----------------------------------------------------------------------------
+# EMOTIONAL/LOADED CLAIMS
+# -----------------------------------------------------------------------------
+
+define user submits emotional claim
+  "evil"
+  "disgusting"
+  "amazing"
+  "terrible"
+  "best ever"
+  "worst ever"
+
+define bot neutralize emotion
+  "Let me extract the factual component from this statement for verification."
+  "I'll focus on the verifiable facts rather than subjective characterizations."
+
+define flow handle emotional claims
+  """Handle emotionally charged claims."""
+  user submits emotional claim
+  bot neutralize emotion
+
+# -----------------------------------------------------------------------------
+# TIME-SENSITIVE CLAIMS
+# -----------------------------------------------------------------------------
+
+define user submits outdated claim
+  "recently"
+  "just now"
+  "this week"
+  "breaking news"
+
+define bot check timeliness
+  "When exactly did this occur? Timing affects verification accuracy."
+  "Could you specify the date or timeframe for this claim?"
+
+define flow handle time sensitive
+  """Handle time-sensitive claims."""
+  user submits outdated claim
+  bot check timeliness
+
+# -----------------------------------------------------------------------------
+# ERROR RECOVERY
+# -----------------------------------------------------------------------------
+
+define bot apologize for error
+  "I apologize for the confusion. Let me try again."
+  "I made an error. Let me reconsider this claim."
+
+# NOTE: error recovery flow removed - invalid Colang v1.0 syntax
+# The standalone $error_occurred variable was not valid in Colang v1.0

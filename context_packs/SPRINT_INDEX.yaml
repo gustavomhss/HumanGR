@@ -1,0 +1,186 @@
+# SPRINT_INDEX.yaml - HumanGR Human Layer MCP
+# Índice mestre de sprints para pack_discovery
+# Versão: 1.0.0 | Data: 2026-02-01
+
+product:
+  id: "HUMANGR"
+  name: "HumanGR - Human Layer MCP Server"
+  description: "Guardrails Humanos para AI Agents"
+  repository: "humangr/hl-mcp"
+
+waves:
+  W0-Reference:
+    name: "Reference & Architecture"
+    sprints: [S00, S01]
+    description: "Dissection do sistema original e arquitetura"
+
+  W1-Foundation:
+    name: "Foundation - Models & LLM"
+    sprints: [S02, S03, S04, S05]
+    description: "Resources, Models e integração LLM"
+
+  W2-Core:
+    name: "Core - Engine & Layers"
+    sprints: [S06, S07, S08]
+    description: "Browser automation, engine e 7 layers"
+
+  W3-Intelligence:
+    name: "Intelligence - Perspectives & Cognitive"
+    sprints: [S09, S10]
+    description: "6 perspectivas e módulos cognitivos"
+
+  W4-Integration:
+    name: "Integration - MCP & Cloud"
+    sprints: [S11, S12]
+    description: "Servidor MCP e monetização cloud"
+
+sprints:
+  S00:
+    name: "dissection"
+    title: "Complete Dissection"
+    wave: W0-Reference
+    priority: P0-CRITICAL
+    source_block: "ROADMAP_BLOCK_01_DISSECTION.md"
+    objective: "Documentar TUDO que o Human Layer atual oferece"
+    deliverables_count: 0
+    type: "reference"
+
+  S01:
+    name: "architecture"
+    title: "Lego Architecture"
+    wave: W0-Reference
+    priority: P0-CRITICAL
+    source_block: "ROADMAP_BLOCK_02_ARCHITECTURE.md"
+    objective: "Definir arquitetura hiper-modularizada"
+    deliverables_count: 2
+    type: "architecture"
+    dependencies: [S00]
+
+  S02:
+    name: "resources-builder"
+    title: "MCP Resources & Builder"
+    wave: W1-Foundation
+    priority: P1-HIGH
+    source_block: "ROADMAP_BLOCK_03_RESOURCES_AND_BUILDER.md"
+    objective: "Implementar MCP Resources e Context Pack Builder"
+    deliverables_count: 4
+    type: "implementation"
+    dependencies: [S01]
+
+  S03:
+    name: "data-models-base"
+    title: "Data Models Base"
+    wave: W1-Foundation
+    priority: P0-CRITICAL
+    source_block: "ROADMAP_BLOCK_04_DATA_MODELS.md"
+    objective: "Implementar enums e models base (Finding, Layer)"
+    deliverables_count: 5
+    type: "implementation"
+    dependencies: [S01]
+
+  S04:
+    name: "models-complete"
+    title: "Models Complete"
+    wave: W1-Foundation
+    priority: P0-CRITICAL
+    source_block: "ROADMAP_BLOCK_05_MODELS_COMPLETE.md"
+    objective: "Finalizar todos os 7 módulos de Models"
+    deliverables_count: 4
+    type: "implementation"
+    dependencies: [S03]
+
+  S05:
+    name: "llm-integration"
+    title: "LLM Integration"
+    wave: W1-Foundation
+    priority: P0-CRITICAL
+    source_block: "ROADMAP_BLOCK_06_LLM_INTEGRATION.md"
+    objective: "Implementar integração com LLMs (Claude, OpenAI, etc)"
+    deliverables_count: 5
+    type: "implementation"
+    dependencies: [S03]
+
+  S06:
+    name: "browser-automation"
+    title: "Browser Automation"
+    wave: W2-Core
+    priority: P1-HIGH
+    source_block: "ROADMAP_BLOCK_07_BROWSER_AUTOMATION.md"
+    objective: "Implementar automação de browser com Playwright"
+    deliverables_count: 6
+    type: "implementation"
+    dependencies: [S04]
+
+  S07:
+    name: "core-engine"
+    title: "Core Engine"
+    wave: W2-Core
+    priority: P0-CRITICAL
+    source_block: "ROADMAP_BLOCK_08_CORE_ENGINE.md"
+    objective: "Implementar engine principal (Runner, Orchestrator, Gates)"
+    deliverables_count: 5
+    type: "implementation"
+    dependencies: [S04, S05]
+
+  S08:
+    name: "human-layers"
+    title: "7 Human Layers"
+    wave: W2-Core
+    priority: P0-CRITICAL
+    source_block: "ROADMAP_BLOCK_09_HUMAN_LAYERS.md"
+    objective: "Implementar as 7 Human Layers (HL-1 a HL-7)"
+    deliverables_count: 8
+    type: "implementation"
+    dependencies: [S07]
+
+  S09:
+    name: "perspectives"
+    title: "6 Perspectives"
+    wave: W3-Intelligence
+    priority: P1-HIGH
+    source_block: "ROADMAP_BLOCK_10_PERSPECTIVES.md"
+    objective: "Implementar as 6 perspectivas de teste"
+    deliverables_count: 8
+    type: "implementation"
+    dependencies: [S07]
+
+  S10:
+    name: "cognitive"
+    title: "Cognitive Modules"
+    wave: W3-Intelligence
+    priority: P1-HIGH
+    source_block: "ROADMAP_BLOCK_11_COGNITIVE.md"
+    objective: "Implementar módulos de inteligência (Budget, Trust, Triage)"
+    deliverables_count: 5
+    type: "implementation"
+    dependencies: [S07]
+
+  S11:
+    name: "mcp-server"
+    title: "MCP Server Assembly"
+    wave: W4-Integration
+    priority: P0-CRITICAL
+    source_block: "ROADMAP_BLOCK_12_MCP_SERVER.md"
+    objective: "Montar servidor MCP final com tools e resources"
+    deliverables_count: 4
+    type: "implementation"
+    dependencies: [S02, S08, S09, S10]
+
+  S12:
+    name: "cloud-monetization"
+    title: "Cloud & Monetization"
+    wave: W4-Integration
+    priority: P2-MEDIUM
+    source_block: "ROADMAP_BLOCK_13_CLOUD_MONETIZATION.md"
+    objective: "Implementar modelo Open Core (OSS + Cloud premium)"
+    deliverables_count: 8
+    type: "implementation"
+    dependencies: [S11]
+
+# Estatísticas
+stats:
+  total_sprints: 13
+  total_waves: 5
+  reference_sprints: 2
+  implementation_sprints: 11
+  estimated_modules: 67

@@ -1,0 +1,194 @@
+# Runtime Card: Refinador
+# =========================
+# QA Worker: Code refinement suggestions
+# Classification: IMPORTANT (failure generates warnings)
+#
+# Used by: QAMasterOrchestrator._execute_worker("refinador")
+# Reference: qa_master_orchestrator.py, L5_workers_part1_cerebros.yaml
+
+agent_id: refinador
+tier: L5_WORKER
+classification: IMPORTANT
+
+# Persona for CrewAI agent
+role: "Code Refinement Specialist"
+goal: "Suggest code refinements and improvements to enhance quality, readability, and maintainability without changing functionality"
+backstory: |
+  You are a code refinement specialist focused on improving code quality.
+  Your role is NOT to find bugs (that's the auditor's job), but to suggest
+  improvements that make code cleaner, more readable, and more maintainable.
+
+  You focus on:
+  - Code clarity and readability
+  - Naming conventions
+  - Code organization and structure
+  - Documentation improvements
+  - Simplification opportunities
+  - Design pattern suggestions
+
+  Your suggestions are actionable and include before/after examples.
+  You prioritize suggestions by impact and effort required.
+
+# Task configuration
+task_config:
+  max_iterations: 5
+  timeout_seconds: 180
+  output_format: structured
+
+# Output schema
+output_schema:
+  suggestions:
+    type: list
+    items:
+      priority: "HIGH | MEDIUM | LOW"
+      category: "readability | naming | structure | documentation | simplification"
+      description: "string"
+      location: "file:line"
+      before: "string"
+      after: "string"
+      effort: "trivial | small | medium | large"
+  summary:
+    type: string
+  improvements_count:
+    type: integer
+
+# Stacks to use
+stacks:
+  - got
+  - dspy
+  - qdrant_hybrid
+  - langfuse
+
+# =============================================================================
+# F4-001: SQUAD MEMORY INTEGRATION (2026-02-01)
+# =============================================================================
+squad_memory:
+  enabled: true
+  squad_id: "qa_squad"
+  role: "worker"
+  squad_lead: "qa_master"
+
+  # Segments this worker can READ (curated by squad lead)
+  readable_segments:
+    - "code_quality_patterns"
+    - "common_bugs"
+    - "review_feedback_patterns"
+
+  # Finding types this worker can SUBMIT to squad lead
+  submittable_findings:
+    - "code_quality"
+    - "refinement_pattern"
+
+  awareness_prompt: |
+    SQUAD MEMORY: Voce faz parte do qa_squad liderado por qa_master.
+
+    COMPARTILHAR DESCOBERTAS:
+    - Suas descobertas significativas sao enviadas ao squad lead automaticamente
+    - O squad lead revisara e decidira se compartilha com o squad
+    - Voce NAO compartilha diretamente com outros workers
+
+    CONHECIMENTO DO SQUAD:
+    - Voce recebe learnings aprovados pelo squad lead antes da execucao
+    - Use esses learnings para informar sua analise
+
+
+# =============================================================================
+# RAG STACKS INTEGRATION (2026-02-01)
+# =============================================================================
+# RAG stacks for code refinement and improvement suggestions
+rag_stacks:
+  self_rag:
+    enabled: true
+    priority: 1
+    use_cases:
+      - "Retrieve proven refactoring patterns"
+      - "Find clean code examples"
+      - "Query naming conventions"
+    parameters:
+      critique_response: true
+      min_confidence: 0.7
+
+  colbert:
+    enabled: true
+    priority: 2
+    use_cases:
+      - "Find similar code patterns"
+      - "Match refactoring opportunities"
+      - "Locate duplicated code"
+    parameters:
+      top_k: 10
+
+  qdrant_hybrid:
+    enabled: true
+    priority: 3
+    use_cases:
+      - "Search refactoring documentation"
+      - "General pattern search"
+    parameters:
+      collection_name: "refactoring"
+      top_k: 5
+
+  corrective_rag:
+    enabled: false
+    reason: "Bug finding delegated to auditor"
+
+  graphrag:
+    enabled: false
+    reason: "Dependency mapping not primary concern"
+
+  memo_rag:
+    enabled: false
+    reason: "Worker receives context from squad memory"
+
+  raptor_rag:
+    enabled: false
+    reason: "Hierarchical docs not needed for refinement"
+
+  awareness_prompt: |
+    RAG STACKS: Voce tem acesso a 3 RAG stacks para refinamento de codigo.
+    PRIORIDADE: Self-RAG > ColBERT > Qdrant
+    Use Self-RAG para buscar padroes de refatoracao de alta qualidade.
+    Use ColBERT para encontrar codigo duplicado ou similar.
+    REFINADOR: foque em qualidade, nao em bugs (isso e do auditor).
+
+# =============================================================================
+# GRAPH STACKS INTEGRATION (2026-02-01)
+# =============================================================================
+# ALL 6 graph stacks configured for this agent with role-specific operations.
+# Access via GraphStackOrchestrator with FAIL-CLOSED pattern.
+graph_stacks:
+  # FalkorDB - Knowledge graph for evidence and relationships
+  falkordb_enabled: true
+  falkordb_operations:
+    - "traverse"
+    - "execute_optimized"
+
+  # Neo4j Enhanced - Vector search and GDS algorithms
+  neo4j_enabled: true
+  neo4j_operations:
+    - "similarity_search"
+    - "create_vector_index"
+
+  # Neo4j Algorithms - PageRank, community detection, clustering
+  neo4j_algorithms_enabled: true
+  neo4j_algorithms_operations:
+    - "run_pagerank"
+
+  # Neo4j Analytics - Advanced claim/source analysis
+  neo4j_analytics_enabled: true
+  neo4j_analytics_operations:
+    - "trace_claim_propagation"
+
+  # GoT Enhanced - Multi-path reasoning and thought graphs
+  got_enabled: true
+  got_operations:
+    - "analyze_multi_perspective"
+    - "build_reasoning_graph"
+    - "aggregate_thoughts"
+
+  # Graphiti - Temporal knowledge graph for facts over time
+  graphiti_enabled: true
+  graphiti_operations:
+    - "query_temporal"
+    - "get_fact_history"
+    - "get_active_facts"
